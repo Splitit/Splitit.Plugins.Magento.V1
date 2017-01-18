@@ -28,9 +28,13 @@ class PayItSimple_Payment_Block_Form_Pis extends Mage_Payment_Block_Form_Cc
         $selectInstallmentSetup = Mage::getStoreConfig('payment/pis_cc/select_installment_setup');
         $installmentsInDropdown = [];
         $options = Mage::getModel('pis_payment/source_installments')->toOptionArray();
+        $below100 = 0;
+        $depandOnCart = 0;
         if($totalAmount < 100){
             $installments[] = "Splitit only support amount more than 100";
+            $below100 = 1;
         }else{
+            
             if($selectInstallmentSetup == "fixed"){ // Select Fixed installment setup
             
                 $fixedInstallments = Mage::getStoreConfig('payment/pis_cc/fixed_installment');
@@ -43,7 +47,7 @@ class PayItSimple_Payment_Block_Form_Pis extends Mage_Payment_Block_Form_Cc
                 }
                 
             }else{ // Select Depanding on cart installment setup
-                      
+                    $depandOnCart = 1;  
                     $depandingOnCartInstallments = Mage::getStoreConfig('payment/pis_cc/depanding_on_cart_total_values');
                     $depandingOnCartInstallmentsArr = json_decode($depandingOnCartInstallments);
                     $dataAsPerCurrency = [];
@@ -81,6 +85,9 @@ class PayItSimple_Payment_Block_Form_Pis extends Mage_Payment_Block_Form_Cc
 
 
         }   
+        if($below100 == 0 && $depandOnCart == 1 && count($installments) == 0){
+            $installments[] = "Installments are not available.";
+        }
         // set how much installments to be show in checkout page dropdown
         Mage::getSingleton('core/session')->setInstallmentsInDropdown($installmentsInDropdown);
         

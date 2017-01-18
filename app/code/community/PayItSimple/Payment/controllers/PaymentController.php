@@ -18,6 +18,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         
         $storeId = Mage::app()->getStore()->getStoreId();
         $api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
+        
         $installmentsInDropdown = [];
         $response = [
                         "status" => false,
@@ -104,7 +105,10 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         if ($api->isLogin()){
             $response["status"] = true;
         }else{
-            $response["error"] = $api->getError();
+            foreach ($api->getError() as $key => $value) {
+                $response["error"] .= $value." ";    
+            }
+            
         }
         echo $jsonData = Mage::helper('core')->jsonEncode($response);
         //echo $jsonData = json_encode($response);
@@ -133,7 +137,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         }
         $api = Mage::getSingleton("pis_payment/pisMethod");
         $splititSessionId = Mage::getSingleton('core/session')->getSplititSessionid();
-
+$result = Mage::getSingleton("pis_payment/pisMethod")->installmentplaninit($api, $selectedInstallment);
         if ($splititSessionId != ""){
             $result = Mage::getSingleton("pis_payment/pisMethod")->installmentplaninit($api, $selectedInstallment);
             if($result["status"]){
@@ -142,7 +146,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
             
         }else{
             
-            $response["data"] = $api->getError();
+            $response["data"] = "703 - Session is not valid";
         }
         
 

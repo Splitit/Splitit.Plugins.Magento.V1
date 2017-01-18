@@ -4,6 +4,8 @@ jQuery(document).ready(function(){
 	var baseUrl = curUrl.substring(0, curUrl.indexOf('checkout'));
 	var samePayment = "";
 	var numOfInstallmentsResponse = 0;
+	var isLogedIn = 0;
+	
 
 	jQuery(document).on("click", "#payment-schedule-link", function(){
 		jQuery("#approval-popup").addClass("overflowHidden");
@@ -64,7 +66,7 @@ jQuery(document).ready(function(){
 			jQuery("#payment-buttons-container button").attr("onclick","");
 			getNumOfInstallments();	
 		}
-		isAlreadyClickInFormFields = 1;
+		
 		
     	
     });
@@ -77,7 +79,7 @@ jQuery(document).ready(function(){
 
 	function getNumOfInstallments(){
 		var selectedInstallment = jQuery("#pis_cc_installments_no").val();
-		
+		jQuery("body").find(".pis-login-loader").show();
 		jQuery.ajax({
 	        url : baseUrl+"payitsimple/payment/apiLogin/",
 	        type : 'POST',
@@ -95,15 +97,19 @@ jQuery(document).ready(function(){
 	               		jQuery("#pis_cc_installments_no option:nth-child(2)").attr("value", "");
 	               }*/
 	               numOfInstallmentsResponse = 1;
+	               isAlreadyClickInFormFields = 1;
+	               isLogedIn = 1;
 	            }else {
+	            	isLogedIn = 0;
 	            	alert(obj.error);
 	             //showAjaxMessage(test.message,"danger");
 	            }
 	            samePayment = jQuery("#payment-buttons-container button").attr("onclick");
 	            jQuery("#payment-buttons-container button").attr("onclick","");
+	            jQuery("body").find(".pis-login-loader").hide();
 
 	        },
-	        async:false
+	        //async:false
 	    });
 	}
     // Run when user click on continue button after filling all Credit card details
@@ -128,27 +134,45 @@ jQuery(document).ready(function(){
 		    		alert("Please select Number of Installments");
 		    		return;
 		    	}
-		    	jQuery.ajax({
-			        url : baseUrl+"payitsimple/payment/installmentplaninit/",
-			        type : 'POST',
-			        dataType:'json',
-			        data:{"selectedInstallment":selectedInstallment},
-			        success : function(obj){	        	
-			        	
-			            if (obj.status == true) {
-			            	jQuery("#approval-popup").remove();
-			            	jQuery('body').append(obj.data);
-			            	
+		    	var selectedText = jQuery("#pis_cc_installments_no option:selected").text();
+				var instNotAvail = "Installments are not available.";
+				var supportLessThan100 = "Splitit only support amount more than 100";
+				if(selectedText === instNotAvail){
+					jQuery("#payment-please-wait").hide();
+		    		alert(instNotAvail);
+		    		return;	
+				}
+				if(selectedText === supportLessThan100){
+					jQuery("#payment-please-wait").hide();
+		    		alert(supportLessThan100);
+		    		return;		
+				}
+		    	if(isLogedIn){
+		    		jQuery.ajax({
+				        url : baseUrl+"payitsimple/payment/installmentplaninit/",
+				        type : 'POST',
+				        dataType:'json',
+				        data:{"selectedInstallment":selectedInstallment},
+				        success : function(obj){	        	
+				        	
+				            if (obj.status == true) {
+				            	jQuery("#approval-popup").remove();
+				            	jQuery('body').append(obj.data);
+				            	
 
-			            }else {
-			            	alert(obj.data);
-			             
-			            }
-			            jQuery("#payment-please-wait").hide();
-			            
+				            }else {
+				            	alert(obj.data);
+				             
+				            }
+				            jQuery("#payment-please-wait").hide();
+				            
 
-			        }
-			    });
+				        }
+				    });
+		    	}else{
+		    		jQuery("#payment-please-wait").hide();
+		    	}
+		    	
 	    	 }else{
 				return;
 	    	 }

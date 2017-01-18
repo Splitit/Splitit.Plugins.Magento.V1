@@ -29,12 +29,16 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
         if ($result) {
             $this->_sessionId = (isset($result['SessionId']) && $result['SessionId'] != '') ? $result['SessionId'] : null;
             if (is_null($this->_sessionId)){
-                $this->setError(self::ERROR_UNKNOWN, 'Unable get API SessionId');
+                $gatewayErrorCode = $result["ResponseHeader"]["Errors"][0]["ErrorCode"];
+                $gatewayErrorMsg = $result["ResponseHeader"]["Errors"][0]["Message"];
+
+                $this->setError($gatewayErrorCode, $gatewayErrorMsg);
                 return false;
             }
             $this->_gwUrl = $gwUrl;
             $this->_apiTerminalKey = $params['ApiKey'];
             // set Splitit session id into session
+
             Mage::getSingleton('core/session')->setSplititSessionid($this->_sessionId);
         }
         return $result;
@@ -47,20 +51,7 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
         return (!is_null($this->_sessionId));
     }
 
-    /**
-     * @param array $params
-     *
-     * @return array|bool
-     */
-    public function createInstallmentPlan_old(array $params)
-    {
-        if (!$this->isLogin()) {
-            $this->setError(self::ERROR_UNKNOWN, __FUNCTION__ . ' method required Login action first.');
-            return false;
-        }
-        return $this->makeRequest($this->_gwUrl, ucfirst(__FUNCTION__), array_merge($params, array('ApiKey' => $this->_apiTerminalKey, 'SessionId' => $this->_sessionId)));
-    }
-
+    
     public function createInstallmentPlan($url, array $params)
     {
         if (Mage::getSingleton('core/session')->getSplititSessionid() == "") {
@@ -198,20 +189,6 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
         $this->_error = array('code' => $errorCode, 'message' => $errorMsg);
     }
 
-    public function getInstallmentPlanStatusList()
-    {
-        return array(
-            1 => 'Pending Terms and Conditions approval',
-            2 => 'Pending for Shipping',
-            3 => 'In process',
-            4 => 'Installment plan finished',
-            5 => 'Plan cancelled by the customer (during the wizard)',
-            6 => 'Installment plan finished and cleared by Splitit',
-            7 => 'Pending customer credit card replacement',
-            8 => 'Plan frozen (only authorizations continues)',
-            9 => 'Plan cancelled by the merchant or by Splitit',
-        );
-    }
 
     public function getCcTypesAvailable()
     {
@@ -224,46 +201,6 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
         );
     }
 
-    public function getGatewayError($code = null)
-    {
-        $errors = array(
-            0 => 'The operation completed successfully',
-            4 => 'The operation was denied',
-            501 => 'Invalid Credentials',
-            502 => 'Invalid Installment Plan Number',
-            503 => 'Invalid Installment Plan Status',
-            504 => 'Card type not supported',
-            505 => 'Invalid Number of Installments',
-            506 => 'Invalid Amount Format',
-            508 => 'Invalid Country Code',
-            509 => 'Invalid Response URL',
-            510 => 'Invalid Card holder Name',
-            511 => 'Invalid Amount',
-            520 => 'Invalid CVV',
-            521 => 'Invalid Card Number',
-            522 => 'Invalid Expiration Date ',
-            523 => 'Invalid Consumer Full Name ',
-            524 => 'Invalid Email Format',
-            525 => 'Invalid Address ',
-            526 => 'Invalid ZIP Code ',
-            527 => 'Card bin not supported ',
-            528 => 'Card issue country not supported',
-            599 => 'General Error Occurred',
-            600 => 'Gateway failed to process request',
-            601 => 'Invalid ZIP Code ',
-            602 => 'Invalid Address ',
-            603 => 'Invalid CVV',
-            604 => 'Invalid Expiration Date ',
-            606 => 'Invalid Address or Zip',
-            607 => 'Invalid card number',
-            608 => 'Problem with card',
-            609 => 'Insufficient funds',
-            610 => 'Credit card was declined',
-            630 => 'Failed to connect to gateway',
-            640 => 'Problem with merchant details on gateway',
-        );
-        return (is_null($code)) ? $errors : $errors[$code];
-    }
 
     public function getValidNumberOfInstallments(){
         if (!$this->isLogin()) {

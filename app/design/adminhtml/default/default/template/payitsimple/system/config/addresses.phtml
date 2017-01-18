@@ -27,6 +27,7 @@ jQuery(document).ready(function(){
       var percentageFlag = 0;
       var overlaps = 0;
       var fromBigger = 0;
+      var hasGap = 0;
     
       // validation for depanding on cart
       // $(this).unbind('click');
@@ -92,6 +93,13 @@ jQuery(document).ready(function(){
               jQuery(this).find(".doctv_to").css("border","1px solid red");
               flag1++;
               overlaps++;
+            }
+            // check if there is gap between previous to and next from
+            if((fromToArr[j]["to"]+1) != fromToArr[j+1]["from"]){
+              jQuery(this).find(".doctv_from").css("border","1px solid red");
+              jQuery(this).find(".doctv_to").css("border","1px solid red");
+              flag1++;
+              hasGap++;  
             }  
           }
         }
@@ -131,6 +139,8 @@ jQuery(document).ready(function(){
         else if(percentageFlag){
           jQuery("#payment_pis_cc_percentage_of_order").css("border","1px solid red");
           alert("Please enter Percentage of order % <= 50");
+        }else if(hasGap){
+          alert("There should not be Gap between To and From amounts.");
         }else{
           alert('Please fill the required fields in Splitit section "Depending on cart total"');  
         }

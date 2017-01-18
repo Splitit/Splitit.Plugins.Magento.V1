@@ -1,3 +1,6 @@
+<style type="text/css">
+	.cart-collaterals .cart-installment{text-align: right!important;display: block;margin-right: 15px;}
+</style>
 <div class="sip_splitprice">
 <?php  
 	$current_url = $this->helper('core/url')->getCurrentUrl();
@@ -34,7 +37,7 @@
 			}
 			
 		}
-		echo "$".$segment." x ".$divider." ".$text; 	
+		echo "<span class='cart-installment' >$".$segment." x ".$divider." ".$text."</span>"; 	
 	} else {
 		if($current_page == "cart" || $current_page=="checkout"){
 			echo $this->getChildHtml('child');
