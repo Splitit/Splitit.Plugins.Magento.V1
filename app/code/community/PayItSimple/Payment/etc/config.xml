@@ -32,6 +32,15 @@
                     </sip_payment_splitprice>
                 </observers>
             </core_block_abstract_to_html_before>
+            <payment_method_is_active>
+                <observers>
+                    <sip_payment_payment_method_is_active>
+                        <type>singleton</type>
+                        <class>pis_payment/observer</class>
+                        <method>paymentMethodIsActive</method>
+                    </sip_payment_payment_method_is_active>
+                </observers>
+            </payment_method_is_active>
         </events>
     </frontend>
     <admin>
@@ -63,6 +72,7 @@
             </sales_convert_quote_payment>
         </fieldsets>
         <models>
+            
             <pis_payment>
                 <class>PayItSimple_Payment_Model</class>
                 <resourceModel>pis_payment_mysql4</resourceModel>
@@ -127,6 +137,7 @@
                 <centinel>0</centinel>
                 <useccv>1</useccv>
                 <centinel_is_mode_strict>0</centinel_is_mode_strict>
+                <installment_price_text>No interest</installment_price_text>
             </pis_cc>
         </payment>
     </default>

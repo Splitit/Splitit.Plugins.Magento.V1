@@ -2,10 +2,10 @@
     table.splitit td{ max-width: 120px; padding:0 8px; }
     table.splitit td input, table.splitit td select{max-width: 100%; min-width: initial;}
     #row_payment_pis_cc_addresses td.grid,
-    #row_payment_pis_cc_fixed_installment td.value{position: relative;}
+    #row_payment_pis_cc_available_installments td.value{position: relative;}
     .tiers_table_overlay,
     .tiers_table_overlay2{position: absolute; width:100%; height: 100%; top: 0; left: 0; background: rgba(255,255,255,0.8); z-index: 999; display: none;}
-    #payment_pis_cc_fixed_installment + .tiers_table_overlay2 {display: block;}
+    #payment_pis_cc_available_installments + .tiers_table_overlay2 {display: block;}
 </style>
 
 
@@ -152,24 +152,24 @@ jQuery(document).ready(function(){
     });
 
     // show overlay for depending on the cart and fixed installment
-    jQuery("#payment_pis_cc_fixed_installment").closest("td").append("<div class='tiers_table_overlay2'></div>");
+    jQuery("#payment_pis_cc_available_installments").closest("td").append("<div class='tiers_table_overlay2'></div>");
 
     var checkDefaulOption =  jQuery("#payment_pis_cc_select_installment_setup").val();
     if(checkDefaulOption == 'fixed'){         
-        jQuery("#payment_pis_cc_fixed_installment").closest("td").find(".tiers_table_overlay2").hide();
+        jQuery("#payment_pis_cc_available_installments").closest("td").find(".tiers_table_overlay2").hide();
             jQuery("#tiers_table").closest("td").find(".tiers_table_overlay").show();
         }else{ 
-            jQuery("#payment_pis_cc_fixed_installment").closest("td").find(".tiers_table_overlay2").show();
+            jQuery("#payment_pis_cc_available_installments").closest("td").find(".tiers_table_overlay2").show();
             jQuery("#tiers_table").closest("td").find(".tiers_table_overlay").hide();
         }
 
     jQuery("#payment_pis_cc_select_installment_setup").on("change", function(){
         var checkOption = jQuery(this).val();
         if(checkOption == 'fixed'){
-            jQuery("#payment_pis_cc_fixed_installment").closest("td").find(".tiers_table_overlay2").hide();
+            jQuery("#payment_pis_cc_available_installments").closest("td").find(".tiers_table_overlay2").hide();
             jQuery("#tiers_table").closest("td").find(".tiers_table_overlay").show();
         }else{
-            jQuery("#payment_pis_cc_fixed_installment").closest("td").find(".tiers_table_overlay2").show();
+            jQuery("#payment_pis_cc_available_installments").closest("td").find(".tiers_table_overlay2").show();
             jQuery("#tiers_table").closest("td").find(".tiers_table_overlay").hide();            
         }
     })
