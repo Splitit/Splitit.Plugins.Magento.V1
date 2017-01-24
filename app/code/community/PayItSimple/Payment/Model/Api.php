@@ -29,10 +29,15 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
         if ($result) {
             $this->_sessionId = (isset($result['SessionId']) && $result['SessionId'] != '') ? $result['SessionId'] : null;
             if (is_null($this->_sessionId)){
-                $gatewayErrorCode = $result["ResponseHeader"]["Errors"][0]["ErrorCode"];
-                $gatewayErrorMsg = $result["ResponseHeader"]["Errors"][0]["Message"];
+                if(isset($result["serverError"])){
+                    $this->getError();
+                }else{
+                    $gatewayErrorCode = $result["ResponseHeader"]["Errors"][0]["ErrorCode"];
+                    $gatewayErrorMsg = $result["ResponseHeader"]["Errors"][0]["Message"];
 
-                $this->setError($gatewayErrorCode, $gatewayErrorMsg);
+                    $this->setError($gatewayErrorCode, $gatewayErrorMsg);    
+                }
+                
                 return false;
             }
             $this->_gwUrl = $gwUrl;
@@ -242,6 +247,12 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
         
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        // check for curl error eg: splitit server down.
+        if(curl_errno($ch)){
+            //echo 'Curl error: ' . curl_error($ch);
+            $result["serverError"] = $this->getServerDownMsg();
+            return $result = Mage::helper('core')->jsonEncode($result);
+        }
         curl_close($ch);
         return $result;
     }   
@@ -264,7 +275,19 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
         
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        // check for curl error eg: splitit server down.
+        if(curl_errno($ch)){
+            //echo 'Curl error: ' . curl_error($ch);
+            $this->setError($code, $this->getServerDownMsg());
+            curl_close($ch);
+            $result["serverError"] = $this->getServerDownMsg();
+            return $result = Mage::helper('core')->jsonEncode($result);
+        }
         curl_close($ch);
         return $result;
+    }
+
+    public function getServerDownMsg(){
+        return "Failed to connect to splitit payment server. Please retry again later.";
     }
 }

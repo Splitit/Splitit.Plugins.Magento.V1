@@ -137,7 +137,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         }
         $api = Mage::getSingleton("pis_payment/pisMethod");
         $splititSessionId = Mage::getSingleton('core/session')->getSplititSessionid();
-$result = Mage::getSingleton("pis_payment/pisMethod")->installmentplaninit($api, $selectedInstallment);
+
         if ($splititSessionId != ""){
             $result = Mage::getSingleton("pis_payment/pisMethod")->installmentplaninit($api, $selectedInstallment);
             if($result["status"]){

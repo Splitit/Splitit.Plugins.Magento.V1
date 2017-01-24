@@ -72,12 +72,21 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         // show error if there is any error from spliti it when click on place order
         if(!$result["ResponseHeader"]["Succeeded"]){
             $errorMsg = "";
-            foreach ($result["ResponseHeader"]["Errors"] as $key => $value) {
+            if(isset($result["serverError"])){
+                $errorMsg = $result["serverError"];
+                Mage::throwException(
+                    Mage::helper('payment')->__($errorMsg)
+                ); 
+                 
+            }else{
+                foreach ($result["ResponseHeader"]["Errors"] as $key => $value) {
                 $errorMsg .= $value["ErrorCode"]." : ".$value["Message"];
+                }
+                Mage::throwException(
+                    Mage::helper('payment')->__($errorMsg)
+                );         
             }
-            Mage::throwException(
-                Mage::helper('payment')->__($errorMsg)
-            );     
+            
         }
         
         $payment->setTransactionId($result['InstallmentPlan']['InstallmentPlanNumber']);
@@ -176,11 +185,13 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         }
         $params = array_merge($params, array("RequestHeader"=> array('SessionId' => $sessionId)));
         $result = $api->startInstallment($this->getApiUrl(), $params);
+        $result = Mage::helper('core')->jsonDecode($result);
         $this->debugData('REQUEST: ' . $api->getRequest());
         $this->debugData('RESPONSE: ' . $api->getResponse());
         if (!$result) {
             $e = $api->getError();
             $errorMsg = "";
+            
             $errorCode = 503;
             $isErrorCode503Found = 0;
             foreach ($result["ResponseHeader"]["Errors"] as $key => $value) {
@@ -189,9 +200,14 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                     $isErrorCode503Found = 1;
                     break;
                 }
-            }
+            }    
+            
+            
             if($isErrorCode503Found == 0)
                 Mage::throwException($errorMsg."  ".$e['code'].' '.$e['message']);
+        }elseif(isset($result["serverError"])){
+                $errorMsg = $result["serverError"];
+                Mage::throwException($errorMsg);
         }
 
         $payment->setIsTransactionClosed(1);
@@ -225,7 +241,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                 "AreTermsAndConditionsApproved" => "True"
             ],
         ];
-        $result = $api->createInstallmentPlan($this->getApiUrl(),$params);  
+        $result = $api->createInstallmentPlan($this->getApiUrl(),$params);
         if (!$result){
             $e = $api->getError();
             Mage::throwException($e['code'].' '.$e['message']);
@@ -261,8 +277,13 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         $api["error"] = "";
         if (!$result || !$api->isLogin()){
             $e = $api->getError();
-
-            //Mage::throwException($e['code'].' '.$e['message']);
+            // check for request from admin create invoice
+            if(Mage::app()->getRequest()->getControllerName() == "sales_order_invoice"){
+                Mage::throwException($e['code'].' '.$e['message']);
+            }
+            
+        }else if(isset($result["serverError"])){
+            Mage::throwException($result["serverError"]);
         }
         return $api;
     }
@@ -394,6 +415,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                             $i++;
                         }
                         $response["data"] = $errorMsg;
+                    }else if(isset($approvalUrlRes["serverError"])){
+                        $response["data"] = $decodedResult["serverError"];
                     }else{
                         $popupHtml = $this->createPopupHtml($approvalUrlResponse);
                         $response["status"] = true;
@@ -414,6 +437,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                     }
 
                     $response["data"] = $errorMsg;
+                }else if(isset($decodedResult["serverError"])){
+                    $response["data"] = $decodedResult["serverError"];
                 }
                 
         }catch(Exception $e){
