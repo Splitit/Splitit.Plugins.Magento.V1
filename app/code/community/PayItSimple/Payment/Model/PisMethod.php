@@ -263,13 +263,22 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         if ($api->isLogin()) {
             return $api;
         }
+        // get magento version
+        $m= new Mage;
+        $version=$m->getVersion();
+
+        if($version >= 1.9){
+            $touchPointVersion = "M1.9S2.0";
+        }elseif($version >= 1.8){
+            $touchPointVersion = "M1.8S2.0";
+        }
         $result = $api->login(
             $this->getApiUrl(),
             array(
                 //'ApiKey' => $this->getConfigData('api_terminal_key', $storeId),
                 'UserName' => $this->getConfigData('api_username'),
                 'Password' => $this->getConfigData('api_password'),
-                'TouchPoint'=>array("Code" => "MagentoPlugin","Version" => "2.0")
+                'TouchPoint'=>array("Code" => "MagentoPlugin","Version" => $touchPointVersion)
             )
         );
         $this->debugData('REQUEST: ' . $api->getRequest());
