@@ -293,12 +293,34 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
     }
 
     public function getApiUrl() {
+        
         if ($this->getConfigData('sandbox_flag')) {
+            $this->deleteUrls('api_url_sandbox');
             return $this->getConfigData('api_url_sandbox');
         }
+        $this->deleteUrls('api_url');
         return $this->getConfigData('api_url');
     }
 
+    public function deleteUrls($path){
+        $read = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $write = Mage::getSingleton('core/resource')->getConnection('core_write');
+        //$result = $read->query("SELECT * FROM `core_config_data` WHERE path='payment/pis_cc/api_url_sandbox'");
+        $result = $read->query("SELECT * FROM `core_config_data` WHERE path='".$path."'");
+        $row = $result->fetch();
+        if(count($result)){
+            $transaction = Mage::getSingleton('core/resource')->getConnection('core_write');
+            try {
+                $transaction->beginTransaction();
+                $transaction->query('DELETE FROM `core_config_data` WHERE path like  "%'.$path.'%"');
+                $transaction->commit();
+            } catch (Exception $e) {
+                $transaction->rollBack();
+            }
+        }
+        
+        
+    }
     
 
     public function getValidNumberOfInstallments($api){
