@@ -1,11 +1,15 @@
+var numOfInstallmentsResponse = 0;
+var isLogedIn = 0;
+var isLoging = 0;
+var curUrl      = window.location.href; 
+var baseUrl = curUrl.substring(0, curUrl.indexOf('checkout'));
 jQuery(document).ready(function(){
 
-	var curUrl      = window.location.href; 
-	var baseUrl = curUrl.substring(0, curUrl.indexOf('checkout'));
-	var samePayment = "";
-	var numOfInstallmentsResponse = 0;
-	var isLogedIn = 0;
 	
+	
+	var samePayment = "";
+	
+	baseUrl = jQuery("#payment-img").attr("data-baseurl");
 
 	jQuery(document).on("click", "#payment-schedule-link", function(){
 		jQuery("#approval-popup").addClass("overflowHidden");
@@ -51,11 +55,11 @@ jQuery(document).ready(function(){
 
     jQuery(document).on('click','#checkout-payment-method-load input[type="radio"]',function(e){
     	if(jQuery(this).attr("id") == 'p_method_pis_cc'){
-    		jQuery("#payment-buttons-container button").attr("onclick","");
+    		//jQuery("#payment-buttons-container button").attr("onclick","");
     		getNumOfInstallments();
     	}
     	else{
-    		jQuery("#payment-buttons-container button").attr("onclick","payment.save();");
+    		//jQuery("#payment-buttons-container button").attr("onclick","payment.save();");
     	}
     })
 	var isAlreadyClickInFormFields = 0;
@@ -63,7 +67,7 @@ jQuery(document).ready(function(){
 		
 
 		if(isAlreadyClickInFormFields == 0){
-			jQuery("#payment-buttons-container button").attr("onclick","");
+			//jQuery("#payment-buttons-container button").attr("onclick","");
 			getNumOfInstallments();	
 		}
 		
@@ -80,6 +84,7 @@ jQuery(document).ready(function(){
 	function getNumOfInstallments(){
 		var selectedInstallment = jQuery("#pis_cc_installments_no").val();
 		jQuery("body").find(".pis-login-loader").show();
+		jQuery("body").find(".terms-condition-loader").hide();
 		jQuery.ajax({
 	        url : baseUrl+"payitsimple/payment/apiLogin/",
 	        type : 'POST',
@@ -104,86 +109,14 @@ jQuery(document).ready(function(){
 	            	alert(obj.error);
 	             //showAjaxMessage(test.message,"danger");
 	            }
-	            samePayment = jQuery("#payment-buttons-container button").attr("onclick");
-	            jQuery("#payment-buttons-container button").attr("onclick","");
+	            //samePayment = jQuery("#payment-buttons-container button").attr("onclick");
+	            //jQuery("#payment-buttons-container button").attr("onclick","");
 	            jQuery("body").find(".pis-login-loader").hide();
 
 	        },
 	        //async:false
 	    });
 	}
-    // Run when user click on continue button after filling all Credit card details
-    
-    jQuery("#payment-buttons-container button").click(function(){
-    	 if(jQuery('#p_method_pis_cc').is(':checked')){
-
-
-	    	 var paymentForm = new VarienForm('co-payment-form');
-	    	 jQuery("#payment-buttons-container button").attr("onclick","");// remove onlick attribute on continue button of payment section
-	    	 if(paymentForm.validator.validate()){ // validate payment form
-	    	 	//var checkNewDropDown = jQuery(".number-of-installments").length;
-		    	jQuery("#payment-please-wait").show();// show loader in payment section
-
-		    	if(numOfInstallmentsResponse == 0 /*||  checkNewDropDown == 0*/){
-		    		getNumOfInstallments();
-		    	}
-
-		    	var selectedInstallment = jQuery("#pis_cc_installments_no").val();
-		    	if(selectedInstallment == ""){
-		    		jQuery("#payment-please-wait").hide();
-		    		alert("Please select Number of Installments");
-		    		return;
-		    	}
-		    	var selectedText = jQuery("#pis_cc_installments_no option:selected").text();
-				var instNotAvail = "Installments are not available.";
-				var supportLessThan100 = "Splitit only support amount more than 100";
-				if(selectedText === instNotAvail){
-					jQuery("#payment-please-wait").hide();
-		    		alert(instNotAvail);
-		    		return;	
-				}
-				if(selectedText === supportLessThan100){
-					jQuery("#payment-please-wait").hide();
-		    		alert(supportLessThan100);
-		    		return;		
-				}
-		    	if(isLogedIn){
-		    		jQuery.ajax({
-				        url : baseUrl+"payitsimple/payment/installmentplaninit/",
-				        type : 'POST',
-				        dataType:'json',
-				        data:{"selectedInstallment":selectedInstallment},
-				        success : function(obj){	        	
-				        	
-				            if (obj.status == true) {
-				            	jQuery("#approval-popup").remove();
-				            	jQuery('body').append(obj.data);
-				            	
-
-				            }else {
-				            	alert(obj.data);
-				             
-				            }
-				            jQuery("#payment-please-wait").hide();
-				            
-
-				        }
-				    });
-		    	}else{
-		    		jQuery("#payment-please-wait").hide();
-		    	}
-		    	
-	    	 }else{
-				return;
-	    	 }
-    	}else{
-    		jQuery("#payment-buttons-container button").attr("onclick","payment.save()");
-    	}
-
-    	
-    });
-
-    
     
 
 });
@@ -191,7 +124,9 @@ jQuery(document).ready(function(){
 function paymentSave(){
     if(jQuery('#i_acknowledge').is(":checked")){
     	jQuery(".approval-popup_ovelay").hide();
-		eval(payment.save());
+    	// check term checkbox which is hidden
+    	jQuery(".terms-conditions div").remove();
+		jQuery('#pis_cc_terms').prop('checked', true);
 		jQuery("#approval-popup").hide();	
     }else{
     	jQuery(".i_ack_err").show();
@@ -205,9 +140,59 @@ function closeApprovalPopup(){
 	jQuery("#approval-popup, .approval-popup_ovelay").hide();
 }
 
-// function showPaymentSchedule{
+// on click Approve Terms and Conditions button
+function installmentPlanInit(){
+	jQuery("body").find(".terms-condition-loader").css('display', 'inline-block');// show loader of Approve Terms and Conditions button
+	// check if splitit login or not
+	if(numOfInstallmentsResponse == 0 /*||  checkNewDropDown == 0*/){
+		getNumOfInstallments();
+	}
+	var selectedInstallment = jQuery("#pis_cc_installments_no").val();
+	if(selectedInstallment == ""){
+		jQuery("body").find(".terms-condition-loader").hide();
+		alert("Please select Number of Installments");
+		return;
+	}
+	var selectedText = jQuery("#pis_cc_installments_no option:selected").text();
+	var instNotAvail = "Installments are not available.";
+	var supportLessThan100 = "Splitit only support amount more than 100";
+	if(selectedText === instNotAvail){
+		jQuery("body").find(".terms-condition-loader").hide();
+		alert(instNotAvail);
+		return;	
+	}
+	if(selectedText === supportLessThan100){
+		jQuery("body").find(".terms-condition-loader").hide();
+		alert(supportLessThan100);
+		return;		
+	}
+	// uncheck term checkbox which is hidden
+	jQuery('#pis_cc_terms').prop('checked', false);
+	if(isLogedIn){
+		jQuery.ajax({
+	        url : baseUrl+"payitsimple/payment/installmentplaninit/",
+	        type : 'POST',
+	        dataType:'json',
+	        data:{"selectedInstallment":selectedInstallment},
+	        success : function(obj){	        	
+	        	
+	            if (obj.status == true) {
+	            	jQuery("#approval-popup").remove();
+	            	jQuery('body').append(obj.data);
 
-// }
+	            }else {
+	            	alert(obj.data);
+	             
+	            }
+	            jQuery("body").find(".terms-condition-loader").hide();
+	            
+
+	        }
+	    });
+	}else{
+		jQuery("body").find(".terms-condition-loader").hide();
+	}
+}
 
 
 

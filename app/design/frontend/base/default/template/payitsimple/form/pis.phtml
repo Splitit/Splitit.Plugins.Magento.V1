@@ -71,14 +71,17 @@
             </select>
         </div>
     </li>
-    <?php /*
     <li>
-        <input style="float: left; margin-right: 5px; margin-top: 2px;" type="checkbox" id="<?php echo $_code ?>_terms" name="payment[terms]" class="required-entry" value="1" />
-        <label for="<?php echo $_code ?>_terms" class="required">
+        <span class="apr-tc" onclick="installmentPlanInit()">Approve Terms and Conditions</span>
+        <span class="terms-condition-loader"><img src="<?php echo Mage::getBaseUrl('js').'payitsimple/payitsimplepament/opc-ajax-loader.gif' ?>" /></span>
+    </li>
+    <li class="terms-conditions">
+        <input style="visibility: hidden;float: left; margin-right: 5px; margin-top: 2px;" type="checkbox" id="<?php echo $_code ?>_terms" name="" class="required-entry" value="1" />
+        <label for="<?php echo $_code ?>_terms" class="required" style="visibility: hidden;">
             <em>*</em><?php echo $this->__('I acknowledge that I have read and agree to the %s terms and conditions %s','<a href="#" style="float:none; margin-left:0px;" onclick="popWin(\'' . 'http://www.splitit.com/legal/customers-terms-and-conditions/' . "', 'terms and conditions', 'width=750,height=607,left=0,top=0,location=no,status=no,scrollbars=yes,resizable=no'); return false;\">",'</a>') ?>
         </label>
     </li>
-    */ ?>
+    
 
 <li>
     <div align="center">

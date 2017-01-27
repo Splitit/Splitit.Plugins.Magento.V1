@@ -425,6 +425,13 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         //$api = Mage::getSingleton("pis_payment/pisMethod");
         try{
                 $response = ["status"=>false, "data" => ""];
+                // check if cunsumer dont filled data
+                if($billAddress->getStreet()[0] == "" || $billAddress->getCity() == "" || $billAddress->getPostcode() == "" || $customerInfo["firstname"] == "" || $customerInfo["lastname"] == "" || $customerInfo["email"] == "" || $billAddress->getTelephone() == ""){
+                    $response["data"] = "Please fill required fields.";    
+                    return $response;
+                }
+
+
                 $result = Mage::getSingleton("pis_payment/api")->installmentplaninit($this->getApiUrl(), $params);
                 // check for approval URL from response
                 $decodedResult = Mage::helper('core')->jsonDecode($result);
