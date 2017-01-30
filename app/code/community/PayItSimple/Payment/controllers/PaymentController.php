@@ -142,6 +142,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
             $result = Mage::getSingleton("pis_payment/pisMethod")->installmentplaninit($api, $selectedInstallment);
             if($result["status"]){
                 $response["status"] = true;
+                $response["data"] = $result["data"];
             }
             
         }else{
@@ -150,7 +151,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         }
         
 
-        $response["data"] = $result["data"];
+        
         echo $jsonData = Mage::helper('core')->jsonEncode($response);   
         return ;
     }

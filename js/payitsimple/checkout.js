@@ -2,7 +2,7 @@ var numOfInstallmentsResponse = 0;
 var isLogedIn = 0;
 var isLoging = 0;
 var curUrl      = window.location.href; 
-var baseUrl = curUrl.substring(0, curUrl.indexOf('checkout'));
+var baseUrl = "";
 jQuery(document).ready(function(){
 
 	
@@ -10,6 +10,10 @@ jQuery(document).ready(function(){
 	var samePayment = "";
 	
 	baseUrl = jQuery("#payment-img").attr("data-baseurl");
+	if(typeof baseUrl === 'undefined'){
+		baseUrl = curUrl.substring(0, curUrl.indexOf('checkout'));
+	}
+
 
 	jQuery(document).on("click", "#payment-schedule-link", function(){
 		jQuery("#approval-popup").addClass("overflowHidden");
