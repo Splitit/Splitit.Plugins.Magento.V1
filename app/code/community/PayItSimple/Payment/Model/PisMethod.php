@@ -427,6 +427,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                 $response = ["status"=>false, "data" => ""];
                 // check if cunsumer dont filled data
                 if($billAddress->getStreet()[0] == "" || $billAddress->getCity() == "" || $billAddress->getPostcode() == "" || $customerInfo["firstname"] == "" || $customerInfo["lastname"] == "" || $customerInfo["email"] == "" || $billAddress->getTelephone() == ""){
+                    $response["emptyFields"] = true;
                     $response["data"] = "Please fill required fields.";    
                     return $response;
                 }

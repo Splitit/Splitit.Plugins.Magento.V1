@@ -170,6 +170,38 @@ function installmentPlanInit(){
 		alert(supportLessThan100);
 		return;		
 	}
+	// validation for empty fields in splitit form
+	var selectedCc = jQuery("#pis_cc_cc_type").val();
+	if(selectedCc == ""){
+		jQuery("body").find(".terms-condition-loader").hide();
+		alert("Please select credit card type.");
+		return;
+	}
+	var ccNum = jQuery("#pis_cc_cc_number").val();
+	if(ccNum == ""){
+		jQuery("body").find(".terms-condition-loader").hide();
+		alert("Please input Credit card number.");
+		return;
+	}
+	var ccExp = jQuery("#pis_cc_expiration").val();
+	if(ccExp == ""){
+		jQuery("body").find(".terms-condition-loader").hide();
+		alert("Please select Month.");
+		return;
+	}
+	var ccYear = jQuery("#pis_cc_expiration_yr").val();
+	if(ccYear == ""){
+		jQuery("body").find(".terms-condition-loader").hide();
+		alert("Please select Year.");
+		return;
+	}
+	var ccCVV = jQuery("#pis_cc_cc_cid").val();
+	if(ccCVV == ""){
+		jQuery("body").find(".terms-condition-loader").hide();
+		alert("Please input card verification number.");
+		return;
+	}
+
 	// uncheck term checkbox which is hidden
 	jQuery('#pis_cc_terms').prop('checked', false);
 	if(isLogedIn){

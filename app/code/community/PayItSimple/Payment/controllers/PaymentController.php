@@ -144,6 +144,9 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
                 $response["status"] = true;
                 $response["data"] = $result["data"];
             }
+            if(isset($result["emptyFields"]) && $result["emptyFields"]){
+                $response["data"] = $result["data"];    
+            }
             
         }else{
             
