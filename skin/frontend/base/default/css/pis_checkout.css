@@ -52,9 +52,10 @@
 .popupContentTable tr td {text-align: center;}
 .popup-footer{background-color: #279dd8; border-radius: 0 0 5px 5px; margin: 0 10px;}
 .popup-btn{background-color: #279dd8; border-radius: 0 0 5px 5px;  margin: 0 10px;}
-.popup-btn-area{color: white;font-size: 16px; line-height: 27px; text-align: right; white-space: nowrap;}
-/*.popup-btn-icon{border: 1px solid; border-radius: 5px; display: inline-block; margin: 10px 0; padding: 1px 27px 3px; cursor: pointer;}*/
-.popup-btn-icon{display: inline-block; cursor: pointer; }
+.popup-btn-area{color: white;font-size: 16px; line-height: 27px; text-align: center; white-space: nowrap;}
+.popup-btn-area-terms{color: white;font-size: 16px; line-height: 27px; text-align: right; white-space: nowrap;padding-bottom: 10px;}
+.popup-btn-icon{border: 1px solid; border-radius: 5px; display: inline-block; margin: 10px 0; padding: 1px 27px 3px; cursor: pointer;}
+.popup-btn-icon-terms{display: inline-block; cursor: pointer; }
 .form-block{float: left; vertical-align:top; width:50%;}
 .form-block-area{margin:0 20px;}
 .spacer15{height:15px; display:block;}

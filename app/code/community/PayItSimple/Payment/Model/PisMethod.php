@@ -549,7 +549,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
           // start close button on terms-condition popup
           $html .= '<div class="popup-footer" style="">';
           $html .= '<div id="payment-schedule-close-btn" class="popup-btn"  style="">';
-          $html .= '<div class="popup-btn-area" style=""><span id="termAndConditionpopupCloseBtn" class="popup-btn-icon" style=""><img style="width:25px;" src="'. Mage::getBaseUrl( Mage_Core_Model_Store::URL_TYPE_WEB, true ).'js/payitsimple/payitsimplepament/approval-popup-close.png"></span></div>';
+          $html .= '<div class="popup-btn-area-terms" style=""><span id="termAndConditionpopupCloseBtn" class="popup-btn-icon-terms" style=""><img style="width:25px;" src="'. Mage::getBaseUrl( Mage_Core_Model_Store::URL_TYPE_WEB, true ).'js/payitsimple/payitsimplepament/approval-popup-close.png"></span></div>';
           $html .= '</div>';
           $html .= '</div>';
           // end close button on terms-condition popup
