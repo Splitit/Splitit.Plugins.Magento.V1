@@ -84,7 +84,7 @@ table.tablePage2 td{ width:50%; vertical-align: middle; }
     .form-block{width:100%;}
     .popupContentTable{min-width: 580px;}
     .popup-content{overflow-y: auto; text-align: initial;}
-    #payment-schedule{position: relative; width: 100%; overflow: hidden; overflow-x: auto;}
+    #payment-schedule{position: relative; width: 100%;}
 }
 @media only screen and (max-width: 767px) {}
 
