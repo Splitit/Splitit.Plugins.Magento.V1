@@ -386,6 +386,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
             $customerInfo["lastname"] = $billAddress->getLastname();
             $customerInfo["email"] = $billAddress->getEmail();
         }
+        $cultureName = Mage::helper('pis_payment')->getCultureName();
         $params = [
             "RequestHeader" => [
                 "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
@@ -413,13 +414,15 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                 "AddressLine2" => $billAddress->getStreet()[1],
                 "City" => $billAddress->getCity(),
                 "State" => $billAddress->getRegion(),
-                "Country" => Mage::app()->getLocale()->getCountryTranslation($billAddress->getCountry()),
+                //"Country" => Mage::app()->getLocale()->getCountryTranslation($billAddress->getCountry()),
+                "Country" => $billAddress->getCountry(),
                 "Zip" => $billAddress->getPostcode(),
             ],
             "ConsumerData" => [
                 "FullName" => $customerInfo["firstname"]." ".$customerInfo["lastname"],
                 "Email" => $customerInfo["email"],
-                "PhoneNumber" => $billAddress->getTelephone()
+                "PhoneNumber" => $billAddress->getTelephone(),
+                "CultureName" => $cultureName
             ],
         ];
         //$api = Mage::getSingleton("pis_payment/pisMethod");
@@ -516,6 +519,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
     }
 
     public function createPopupHtml($approvalUrlResponse){
+        $splititResources = Mage::helper('pis_payment')->getResourcesFromSplitit();
         $approvalUrlResponseArr = Mage::helper('core')->jsonDecode($approvalUrlResponse);
         $html = '';
         if(!empty($approvalUrlResponseArr) && isset($approvalUrlResponseArr["Global"]["ResponseResult"]) && isset($approvalUrlResponseArr["Global"]["ResponseResult"]["Succeeded"]) && $approvalUrlResponseArr["Global"]["ResponseResult"]["Succeeded"] == 1){
@@ -610,7 +614,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
           $html .= '<tr>';
           $html .= '<td class="wiz-header-side wiz-header-left" style=""></td>';
           $html .= '<td class="wiz-header-center" style="">';
-          $html .= '<div>TOTAL PURCHASE:</div>';
+          $html .= '<div>'.$totalText.'</div>';
           $html .= '<div class="currencySymbolIcon" style="">'.$currencySymbol.$totalAmount.'</div></td><td class="wiz-header-side wiz-header-right" style="">';
           $html .= '</td>';
           $html .= '</tr>';
@@ -658,7 +662,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
           $html .= $planDataSectionHtml;
           $html .= '</tbody>';
           $html .= '</table></div>';
-          $html .= '<a id="payment-schedule-link" style="">See Complete Payment Schedule</a>';
+          $html .= '<a id="payment-schedule-link" style="">'.$splititResources["tc_see_complete_payment_schedule"].'</a>';
           $html .= '</div>';
           $html .= '</div>';
           $html .= '<div class="form-block right" style="">';
@@ -668,7 +672,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
           $html .= '<div class="pnlEula" style="">'.$approvalUrlResponseArr["ImportantNotesSection"]["ImportantNotesBody"]["Text"].'</div>';
           $html .= '<div id="i_acknowledge_area"><input type="checkbox" id="i_acknowledge" class="i_acknowledge" name="i_acknowledge" value="" />';
           $html .= '<label for="i_acknowledge" class="i_acknowledge_lbl">';
-          $html .= 'I acknowledge that I have read and agree to the <a href="#" id="i_acknowledge_content_show" > terms and conditions </a> </label><div style="display:none" class="i_ack_err"> Please select I acknowledge.</div></div>' ;
+          // id="i_acknowledge_content_show" this is the id for Terms & Condition link It shows all the content in popup
+          $html .= $approvalUrlResponseArr["ImportantNotesSection"]["AcknowledgeText"]["Text"].' <a target="_blank" href="'.$approvalUrlResponseArr["ImportantNotesSection"]["AcknowledgeLink"]["Link"].'"    > '.$approvalUrlResponseArr["ImportantNotesSection"]["AcknowledgeLink"]["Text"].' </a> </label><div style="display:none" class="i_ack_err"> Please select I accept.</div></div>' ;
 
 
             

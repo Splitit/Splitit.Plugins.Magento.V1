@@ -30,4 +30,27 @@ class PayItSimple_Payment_Adminhtml_PayitsimpleController extends Mage_Adminhtml
         }
         Mage::app()->getResponse()->setBody($message);
     }
+
+    public function checkforupdatesAction(){
+        $language = $this->getRequest()->getParam('language');
+        $paymentMethod = Mage::getModel('pis_payment/pisMethod');
+        $api = $paymentMethod->getApi();
+        $params = array(
+                    "SystemTextCategories" => ["Common","PaymentDetails","CardBrand","TermsAndConditions"],
+                    "RequestContext" => ["CultureName" => $language]
+        );
+        $url = $paymentMethod->getApiUrl()."api/Infrastructure/GetResources";
+        $result = $api->getResourcesFromSplitit($url, $params);
+        $result = json_decode($result, true);
+        $finalResult = array();
+        if(isset($result["ResponseHeader"]["Succeeded"]) && $result["ResponseHeader"]["Succeeded"] == true){
+            foreach($result["ResourcesGroupedByCategories"] as $key=>$value){
+                foreach($value as $k => $v){
+                    $finalResult[$k] = $v;    
+                }
+            }
+        }
+        echo json_encode($finalResult);
+        return ;
+    }
 }

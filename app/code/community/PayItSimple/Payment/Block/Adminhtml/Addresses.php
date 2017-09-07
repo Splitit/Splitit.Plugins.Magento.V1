@@ -1,12 +1,28 @@
 <?php
 class PayItSimple_Payment_Block_Adminhtml_Addresses extends Mage_Adminhtml_Block_System_Config_Form_Field
 {
-   protected $_addRowButtonHtml = array();
-   protected $_removeRowButtonHtml = array();
+   
+public $_storeId = "";
  public function __construct()
     {
          parent::_construct();
         //$this->setTemplate('payitsimple/system/config/button.phtml');
+         // get store id in admin
+         if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) // store level
+          {
+              $store_id = Mage::getModel('core/store')->load($code)->getId();
+          }
+          elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) // website level
+          {
+              $website_id = Mage::getModel('core/website')->load($code)->getId();
+              $store_id = Mage::app()->getWebsite($website_id)->getDefaultStore()->getId();
+          }
+          else // default level
+          {
+              $store_id = 0;
+          }
+          $this->_storeId = $store_id;
+
     }
 
     protected function _prepareLayout()
@@ -31,7 +47,7 @@ class PayItSimple_Payment_Block_Adminhtml_Addresses extends Mage_Adminhtml_Block
    protected function _getElementHtml(Varien_Data_Form_Element_Abstract $element)
    {
       $this->setElement($element);
-      $doctv = Mage::getStoreConfig('payment/pis_cc/depanding_on_cart_total_values'); 
+      $doctv = Mage::getStoreConfig('payment/pis_cc/depanding_on_cart_total_values', $this->_storeId); 
       $html = "";
       if($doctv == ""){
         $html = $this->getTableHtmlWhenEmpty();
@@ -173,12 +189,12 @@ class PayItSimple_Payment_Block_Adminhtml_Addresses extends Mage_Adminhtml_Block
    }
 
    // get active currencies in the store and show dropdown in table
-   protected function _getCurrencies()
+   protected function _getCurrencies() 
    {
       $currencies = array();
       $codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);//print_r($codes);die;
       $currenyOptions = "";
-      if (is_array($codes) && count($codes) > 1) {
+      if (is_array($codes) && count($codes) > 0) {
           $rates = Mage::getModel('directory/currency')->getCurrencyRates(
                   Mage::app()->getStore()->getBaseCurrency(),
                   $codes
@@ -252,6 +268,15 @@ class PayItSimple_Payment_Block_Adminhtml_Addresses extends Mage_Adminhtml_Block
       }
       return $firstCurrencySymbol;
    }
+
+   // code for translation
+
+   
+
+
+
+   
+
 
  
    

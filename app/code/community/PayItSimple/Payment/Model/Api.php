@@ -290,4 +290,57 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
     public function getServerDownMsg(){
         return "Failed to connect to splitit payment server. Please retry again later.";
     }
+
+    public function getSplititSupportedCultures($approvalUrl){
+        $url = $approvalUrl . '?format=json';
+        $ch = curl_init($url);
+        $jsonData = json_encode($params);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");  
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); 
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        
+        $result = curl_exec($ch);
+        
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        // check for curl error eg: splitit server down.
+        if(curl_errno($ch)){
+            //echo 'Curl error: ' . curl_error($ch);
+            $result["serverError"] = $this->getServerDownMsg();
+            return $result = Mage::helper('core')->jsonEncode($result);
+        }
+        curl_close($ch);
+        return $result;
+    }
+    public function getResourcesFromSplitit($url, $params){
+        $url = $url.'?format=JSON';
+        $ch = curl_init($url);
+        $jsonData = json_encode($params);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");  
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS,$jsonData);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); 
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',                                                                                
+            'Content-Length:' . strlen($jsonData))                                                                       
+        );
+        $result = curl_exec($ch);
+        
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        // check for curl error eg: splitit server down.
+        if(curl_errno($ch)){
+            //echo 'Curl error: ' . curl_error($ch);
+            $this->setError($code, $this->getServerDownMsg());
+            curl_close($ch);
+            $result["serverError"] = $this->getServerDownMsg();
+            return $result = Mage::helper('core')->jsonEncode($result);
+        }
+        curl_close($ch);
+        return $result;
+    }
 }

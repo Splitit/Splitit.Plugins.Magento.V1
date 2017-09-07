@@ -6,6 +6,7 @@
     .tiers_table_overlay,
     .tiers_table_overlay2{position: absolute; width:100%; height: 100%; top: 0; left: 0; background: rgba(255,255,255,0.8); z-index: 999; display: none;}
     #payment_pis_cc_available_installments + .tiers_table_overlay2 {display: block;}
+    .lantbl.grid td, .lantbl.grid th{padding:0px!important;}
 </style>
 
 
@@ -19,7 +20,7 @@ jQuery(document).ready(function(){
      jQuery('.save').attr('onclick','');
     }
     jQuery(".splitit").closest("td.value").addClass("grid");
-    row_payment_pis_cc_depanding_on_cart_total_values
+    //row_payment_pis_cc_depanding_on_cart_total_values
     jQuery("#row_payment_pis_cc_depanding_on_cart_total_values").find("td.scope-label").hide();
 
     jQuery(document).on("mousedown", ".save", function(event) {
@@ -136,6 +137,7 @@ jQuery(document).ready(function(){
       if(flag1 == 0){
         
         createJsonOfDependingOnCartTotal();
+        createJsonOfSiteLanguage();
         eval(configForm.submit());
       }else{
         if(fromBigger){
@@ -248,8 +250,69 @@ function createJsonOfDependingOnCartTotal(){
         i++;      
     });
     object = JSON.stringify(object);
+    console.log(object);
     jQuery("#payment_pis_cc_depanding_on_cart_total_values").val(object);
 
 }
+
+// all the logic to store and process with Translation
+jQuery(document).ready(function(){
+  // show selected language data
+  jQuery("#payment_pis_cc_select_language").on("change", function(){
+    var selectedLanguage = jQuery(this).val();
+    jQuery("#languages_table_"+selectedLanguage).show().siblings().hide();
+  });
+
+  // check if edited the Translation column
+  var inputOldVal = "";
+  var inputNewVal = "";
+  jQuery("input[id^='translation_'").on("click, focus", function(){
+    inputOldVal = jQuery(this).val();
+    console.log(inputOldVal)
+  });
+  jQuery("input[id^='translation_']").on("blur",function(){
+    inputNewVal = jQuery(this).val();
+    console.log(inputNewVal);
+    if(inputNewVal != inputOldVal){
+      jQuery(this).siblings("input").val('1');
+    }
+  });
+  
+
+});
+
+function createJsonOfSiteLanguage(){
+  var siteLanguageArr = [];
+  jQuery("#payment_pis_cc_select_language > option").each(function() {
+      siteLanguageArr.push(this.value);
+  });
+  
+  var finalObject = {};
+  var i = 0;
+  var j = 0;
+  for(i=0; i < siteLanguageArr.length; i++ ){
+    finalObject[siteLanguageArr[i]] = {};
+    j = 0;
+    jQuery("table#languages_table_"+siteLanguageArr[i]+" > tbody > tr").each(function(){
+      var keyData = jQuery(this).find("td:eq(0) input[type='text']").val();
+      var engData = jQuery(this).find("td:eq(1) input[type='text']").val();
+      var translatedData = jQuery(this).find("td:eq(2) input[type='text']").val();
+      var edited = jQuery(this).find("td:eq(2) input[type='hidden']").val();
+
+      finalObject[siteLanguageArr[i]][keyData] = {};
+      finalObject[siteLanguageArr[i]][keyData]["keyData"] = keyData;
+      finalObject[siteLanguageArr[i]][keyData]["engData"] = engData;
+      finalObject[siteLanguageArr[i]][keyData]["translatedData"] = translatedData;
+      finalObject[siteLanguageArr[i]][keyData]["edited"] = edited;
+
+      j++;
+    });
+  }
+
+  jQuery("#payment_pis_cc_translate_languages").val(JSON.stringify(finalObject));
+  
+
+}  
+
 
 </script>

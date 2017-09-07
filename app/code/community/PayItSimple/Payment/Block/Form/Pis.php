@@ -28,6 +28,7 @@ class PayItSimple_Payment_Block_Form_Pis extends Mage_Payment_Block_Form_Cc
         $selectInstallmentSetup = Mage::getStoreConfig('payment/pis_cc/select_installment_setup');
         $installmentsInDropdown = [];
         $options = Mage::getModel('pis_payment/source_installments')->toOptionArray();
+        $installmentsOfText = Mage::helper('pis_payment')->getCreditCardFormTranslation('pd_installments_of');
         
         $depandOnCart = 0;
         // $selectInstallmentSetup == "" for checking when merchant first time upgrade extension that time $selectInstallmentSetup will be empty
@@ -37,7 +38,7 @@ class PayItSimple_Payment_Block_Form_Pis extends Mage_Payment_Block_Form_Cc
             foreach (explode(',', $fixedInstallments) as $n) {
                 
                 if((array_key_exists($n, $options))){
-                    $installments[$n] = $n.' Installments of '. Mage::app()->getLocale()->currency(Mage::app()->getStore()->getCurrentCurrencyCode())->getSymbol().round($totalAmount/$n,2); 
+                    $installments[$n] = $n.' '.$installmentsOfText.' '. Mage::app()->getLocale()->currency(Mage::app()->getStore()->getCurrentCurrencyCode())->getSymbol().round($totalAmount/$n,2); 
                     $installmentsInDropdown[$n] = round($totalAmount/$n,2); 
                 }
             }
@@ -58,7 +59,7 @@ class PayItSimple_Payment_Block_Form_Pis extends Mage_Payment_Block_Form_Cc
                         foreach (explode(',', $data->installments) as $n) {
 
                             if((array_key_exists($n, $options))){
-                                $installments[$n] = $n.' Installments of '. Mage::app()->getLocale()->currency(Mage::app()->getStore()->getCurrentCurrencyCode())->getSymbol().round($totalAmount/$n,2);    
+                                $installments[$n] = $n.' '.$installmentsOfText.' '. Mage::app()->getLocale()->currency(Mage::app()->getStore()->getCurrentCurrencyCode())->getSymbol().round($totalAmount/$n,2);    
                                 $installmentsInDropdown[$n] = round($totalAmount/$n,2);
                                                         
                             }
@@ -68,7 +69,7 @@ class PayItSimple_Payment_Block_Form_Pis extends Mage_Payment_Block_Form_Cc
                         foreach (explode(',', $data->installments) as $n) {
 
                             if((array_key_exists($n, $options))){
-                                $installments[$n] = $n.' Installments of '. Mage::app()->getLocale()->currency(Mage::app()->getStore()->getCurrentCurrencyCode())->getSymbol().round($totalAmount/$n,2);  
+                                $installments[$n] = $n.' '.$installmentsOfText.' '. Mage::app()->getLocale()->currency(Mage::app()->getStore()->getCurrentCurrencyCode())->getSymbol().round($totalAmount/$n,2);  
                                 $installmentsInDropdown[$n] = round($totalAmount/$n,2); 
                                                          
                             }
