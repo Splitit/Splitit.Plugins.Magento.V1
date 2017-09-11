@@ -62,11 +62,14 @@
         <label for="<?php echo $_code ?>_installments_no" class="required"><em>*</em><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('pd_number_of_installments') ?></label>
         <div class="input-box">
             <select id="<?php echo $_code ?>_installments_no" name="payment[installments_no]" class="required-entry">
-                <option value=""><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('please_select'); ?></option>
+                
             <?php $_iNo = $this->getInfoData('installments_no') ?>
+            <?php $countAvailInstallment = count($this->getAvailableInstallments());
+                $i = 1;
+             ?>
             <?php foreach ($this->getAvailableInstallments() as $_num => $_typeName): ?>
                 <?php /*<option value="<?php echo $_num ?>"<?php if($_num==$_iNo): ?> selected="selected"<?php endif ?>><?php echo $_typeName ?></option> */?>
-                 <option value="<?php echo $_num ?>"><?php echo $_typeName ?></option>
+                 <option <?php echo ($i == $countAvailInstallment)?"selected='selected'":""; $i++; ?> value="<?php echo $_num ?>"><?php echo $_typeName ?></option>
             <?php endforeach ?>
             </select>
         </div>

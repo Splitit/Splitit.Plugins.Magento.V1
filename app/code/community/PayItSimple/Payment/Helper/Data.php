@@ -18,10 +18,10 @@ class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract
 		$translation = $this->getTranslation();
 		$text = "";
 		if(Mage::getStoreConfig('payment/pis_cc/enable_installment_price')==1 && Mage::getStoreConfig('payment/pis_cc/active') == 1){
-			if(!empty($translation) && isset($translation[$storelang]["installment_price_text"]["translatedData"]) && $translation[$storelang]["installment_price_text"]["translatedData"] != "" ){
-				$text = $translation[$storelang]["installment_price_text"]["translatedData"];
-			}else if(!empty($translation) && isset($translation[$defaultLang]["installment_price_text"]["translatedData"])){
-				$text = $translation[$defaultLang]["installment_price_text"]["translatedData"];
+			if(!empty($translation) && isset($translation[$storelang]["ecomm_no_interest"]["translatedData"]) && $translation[$storelang]["ecomm_no_interest"]["translatedData"] != "" ){
+				$text = $translation[$storelang]["ecomm_no_interest"]["translatedData"];
+			}else if(!empty($translation) && isset($translation[$defaultLang]["ecomm_no_interest"]["translatedData"])){
+				$text = $translation[$defaultLang]["ecomm_no_interest"]["translatedData"];
 				
 			}	
 		}
@@ -35,10 +35,10 @@ class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract
 		$translation = $this->getTranslation();
 		$text = "";
 		if(Mage::getStoreConfig('payment/pis_cc/faq_link_enabled') == 1 && Mage::getStoreConfig('payment/pis_cc/active') == 1){
-			if(!empty($translation) && isset($translation[$storelang]["splitit_help_link_title"]["translatedData"]) && $translation[$storelang]["splitit_help_link_title"]["translatedData"] != "" ){
-				$text = $translation[$storelang]["splitit_help_link_title"]["translatedData"];
-			}else if(!empty($translation) && isset($translation[$defaultLang]["splitit_help_link_title"]["translatedData"])){
-				$text = $translation[$defaultLang]["splitit_help_link_title"]["translatedData"];
+			if(!empty($translation) && isset($translation[$storelang]["ecomm_tell_me_more"]["translatedData"]) && $translation[$storelang]["ecomm_tell_me_more"]["translatedData"] != "" ){
+				$text = $translation[$storelang]["ecomm_tell_me_more"]["translatedData"];
+			}else if(!empty($translation) && isset($translation[$defaultLang]["ecomm_tell_me_more"]["translatedData"])){
+				$text = $translation[$defaultLang]["ecomm_tell_me_more"]["translatedData"];
 				
 			}	
 		}
@@ -91,7 +91,7 @@ class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract
         $paymentMethod = Mage::getModel('pis_payment/pisMethod');
         $api = $paymentMethod->getApi();
         $params = array(
-                    "SystemTextCategories" => ["Common","PaymentDetails","CardBrand","TermsAndConditions"],
+                    "SystemTextCategories" => ["Common","PaymentDetails","CardBrand","TermsAndConditions","EComm"],
                     "RequestContext" => ["CultureName" => $language]
         );
         $url = $paymentMethod->getApiUrl()."api/Infrastructure/GetResources";

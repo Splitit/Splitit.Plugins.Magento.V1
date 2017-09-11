@@ -63,13 +63,17 @@ class PayItSimple_Payment_Block_Adminhtml_Translate extends Mage_Adminhtml_Block
 
       $html = "";
       $displayTable = "display:none;";
-
+      $flag = 0;
       foreach($allStoresLanguages as $k => $v){
         $displayTable = "display:none;";
-        if($selectedLanguage == "" || $selectedLanguage == $k){
+        if($selectedLanguage == "" && $flag == 0){
+          $displayTable = "display:block;";
+          $flag++;
+        }
+        if($selectedLanguage == $k){
           $displayTable = "display:block;";
         }
-        $html .= '<table style="'.$displayTable.'" class="data border lantbl grid"  cellspacing="0" border="0" id="languages_table_'.$k.'">          
+        $html .= '<table style="'.$displayTable.'" class="data border lantbl grid"  cellspacing="0" border="0" id="languages_table_'.$k.'">       
              <colgroup>
                 <col width="120">
                 <col width="95">
@@ -190,14 +194,14 @@ protected function getTableLanguageWhenFilled($translatedJsonVal)
                           'pd_exp_year_long' => 'Year',
                           'pd_cvv' => 'Card Verification Number',
                           'pd_whatisthis' => 'What is this ?',
-                          'pd_installments_of' => 'installments of',
+                          'pd_installments' => 'installments',
+                          'pd_per_month' => '/mon',
                           'pd_number_of_installments' => 'Number Of Installments',
-                          'please_select' => '--Please Select--',
                           'visa' => 'Visa',
                           'mastercard' => 'MasterCard',
                           'tc_approval' => 'Approval',
                           'tc_clicktoapprovetermsandconditions' => 'Click To Approve Terms and Conditions',
-                          'installment_price_text' => 'No interest',
+                          'Ecomm_nointerest' => 'No interest',
                           'splitit_help_link_title' => 'Tell me more',
 
         );
