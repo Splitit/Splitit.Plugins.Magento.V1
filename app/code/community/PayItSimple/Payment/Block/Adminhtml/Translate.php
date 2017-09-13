@@ -193,7 +193,7 @@ protected function getTableLanguageWhenFilled($translatedJsonVal)
                           'pd_exp_month_long' => 'Month',
                           'pd_exp_year_long' => 'Year',
                           'pd_cvv' => 'Card Verification Number',
-                          'pd_whatisthis' => 'What is this ?',
+                          'pd_whatiscvv' => 'What is this ?',
                           'pd_installments' => 'installments',
                           'pd_per_month' => '/mon',
                           'pd_number_of_installments' => 'Number Of Installments',
@@ -201,8 +201,8 @@ protected function getTableLanguageWhenFilled($translatedJsonVal)
                           'mastercard' => 'MasterCard',
                           'tc_approval' => 'Approval',
                           'tc_clicktoapprovetermsandconditions' => 'Click To Approve Terms and Conditions',
-                          'Ecomm_nointerest' => 'No interest',
-                          'splitit_help_link_title' => 'Tell me more',
+                          'ecomm_no_interest' => 'No interest',
+                          'ecomm_tell_me_more' => 'Tell me more',
 
         );
    }
