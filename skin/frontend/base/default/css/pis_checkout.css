@@ -79,12 +79,19 @@ table.tablePage2 td{ width:50%; vertical-align: middle; }
 .terms-conditions{ font-size: 0; }
 .terms-conditions div{font-size: 0; line-height: normal;}
 .terms-conditions div:before{content: 'Please approve terms and conditions.'; color: #df280a; font-size: 13px; margin: 10px 0 5px; display: block; }
+#opc-payment{position: relative;}
+#payment-tool-tip{position:absolute;top: 220px!important; right: -75px;}
+#payment-tool-tip img{max-width:100%;}
 @media only screen and (max-width: 1024px) {}
 @media only screen and (max-width: 900px) {
     .form-block{width:100%;}
     .popupContentTable{min-width: 580px;}
     .popup-content{overflow-y: auto; text-align: initial;}
     #payment-schedule{position: relative; width: 100%;}
+    #payment-tool-tip {position: absolute; top: 220px!important; right: -200px; width: 100%; background: white; padding: 5px;}
+
 }
-@media only screen and (max-width: 767px) {}
+@media only screen and (max-width: 767px) {
+    #payment-tool-tip {right: 0;}
+}
 

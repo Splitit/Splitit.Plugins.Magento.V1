@@ -681,7 +681,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
           $html .= '</div>';
           $html .= '</div>';
           $html .= '</div>';
-          $html .= '<div class="iAgreeBtn" style=""><input id="iagree" type="button" onclick="paymentSave();" value="I agree" style=" ">  </div>';
+          $html .= '<div class="iAgreeBtn" style=""><input id="iagree" type="button" onclick="paymentSave();" value="'.Mage::helper('pis_payment')->getCreditCardFormTranslation('common_i_approve').'" style=" ">  </div>';
           $html .= '<div class="termAndConditionBtn" style=""> <a href="'.$termsConditionsLink.'" target="_blank" style="">'.$termsConditionsText.'</a> | <a href="'.$servicesLink.'" style="" target="_blank">'.$servicesText.'</a>
 
 </div>';

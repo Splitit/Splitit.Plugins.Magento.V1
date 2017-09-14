@@ -268,13 +268,16 @@ jQuery(document).ready(function(){
   var inputNewVal = "";
   jQuery("input[id^='translation_'").on("click, focus", function(){
     inputOldVal = jQuery(this).val();
-    console.log(inputOldVal)
+  });
+  jQuery("input[id^='translation_'").on("keyup", function(){
+    jQuery(this).siblings("input").val('1');
   });
   jQuery("input[id^='translation_']").on("blur",function(){
     inputNewVal = jQuery(this).val();
-    console.log(inputNewVal);
     if(inputNewVal != inputOldVal){
       jQuery(this).siblings("input").val('1');
+    }else{
+      jQuery(this).siblings("input").val('0');
     }
   });
   

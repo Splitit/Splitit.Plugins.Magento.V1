@@ -85,9 +85,10 @@ class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract
 	}
 
 	public function getResourcesFromSplitit(){
-		$storeId = Mage::app()->getStore()->getStoreId();
+		/*$storeId = Mage::app()->getStore()->getStoreId();
 		$storelang = Mage::getStoreConfig('general/locale/code', $storeId);
-		$language = str_replace('_', '-', $storelang);
+		$language = str_replace('_', '-', $storelang);*/
+		$language = $this->getCultureName();
         $paymentMethod = Mage::getModel('pis_payment/pisMethod');
         $api = $paymentMethod->getApi();
         $params = array(

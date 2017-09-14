@@ -203,6 +203,8 @@ protected function getTableLanguageWhenFilled($translatedJsonVal)
                           'tc_clicktoapprovetermsandconditions' => 'Click To Approve Terms and Conditions',
                           'ecomm_no_interest' => 'No interest',
                           'ecomm_tell_me_more' => 'Tell me more',
+                          'common_pleaseselect' => 'Please Select',
+                          'common_i_approve' => 'I Approve'
 
         );
    }

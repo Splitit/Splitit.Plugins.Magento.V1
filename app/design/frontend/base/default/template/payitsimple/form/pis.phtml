@@ -4,7 +4,7 @@
         <label for="<?php echo $_code ?>_cc_type" class="required"><em>*</em><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('pd_credit_card_type'); ?></label>
         <div class="input-box">
             <select id="<?php echo $_code ?>_cc_type" name="payment[cc_type]" class="required-entry validate-cc-type-select">
-                <option value=""><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('please_select'); ?></option>
+                <option value=""><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('common_pleaseselect'); ?></option>
             <?php $_ccType = $this->getInfoData('cc_type') ?>
             <?php foreach ($this->getCcAvailableTypes() as $_typeCode => $_typeName): ?>
                 <option value="<?php echo $_typeCode ?>"<?php if($_typeCode==$_ccType): ?> selected="selected"<?php endif ?>><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation(strtolower($_typeName)); ?></option>
@@ -54,7 +54,7 @@
             <div class="v-fix">
                 <input type="text" title="<?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('pd_cvv') ?>" class="input-text cvv required-entry validate-cc-cvn" id="<?php echo $_code ?>_cc_cid" name="payment[cc_cid]" value="" />
             </div>
-            <a href="#" class="cvv-what-is-this"><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('pd_whatisthis') ?></a>
+            <a href="#" class="cvv-what-is-this"><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('pd_whatiscvv') ?></a>
         </div>
     </li>
     <?php endif; ?>
