@@ -225,10 +225,12 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
 
     protected function createInstallmentPlan($api, $payment, $amount)
     {
+        $cultureName = Mage::helper('pis_payment')->getCultureName();
         $params = [
             "RequestHeader" => [
                 "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
                 "ApiKey"    => $this->getConfigData('api_terminal_key', $storeId),
+                "CultureName" => $cultureName
             ],
             "InstallmentPlanNumber" => Mage::getSingleton('core/session')->getInstallmentPlanNumber(),
             "CreditCardDetails" => [
@@ -268,9 +270,9 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         $version=$m->getVersion();
 
         if($version >= 1.9){
-            $touchPointVersion = "M1.9S2.0";
+            $touchPointVersion = "M1.9S2.1";
         }elseif($version >= 1.8){
-            $touchPointVersion = "M1.8S2.0";
+            $touchPointVersion = "M1.8S2.1";
         }
         $result = $api->login(
             $this->getApiUrl(),
