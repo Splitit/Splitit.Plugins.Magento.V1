@@ -102,7 +102,7 @@ public $_storeId = "";
                <td>
                 <select id="" name="doctv_currency" class=" select doctv_currency">
                   '.$this->_getCurrencies().'
-                 
+                 </select>
                </td>
                <td>
                 <button title="Delete Tier" type="button" class="scalable delete icon-btn delete-product-option" id="" onclick="deleteRow(this);"><span><span><span>Delete</span></span></span></button>
@@ -166,6 +166,7 @@ public $_storeId = "";
         $rowHtml .= '<td>
                 <select id="" name="doctv_currency" class=" select doctv_currency">
                   '.$this->_getSelectedCurrency($value->doctv->currency).'
+                </select>  
                </td>';
         //$rowHtml .= '<td>'.$this->_getBaseCurrency().'</td>';         
         $rowHtml .= '<td>
@@ -218,7 +219,7 @@ public $_storeId = "";
       $currencies = array();
       $codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);//print_r($codes);die;
       $currenyOptions = "";
-      if (is_array($codes) && count($codes) > 1) {
+      if (is_array($codes) && count($codes) > 0) {
           $rates = Mage::getModel('directory/currency')->getCurrencyRates(
                   Mage::app()->getStore()->getBaseCurrency(),
                   $codes

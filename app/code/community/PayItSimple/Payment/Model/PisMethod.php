@@ -317,13 +317,15 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         $read = Mage::getSingleton('core/resource')->getConnection('core_read');
         $write = Mage::getSingleton('core/resource')->getConnection('core_write');
         //$result = $read->query("SELECT * FROM `core_config_data` WHERE path='payment/pis_cc/api_url_sandbox'");
-        $result = $read->query("SELECT * FROM `core_config_data` WHERE path='".$path."'");
+        $prefix = Mage::getConfig()->getTablePrefix();
+        
+        $result = $read->query("SELECT * FROM `".$prefix."core_config_data` WHERE path='".$path."'");
         $row = $result->fetch();
         if(count($result)){
             $transaction = Mage::getSingleton('core/resource')->getConnection('core_write');
             try {
                 $transaction->beginTransaction();
-                $transaction->query('DELETE FROM `core_config_data` WHERE path like  "%'.$path.'%"');
+                $transaction->query('DELETE FROM `'.$prefix.'core_config_data` WHERE path like  "%'.$path.'%"');
                 $transaction->commit();
             } catch (Exception $e) {
                 $transaction->rollBack();
