@@ -26,6 +26,32 @@
             <block type="core/template" name="payitsimple.terms" template="payitsimple/terms.phtml" />
         </reference>
     </payitsimple_payment_terms>
+    <payitsimple_payment_success>
+        <reference name="root">
+            <action method="setTemplate">
+                <template>page/1column.phtml</template>
+            </action>
+            <action method="setIsHandle">
+                <applied>1</applied>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="core/template" name="payitsimple.success" template="payitsimple/success.phtml" />
+        </reference>
+    </payitsimple_payment_success>
+    <payitsimple_payment_cancel>
+        <reference name="root">
+            <action method="setTemplate">
+                <template>page/1column.phtml</template>
+            </action>
+            <action method="setIsHandle">
+                <applied>1</applied>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="core/template" name="payitsimple.cancel" template="payitsimple/cancel.phtml" />
+        </reference>
+    </payitsimple_payment_cancel>
     <!-- <checkout_onepage_index> -->
     <default>
         <block type="core/template" name="payitsimple.terms" template="payitsimple/terms.phtml" />

@@ -82,6 +82,9 @@ table.tablePage2 td{ width:50%; vertical-align: middle; }
 #opc-payment{position: relative;}
 #payment-tool-tip{position:absolute;top: 220px!important; right: -75px;}
 #payment-tool-tip img{max-width:100%;}
+.splitit-checkout-url{  float: left; margin-left: 0; margin-right: 10px; margin-bottom: 0;    background: #3399cc; color: #ffffff!important; text-decoration: none!important;padding: 7px 15px; text-transform: uppercase;display: inline-block; min-width: 140px;
+    text-align: center; font-weight: normal; line-height: 19px; font-size: 13px;
+    font-family: "Raleway", "Helvetica Neue", Verdana, Arial, sans-serif;}
 @media only screen and (max-width: 1024px) {}
 @media only screen and (max-width: 900px) {
     .form-block{width:100%;}

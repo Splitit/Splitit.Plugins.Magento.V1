@@ -1,0 +1,19 @@
+ <div class="page-title">
+    <h1>Your order has been received.</h1>
+</div>
+<h2 class="sub-title">Thank you for your purchase!</h2>
+	<?php $orderIncrementId = Mage::getSingleton('core/session')->getOrderIncrementId(); ?>
+	<?php $orderId = Mage::getSingleton('core/session')->getOrderId(); ?>
+    <p>Your order # is: <a href="<?php echo Mage::getBaseUrl(); ?>sales/order/view/order_id/<?php echo $orderId;?>/"><?php echo $orderIncrementId; ?></a>.</p>
+    <p>You will receive an order confirmation email with details of your order and a link to track its progress.</p>
+    <p> Click <a href="<?php echo Mage::getBaseUrl(); ?>sales/order/print/order_id/<?php echo $orderId;?>/" onclick="this.target='_blank'">here to print</a> a copy of your order confirmation.            </p>
+
+
+
+<div class="buttons-set">
+    <button type="button" class="button" title="Continue Shopping" onclick="window.location='<?php echo Mage::getBaseUrl(); ?>'"><span><span>Continue Shopping</span></span></button>
+</div>
+                </div>
+
+<?php Mage::getSingleton('core/session')->setOrderIncrementId(""); ?>
+<?php Mage::getSingleton('core/session')->setOrderId(""); ?>                

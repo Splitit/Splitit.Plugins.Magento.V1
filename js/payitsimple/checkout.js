@@ -63,6 +63,9 @@ jQuery(document).ready(function(){
     		getNumOfInstallments();
     	}
     	else{
+    		// check if hosted solution is selected as payment mode
+    		jQuery("#payment-buttons-container button").show();
+    		jQuery(document).find("#payment-buttons-container .splitit-checkout-url").remove();
     		//jQuery("#payment-buttons-container button").attr("onclick","payment.save();");
     	}
     })
@@ -105,6 +108,12 @@ jQuery(document).ready(function(){
 	               /*if(obj.installmentNum == 0){
 	               		jQuery("#pis_cc_installments_no option:nth-child(2)").attr("value", "");
 	               }*/
+	               if ('checkoutUrl' in obj) {
+					  jQuery("#payment-buttons-container button").hide();
+					  
+					  jQuery(document).find("#payment-buttons-container .back-link").before("<a class='splitit-checkout-url' href='"+obj.checkoutUrl+"' >continue</a>");
+					  //jQuery("#payment-buttons-container .back-ling").after("<a href='"+obj.checkoutUrl+"' >redirect</a>");
+				    }
 	               numOfInstallmentsResponse = 1;
 	               isAlreadyClickInFormFields = 1;
 	               isLogedIn = 1;

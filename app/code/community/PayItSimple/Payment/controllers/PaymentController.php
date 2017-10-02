@@ -104,6 +104,20 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         }*/
         if ($api->isLogin()){
             $response["status"] = true;
+            $paymentMode = Mage::helper('pis_payment')->getPaymentMode();
+            if($paymentMode == "hosted_solution"){
+                $initResponse = Mage::getModel("pis_payment/pisMethod")->installmentplaninitForHostedSolution();
+                $response["data"] = $initResponse["data"];
+                if($initResponse["status"]){
+                    $response["status"] = true;
+                }
+                if(isset($initResponse["emptyFields"]) && $initResponse["emptyFields"]){
+                    $response["data"] = $result["data"];    
+                }
+                if(isset($initResponse["checkoutUrl"]) && $initResponse["checkoutUrl"] != ""){
+                    $response["checkoutUrl"] = $initResponse["checkoutUrl"];        
+                }
+            }
         }else{
             foreach ($api->getError() as $key => $value) {
                 $response["error"] .= $value." ";    
@@ -157,5 +171,78 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         
         echo $jsonData = Mage::helper('core')->jsonEncode($response);   
         return ;
+    }
+
+    public function successExitAction(){
+        $params = $this->getRequest()->getParams();
+        Mage::getSingleton('core/session')->setInstallmentPlanNumber($params["InstallmentPlanNumber"]);
+        // get installmentplan details 
+        $storeId = Mage::app()->getStore()->getStoreId();
+        $api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
+        $planDetails = Mage::getSingleton("pis_payment/pisMethod")->getInstallmentPlanDetails($api );
+        $db_read = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $tablePrefix = (string) Mage::getConfig()->getTablePrefix();
+
+        $sql = 'SELECT * FROM `' . $tablePrefix . 'splitit_hosted_solution` where installment_plan_number = "'.$params["InstallmentPlanNumber"].'"';
+        //$data = $db_read->fetchAllRow($sql); // fetch All row in a table
+        $data = $db_read->fetchRow($sql);
+        $grandTotal = Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal();
+        if(count($data) && $grandTotal == $planDetails["grandTotal"]){
+            $quote = Mage::getSingleton('checkout/session')->getQuote();
+            $quote->assignCustomer(Mage::getSingleton('customer/session')->getCustomer());
+            $quote->collectTotals()->getPayment()->setMethod('pis_cc');
+            $service = Mage::getModel('sales/service_quote', $quote);
+            $service->submitAll();
+
+            $order = $service->getOrder();
+            $order->save();
+            $quote->delete();
+            // update order_created in splitit_hosted_solution
+            $db_write = Mage::getSingleton('core/resource')->getConnection('core_write');
+            $tablePrefix = (string) Mage::getConfig()->getTablePrefix();
+            $updateQue = 'UPDATE `' . $tablePrefix . 'splitit_hosted_solution` SET order_created = 1 WHERE installment_plan_number = "'.$params["InstallmentPlanNumber"].'"';
+            $db_write->query($updateQue);
+            Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."payitsimple/payment/success")->sendResponse();
+        }else{
+            $cancelResponse = Mage::getSingleton("pis_payment/pisMethod")->cancelInstallmentPlan($api, $params["InstallmentPlanNumber"]);
+            if($cancelResponse["status"]){
+                Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."payitsimple/payment/cancel")->sendResponse();
+            }
+
+        }
+
+        
+        
+        
+    }
+    public function successAction(){
+        $orderIncrementId = Mage::getSingleton('core/session')->getOrderIncrementId();
+        $orderId = Mage::getSingleton('core/session')->getOrderId();
+        // check if order created else redirect to cart page
+        if($orderId != "" && $orderIncrementId != ""){
+            $this->loadLayout();
+            $this->renderLayout();
+        }else{
+            Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."checkout/cart")->sendResponse();
+        }
+        
+        
+    }
+
+    public function cancelAction(){
+        $this->loadLayout();
+        $this->renderLayout();
+    }
+
+    public function successAsyncAction(){
+        $params = $this->getRequest()->getParams();
+        print_r($params);       
+        die("succAsy");
+    }
+
+    public function cancelExitAction(){
+        $params = $this->getRequest()->getParams();
+        print_r($params);
+        die("cancExit");
     }
 }

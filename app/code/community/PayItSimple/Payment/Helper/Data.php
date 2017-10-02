@@ -109,4 +109,8 @@ class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract
         return $finalResult;
 	}
 
+	public function getPaymentMode(){
+		return Mage::getStoreConfig('payment/pis_cc/payment_mode');
+	}
+
 }

@@ -113,6 +113,22 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
         } 
     }
 
+    public function getInstallmentPlanDetails($apiUrl, $params){
+        try{
+            return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Get" , $params);        
+        }catch(Exception $e){
+            echo $e->getMessage();
+        } 
+    }
+
+    public function cancelInstallmentPlan($apiUrl, $params){
+        try{
+            return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Cancel" , $params);        
+        }catch(Exception $e){
+            echo $e->getMessage();
+        }    
+    }
+
     /**
      * @param $gwUrl string
      * @param $method string

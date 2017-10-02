@@ -1,4 +1,7 @@
 <?php $_code=$this->getMethodCode() ?>
+<?php $this->getAvailableInstallments(); // set installments in session?>
+<?php $paymentMode = Mage::helper('pis_payment')->getPaymentMode();?>
+<?php if($paymentMode == "embedded_payment"):?>
 <ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:none;">
     <li>
         <label for="<?php echo $_code ?>_cc_type" class="required"><em>*</em><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('pd_credit_card_type'); ?></label>
@@ -85,7 +88,7 @@
             <em>*</em><?php echo $this->__('I acknowledge that I have read and agree to the %s terms and conditions %s','<a href="#" style="float:none; margin-left:0px;" onclick="popWin(\'' . 'http://www.splitit.com/legal/customers-terms-and-conditions/' . "', 'terms and conditions', 'width=750,height=607,left=0,top=0,location=no,status=no,scrollbars=yes,resizable=no'); return false;\">",'</a>') ?>
         </label>
     </li>
-    
+    <?php endif; ?>
 
 <li>
     <div>
