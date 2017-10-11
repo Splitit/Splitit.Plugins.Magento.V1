@@ -10,6 +10,8 @@ CREATE TABLE `{$this->getTable('splitit_hosted_solution')}` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `installment_plan_number` varchar(100) DEFAULT NULL COMMENT 'Txn Id',
   `quote_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'quote Id',
+  `order_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'order Id',
+  `order_increment_id` varchar(50) DEFAULT NULL COMMENT 'order increment Id',
   `quote_item_count` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'quote item count',
   `customer_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'customer Id if logged in user',
   `base_grand_total` Decimal (14,2),

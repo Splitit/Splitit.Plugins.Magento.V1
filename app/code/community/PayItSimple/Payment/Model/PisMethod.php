@@ -310,7 +310,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         $result = $api->login(
             $this->getApiUrl(),
             array(
-                //'ApiKey' => $this->getConfigData('api_terminal_key', $storeId),
+                'ApiKey' => $this->getConfigData('api_terminal_key', $storeId),
                 'UserName' => $this->getConfigData('api_username'),
                 'Password' => $this->getConfigData('api_password'),
                 'TouchPoint'=>array("Code" => "MagentoPlugin","Version" => $touchPointVersion)
@@ -424,7 +424,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
             $customerInfo["email"] = $billAddress->getEmail();
         }
         $cultureName = Mage::helper('pis_payment')->getCultureName();
-        $params = [
+        $params = $this->installmentplaninitParams($firstInstallmentAmount, $billAddress, $customerInfo, $cultureName, null, $selectedInstallment);
+        /*$params = [
             "RequestHeader" => [
                 "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
                 "ApiKey"    => $this->getConfigData('api_terminal_key', $storeId),
@@ -461,7 +462,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                 "PhoneNumber" => $billAddress->getTelephone(),
                 "CultureName" => $cultureName
             ],
-        ];
+        ];*/
         //$api = Mage::getSingleton("pis_payment/pisMethod");
         try{
                 $response = ["status"=>false, "data" => ""];
@@ -476,7 +477,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                 $result = Mage::getSingleton("pis_payment/api")->installmentplaninit($this->getApiUrl(), $params);
                 // check for approval URL from response
                 $decodedResult = Mage::helper('core')->jsonDecode($result);
-
+                
                 if(isset($decodedResult) && isset($decodedResult["ApprovalUrl"]) && $decodedResult["ApprovalUrl"] != ""){
                     $intallmentPlan = $decodedResult["InstallmentPlan"]["InstallmentPlanNumber"];
                     // set Installment plan number into session
@@ -531,7 +532,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         $storeId = Mage::app()->getStore()->getId();
         $session = Mage::getSingleton('checkout/session');
         $quote_id = $session->getQuoteId();
-        $firstInstallmentAmount = $this->getFirstInstallmentAmount($selectedInstallment);
+        $firstInstallmentAmount = 0;//$this->getFirstInstallmentAmount($selectedInstallment);
         $checkout = Mage::getSingleton('checkout/session')->getQuote();
         $billAddress = $checkout->getBillingAddress();
         $BillingAddressArr = $billAddress->getData();
@@ -544,7 +545,11 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
             $customerInfo["email"] = $billAddress->getEmail();
         }
         $cultureName = Mage::helper('pis_payment')->getCultureName();
-        $params = [
+        $params = $this->installmentplaninitParams($firstInstallmentAmount, $billAddress, $customerInfo, $cultureName, $numOfInstallments, null);
+        Mage::log('======= installmentplaninitForHostedSolution : params passed to Initit Api ======= : ');
+        Mage::log($params);
+
+       /* $params = [
             "RequestHeader" => [
                 "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
                 "ApiKey"    => $this->getConfigData('api_terminal_key', $storeId),
@@ -588,7 +593,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                 "CancelExitURL" => Mage::getBaseUrl()."payitsimple/payment/cancelExit"
                 
             ],
-        ];
+        ];*/
         //$api = Mage::getSingleton("pis_payment/pisMethod");
         try{
                 $response = ["status"=>false, "data" => "", "checkoutUrl" => ""];
@@ -609,6 +614,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                     $response["status"] = true;
                     $response["checkoutUrl"] = $decodedResult["CheckoutUrl"];
                     $installmentPlan = $decodedResult["InstallmentPlan"]["InstallmentPlanNumber"];
+                    Mage::log('======= installmentplaninit : response from splitit =======InstallmentPlanNumber : '.$installmentPlan);
+                    Mage::log($decodedResult);
                     // store information in splitit_hosted_solution for successExit and Async
                     $customerId = 0;
                      if(Mage::getSingleton('customer/session')->isLoggedIn()) {
@@ -643,6 +650,98 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         }
         return $response;
         //return $result;
+    }
+
+    public function installmentplaninitParams($firstInstallmentAmount, $billAddress, $customerInfo, $cultureName, $numOfInstallments = null, $selectedInstallment){
+        $storeId = Mage::app()->getStore()->getId();
+        $params = [
+            "RequestHeader" => [
+                "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
+                "ApiKey"    => $this->getConfigData('api_terminal_key', $storeId),
+            ],
+            "PlanData"      => [
+                "Amount"    => [
+                    "Value" => round(Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal(), 2),
+                    "CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
+                ],
+                //"NumberOfInstallments" => $selectedInstallment,
+                "PurchaseMethod" => "ECommerce",
+                //"RefOrderNumber" => $quote_id,
+                "FirstInstallmentAmount" => [
+                    "Value" => $firstInstallmentAmount,
+                    "CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
+                ],
+                "AutoCapture" => "false",
+                "ExtendedParams" => [
+                    "CreateAck" => "NotReceived"
+                ],
+            ],
+            "BillingAddress" => [
+                "AddressLine" => $billAddress->getStreet()[0], 
+                "AddressLine2" => $billAddress->getStreet()[1],
+                "City" => $billAddress->getCity(),
+                "State" => $billAddress->getRegion(),
+                //"Country" => Mage::app()->getLocale()->getCountryTranslation($billAddress->getCountry()),
+                "Country" => $billAddress->getCountry(),
+                "Zip" => $billAddress->getPostcode(),
+            ],
+            "ConsumerData" => [
+                "FullName" => $customerInfo["firstname"]." ".$customerInfo["lastname"],
+                "Email" => $customerInfo["email"],
+                "PhoneNumber" => $billAddress->getTelephone(),
+                "CultureName" => $cultureName
+            ],
+            /*"PaymentWizardData" => [
+                "RequestedNumberOfInstallments" => implode(',', array_keys($numOfInstallments)) ,
+                "SuccessAsyncURL" => Mage::getBaseUrl()."payitsimple/payment/successAsync",
+                "SuccessExitURL" => Mage::getBaseUrl()."payitsimple/payment/successExit",
+                "CancelExitURL" => Mage::getBaseUrl()."payitsimple/payment/cancelExit"
+                
+            ],*/
+        ];
+
+        $cart = Mage::helper('checkout/cart')->getCart()->getQuote();
+        $itemsArr = [];
+        $i = 0;
+        $currencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
+        foreach ($cart->getAllItems() as $item) {
+            $product = Mage::getModel("catalog/product")->load($item->getProductId());
+            $itemsArr[$i]["Name"] = $item->getName();
+            $itemsArr[$i]["SKU"] = $item->getSku();
+            $itemsArr[$i]["Price"] = ["Value"=>round($item->getPrice(), 2),"CurrencyCode"=>$currencyCode];
+            $itemsArr[$i]["Quantity"] = $item->getQty();
+            $itemsArr[$i]["Description"] = $product->getShortDescription();
+            //echo $productPrice = $item->getProduct()->getPrice();
+            $i++;
+            
+        }
+        $params['CartData'] = [
+            "Items" => $itemsArr,
+            "AmountDetails" => [
+                "Value" => round(Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal(), 2),
+                "CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode()
+            ]
+        ];
+
+        $paymentMode = Mage::helper('pis_payment')->getPaymentMode();
+        if($paymentMode == "hosted_solution"){
+            $paymentWizardData = [
+                "PaymentWizardData" => [
+                    "RequestedNumberOfInstallments" => implode(',', array_keys($numOfInstallments)) ,
+                    "SuccessAsyncURL" => Mage::getBaseUrl()."payitsimple/payment/successAsync",
+                    "SuccessExitURL" => Mage::getBaseUrl()."payitsimple/payment/successExit",
+                    "CancelExitURL" => Mage::getBaseUrl()."payitsimple/payment/cancelExit"
+                    
+                ]
+            ];
+            $params = array_merge($params, $paymentWizardData);
+        }else{
+            $numberOfInstallments = ["NumberOfInstallments" => $selectedInstallment];
+            $planData = array_merge($params["PlanData"], $numberOfInstallments);
+            $params["PlanData"] = $planData;
+        }
+        //print_r($params);die("--fd");
+        return $params;
     }
 
     public function getFirstInstallmentAmount($selectedInstallment){
@@ -871,7 +970,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
             $response["cardNumber"] = $decodedResult["PlansList"][0]["ActiveCard"]["CardNumber"];
             $response["cardExpMonth"] = $decodedResult["PlansList"][0]["ActiveCard"]["CardExpMonth"];
             $response["cardExpYear"] = $decodedResult["PlansList"][0]["ActiveCard"]["CardExpYear"];
-            $response["grandTotal"] = $decodedResult["PlansList"][0]["Amount"]["Value"];
+            $response["grandTotal"] = $decodedResult["PlansList"][0]["OriginalAmount"]["Value"];
             
         }else if(isset($decodedResult["ResponseHeader"]) && count($decodedResult["ResponseHeader"]["Errors"])){
             $errorMsg = "";

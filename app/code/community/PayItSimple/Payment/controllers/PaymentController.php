@@ -103,6 +103,9 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
             $response["error"] = $api->getError();
         }*/
         if ($api->isLogin()){
+            Mage::log('=========splitit logging start=========');
+            $ipnForLogs = Mage::getSingleton('core/session')->getSplititSessionid();
+            Mage::log('Splitit session Id : '.$ipnForLogs);
             $response["status"] = true;
             $paymentMode = Mage::helper('pis_payment')->getPaymentMode();
             if($paymentMode == "hosted_solution"){
@@ -173,16 +176,45 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         return ;
     }
 
+    public function testAction(){
+        $params = "02741420601104472804";
+        $tablePrefix = (string) Mage::getConfig()->getTablePrefix();
+        $db_read = Mage::getSingleton('core/resource')->getConnection('core_read');
+        $sql1 = 'SELECT * FROM `' . $tablePrefix . 'splitit_hosted_solution` where installment_plan_number = "'.$params.'" and order_created = 1'; 
+        $data = $db_read->fetchRow($sql1);
+        print_r($data);
+
+    }
+
     public function successExitAction(){
         $params = $this->getRequest()->getParams();
-        Mage::getSingleton('core/session')->setInstallmentPlanNumber($params["InstallmentPlanNumber"]);
-        // get installmentplan details 
+        Mage::getSingleton('core/session')->setInstallmentPlanNumber($params["InstallmentPlanNumber"]); 
+        Mage::log('======= successExitAction :  =======InstallmentPlanNumber coming from splitit in url: '.$params["InstallmentPlanNumber"]);
+        
+        $tablePrefix = (string) Mage::getConfig()->getTablePrefix();
+        $db_read = Mage::getSingleton('core/resource')->getConnection('core_read');
+        // check if order already created with the installment plan number coming from in parameters via async call(async run before response). Get data from SPLITIT_HOSTED_SOLUTION table
+        $sql1 = 'SELECT * FROM `' . $tablePrefix . 'splitit_hosted_solution` where installment_plan_number = "'.$params["InstallmentPlanNumber"].'" and order_created = 1'; 
+        $data = $db_read->fetchRow($sql1);
+        // check if order already created via Async etc.
+        if(count($data) && $data["order_id"] != 0 && $data["order_increment_id"] != null){
+
+            Mage::log('======= check if order already created via Async etc.   ======= ');
+            Mage::getSingleton('core/session')->setOrderIncrementId($data["order_increment_id"]);
+            Mage::getSingleton('core/session')->setOrderId($data["order_id"]); 
+            Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."payitsimple/payment/success")->sendResponse();
+            return;
+        }
+
+
+        // get installmentplan details        
         $storeId = Mage::app()->getStore()->getStoreId();
         $api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
         $planDetails = Mage::getSingleton("pis_payment/pisMethod")->getInstallmentPlanDetails($api );
-        $db_read = Mage::getSingleton('core/resource')->getConnection('core_read');
-        $tablePrefix = (string) Mage::getConfig()->getTablePrefix();
-
+        
+        Mage::log('======= get installmentplan details :  ======= ');
+        Mage::log($planDetails);
+        // get plan number info from database table SPLITIT_HOSTED_SOLUTION
         $sql = 'SELECT * FROM `' . $tablePrefix . 'splitit_hosted_solution` where installment_plan_number = "'.$params["InstallmentPlanNumber"].'"';
         //$data = $db_read->fetchAllRow($sql); // fetch All row in a table
         $data = $db_read->fetchRow($sql);
@@ -199,11 +231,17 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
             $quote->delete();
             // update order_created in splitit_hosted_solution
             $db_write = Mage::getSingleton('core/resource')->getConnection('core_write');
-            $tablePrefix = (string) Mage::getConfig()->getTablePrefix();
-            $updateQue = 'UPDATE `' . $tablePrefix . 'splitit_hosted_solution` SET order_created = 1 WHERE installment_plan_number = "'.$params["InstallmentPlanNumber"].'"';
+            // get order id and increment number from session to update in splitit_hosted_solution table
+            $orderIncrementId = Mage::getSingleton('core/session')->getOrderIncrementId();
+            $orderId = Mage::getSingleton('core/session')->getOrderId();
+            $updateQue = 'UPDATE `' . $tablePrefix . 'splitit_hosted_solution` SET order_created = 1, order_id = "'.$orderId.'", order_increment_id = "'.$orderIncrementId.'" WHERE installment_plan_number = "'.$params["InstallmentPlanNumber"].'"';
             $db_write->query($updateQue);
+            Mage::log('====== Order Id =====:'.$orderId.'==== Order Increment Id ======:'.$orderIncrementId);
+
             Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."payitsimple/payment/success")->sendResponse();
         }else{
+
+            Mage::log('====== Order cancel due to Grand total and Payment detail total coming from Api is not same. =====');
             $cancelResponse = Mage::getSingleton("pis_payment/pisMethod")->cancelInstallmentPlan($api, $params["InstallmentPlanNumber"]);
             if($cancelResponse["status"]){
                 Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."payitsimple/payment/cancel")->sendResponse();
@@ -236,13 +274,57 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 
     public function successAsyncAction(){
         $params = $this->getRequest()->getParams();
-        print_r($params);       
-        die("succAsy");
+        Mage::getSingleton('core/session')->setInstallmentPlanNumber($params["InstallmentPlanNumber"]); 
+        $tablePrefix = (string) Mage::getConfig()->getTablePrefix();
+        $db_read = Mage::getSingleton('core/resource')->getConnection('core_read');
+        
+        // get installmentplan details        
+        $storeId = Mage::app()->getStore()->getStoreId();
+        $api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
+        $planDetails = Mage::getSingleton("pis_payment/pisMethod")->getInstallmentPlanDetails($api );
+        
+        
+        // get plan number info from database table SPLITIT_HOSTED_SOLUTION
+        $sql = 'SELECT * FROM `' . $tablePrefix . 'splitit_hosted_solution` where installment_plan_number = "'.$params["InstallmentPlanNumber"].'"';
+        //$data = $db_read->fetchAllRow($sql); // fetch All row in a table
+        $data = $db_read->fetchRow($sql);
+        $store = Mage::getSingleton('core/store')->load($storeId);
+        $quote = Mage::getModel('sales/quote')->setStore($store)->load($data["quote_id"]);
+        $grandTotal = $quote->getGrandTotal();
+        if(count($data) && $grandTotal == $planDetails["grandTotal"]){
+        
+            $quote->assignCustomer($quote->getCustomer());
+            $quote->collectTotals()->getPayment()->setMethod('pis_cc');
+            $service = Mage::getModel('sales/service_quote', $quote);
+            $service->submitAll();
+
+            $order = $service->getOrder();
+            $order->save();
+            $quote->delete();
+            // update order_created in splitit_hosted_solution
+            $db_write = Mage::getSingleton('core/resource')->getConnection('core_write');
+            // get order id and increment number from session to update in splitit_hosted_solution table
+            $orderIncrementId = Mage::getSingleton('core/session')->getOrderIncrementId();
+            $orderId = Mage::getSingleton('core/session')->getOrderId();
+            $updateQue = 'UPDATE `' . $tablePrefix . 'splitit_hosted_solution` SET order_created = 1, order_id = "'.$orderId.'", order_increment_id = "'.$orderIncrementId.'" WHERE installment_plan_number = "'.$params["InstallmentPlanNumber"].'"';
+            $db_write->query($updateQue);
+            return true;
+        }else{
+            $cancelResponse = Mage::getSingleton("pis_payment/pisMethod")->cancelInstallmentPlan($api, $params["InstallmentPlanNumber"]);
+            if($cancelResponse["status"]){
+                Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."payitsimple/payment/cancel")->sendResponse();
+            }
+
+        }
     }
 
     public function cancelExitAction(){
         $params = $this->getRequest()->getParams();
-        print_r($params);
-        die("cancExit");
+        $storeId = Mage::app()->getStore()->getStoreId();
+        $api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
+        $cancelResponse = Mage::getSingleton("pis_payment/pisMethod")->cancelInstallmentPlan($api, $params["InstallmentPlanNumber"]);
+        if($cancelResponse["status"]){
+            Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."payitsimple/payment/cancel")->sendResponse();
+        }
     }
 }

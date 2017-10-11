@@ -3,7 +3,8 @@
 class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract
 {
 	public function getTranslation(){
-		$lvals = Mage::getStoreConfig('payment/pis_cc/translate_languages', $this->_storeId);
+		$storeId = Mage::app()->getStore()->getStoreId();
+		$lvals = Mage::getStoreConfig('payment/pis_cc/translate_languages', $storeId);
       	return $translatedJsonVal = json_decode($lvals,true);
 	}
 
