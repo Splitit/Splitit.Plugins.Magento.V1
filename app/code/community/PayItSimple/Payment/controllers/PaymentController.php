@@ -274,6 +274,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 
     public function successAsyncAction(){
         $params = $this->getRequest()->getParams();
+        Mage::log('======= successAsyncAction :  =======InstallmentPlanNumber coming from splitit in url: '.$params["InstallmentPlanNumber"]);
         Mage::getSingleton('core/session')->setInstallmentPlanNumber($params["InstallmentPlanNumber"]); 
         $tablePrefix = (string) Mage::getConfig()->getTablePrefix();
         $db_read = Mage::getSingleton('core/resource')->getConnection('core_read');
@@ -292,7 +293,8 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         $quote = Mage::getModel('sales/quote')->setStore($store)->load($data["quote_id"]);
         $grandTotal = $quote->getGrandTotal();
         if(count($data) && $grandTotal == $planDetails["grandTotal"]){
-        
+            
+            Mage::log('======= if condition: ===========  Grand Total: '.$grandTotal);
             $quote->assignCustomer($quote->getCustomer());
             $quote->collectTotals()->getPayment()->setMethod('pis_cc');
             $service = Mage::getModel('sales/service_quote', $quote);
@@ -309,7 +311,8 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
             $updateQue = 'UPDATE `' . $tablePrefix . 'splitit_hosted_solution` SET order_created = 1, order_id = "'.$orderId.'", order_increment_id = "'.$orderIncrementId.'" WHERE installment_plan_number = "'.$params["InstallmentPlanNumber"].'"';
             $db_write->query($updateQue);
             return true;
-        }else{
+        }else if($quote->getId() != ""){
+            Mage::log('======= else condition: =========== call cancel api ');
             $cancelResponse = Mage::getSingleton("pis_payment/pisMethod")->cancelInstallmentPlan($api, $params["InstallmentPlanNumber"]);
             if($cancelResponse["status"]){
                 Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."payitsimple/payment/cancel")->sendResponse();
