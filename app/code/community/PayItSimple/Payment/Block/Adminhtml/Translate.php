@@ -204,7 +204,8 @@ protected function getTableLanguageWhenFilled($translatedJsonVal)
                           'ecomm_no_interest' => 'No interest',
                           'ecomm_tell_me_more' => 'Tell me more',
                           'common_pleaseselect' => 'Please Select',
-                          'common_i_approve' => 'I Approve'
+                          'common_i_approve' => 'I Approve',
+                          'ecomm_redirect_to_payment_form' => 'You will be redirected to a payment form'
 
         );
    }

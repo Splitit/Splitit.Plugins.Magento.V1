@@ -730,7 +730,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                     "RequestedNumberOfInstallments" => implode(',', array_keys($numOfInstallments)) ,
                     "SuccessAsyncURL" => Mage::getBaseUrl()."payitsimple/payment/successAsync",
                     "SuccessExitURL" => Mage::getBaseUrl()."payitsimple/payment/successExit",
-                    "CancelExitURL" => Mage::getBaseUrl()."payitsimple/payment/cancelExit"
+                    "CancelExitURL" => Mage::helper('checkout/url')->getCheckoutUrl()
                     
                 ]
             ];
