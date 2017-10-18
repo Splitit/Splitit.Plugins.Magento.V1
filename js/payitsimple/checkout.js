@@ -110,7 +110,7 @@ jQuery(document).ready(function(){
 	               }*/
 	               if ('checkoutUrl' in obj) {
 					  jQuery("#payment-buttons-container button").hide();
-					  
+					  jQuery(document).find(".splitit-checkout-url").remove();
 					  jQuery(document).find("#payment-buttons-container .back-link").before("<a class='splitit-checkout-url' href='"+obj.checkoutUrl+"' >continue</a>");
 					  //jQuery("#payment-buttons-container .back-ling").after("<a href='"+obj.checkoutUrl+"' >redirect</a>");
 				    }
