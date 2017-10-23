@@ -108,7 +108,11 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
             Mage::log('Splitit session Id : '.$ipnForLogs);
             $response["status"] = true;
             $paymentMode = Mage::helper('pis_payment')->getPaymentMode();
-            if($paymentMode == "hosted_solution"){
+            // get plan number from session if already created
+            $planFromSession = Mage::getSingleton('core/session')->getSplititInstallmentPlanNumber();
+
+            if($paymentMode == "hosted_solution" && $planFromSession == ""){
+
                 $initResponse = Mage::getModel("pis_payment/pisMethod")->installmentplaninitForHostedSolution();
                 $response["data"] = $initResponse["data"];
                 if($initResponse["status"]){
@@ -128,6 +132,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
             
         }
         echo $jsonData = Mage::helper('core')->jsonEncode($response);
+
         //echo $jsonData = json_encode($response);
         return ;
         
@@ -188,6 +193,8 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 
     public function successExitAction(){
         $params = $this->getRequest()->getParams();
+        // remove plan from session which were created when user click on radio button
+        Mage::getSingleton('core/session')->setSplititInstallmentPlanNumber("");
         Mage::getSingleton('core/session')->setInstallmentPlanNumber($params["InstallmentPlanNumber"]); 
         Mage::log('======= successExitAction :  =======InstallmentPlanNumber coming from splitit in url: '.$params["InstallmentPlanNumber"]);
         

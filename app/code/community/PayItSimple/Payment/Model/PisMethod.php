@@ -614,6 +614,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                     $response["status"] = true;
                     $response["checkoutUrl"] = $decodedResult["CheckoutUrl"];
                     $installmentPlan = $decodedResult["InstallmentPlan"]["InstallmentPlanNumber"];
+                    // store installment plan number in session, so that will not call init again & again if customer clicks on radio button
+                    Mage::getSingleton('core/session')->setSplititInstallmentPlanNumber($installmentPlan);
                     Mage::log('======= installmentplaninit : response from splitit =======InstallmentPlanNumber : '.$installmentPlan);
                     Mage::log($decodedResult);
                     // store information in splitit_hosted_solution for successExit and Async
@@ -718,8 +720,9 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         $params['CartData'] = [
             "Items" => $itemsArr,
             "AmountDetails" => [
-                "Value" => round(Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal(), 2),
-                "CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode()
+                "Subtotal" => round(Mage::getSingleton('checkout/session')->getQuote()->getSubtotal(), 2),
+                "Tax" => round(Mage::helper('checkout')->getQuote()->getShippingAddress()->getData('tax_amount'), 2),
+                "Shipping" => round(Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()->getShippingAmount(), 2)
             ]
         ];
 
@@ -735,6 +738,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                 ]
             ];
             $params = array_merge($params, $paymentWizardData);
+            
         }else{
             $numberOfInstallments = ["NumberOfInstallments" => $selectedInstallment];
             $planData = array_merge($params["PlanData"], $numberOfInstallments);
