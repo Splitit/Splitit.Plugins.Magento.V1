@@ -109,9 +109,9 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
             $response["status"] = true;
             $paymentMode = Mage::helper('pis_payment')->getPaymentMode();
             // get plan number from session if already created
-            $planFromSession = Mage::getSingleton('core/session')->getSplititInstallmentPlanNumber();
+            //$planFromSession = Mage::getSingleton('core/session')->getSplititInstallmentPlanNumber();
 
-            if($paymentMode == "hosted_solution" && $planFromSession == ""){
+            if($paymentMode == "hosted_solution"){
 
                 $initResponse = Mage::getModel("pis_payment/pisMethod")->installmentplaninitForHostedSolution();
                 $response["data"] = $initResponse["data"];
@@ -194,7 +194,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
     public function successExitAction(){
         $params = $this->getRequest()->getParams();
         // remove plan from session which were created when user click on radio button
-        Mage::getSingleton('core/session')->setSplititInstallmentPlanNumber("");
+        //Mage::getSingleton('core/session')->setSplititInstallmentPlanNumber("");
         Mage::getSingleton('core/session')->setInstallmentPlanNumber($params["InstallmentPlanNumber"]); 
         Mage::log('======= successExitAction :  =======InstallmentPlanNumber coming from splitit in url: '.$params["InstallmentPlanNumber"]);
         

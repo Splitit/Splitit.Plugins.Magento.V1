@@ -615,7 +615,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                     $response["checkoutUrl"] = $decodedResult["CheckoutUrl"];
                     $installmentPlan = $decodedResult["InstallmentPlan"]["InstallmentPlanNumber"];
                     // store installment plan number in session, so that will not call init again & again if customer clicks on radio button
-                    Mage::getSingleton('core/session')->setSplititInstallmentPlanNumber($installmentPlan);
+                    //Mage::getSingleton('core/session')->setSplititInstallmentPlanNumber($installmentPlan);
                     Mage::log('======= installmentplaninit : response from splitit =======InstallmentPlanNumber : '.$installmentPlan);
                     Mage::log($decodedResult);
                     // store information in splitit_hosted_solution for successExit and Async
