@@ -9,7 +9,8 @@ jQuery(document).ready(function(){
 	
 	var samePayment = "";
 	
-	baseUrl = jQuery("#payment-img").attr("data-baseurl");
+	//baseUrl = jQuery("#payment-img").attr("data-baseurl");
+	baseUrl = jQuery(".redirect-class").attr("data-baseurl");
 	if(typeof baseUrl === 'undefined'){
 		baseUrl = curUrl.substring(0, curUrl.indexOf('checkout'));
 	}
@@ -64,8 +65,8 @@ jQuery(document).ready(function(){
     	}
     	else{
     		// check if hosted solution is selected as payment mode
-    		jQuery("#payment-buttons-container button").show();
-    		jQuery(document).find("#payment-buttons-container .splitit-checkout-url").remove();
+    		/*jQuery("#payment-buttons-container button").show();
+    		jQuery(document).find("#payment-buttons-container .splitit-checkout-url").remove();*/
     		//jQuery("#payment-buttons-container button").attr("onclick","payment.save();");
     	}
     })
@@ -82,7 +83,22 @@ jQuery(document).ready(function(){
     	
     });
 
-
+	// check if we have splitit payment form checkout url for hosted solution
+	var isCheckoutUrl = 0;
+	var checkIfFoundUrlElse = 0; // check not found checkout url when click redirect button
+	jQuery(document).on("click",".splitit-redirect", function() {
+		
+		if(isCheckoutUrl){
+			jQuery(document).find(".redirect-checkbox").prop('checked', true);
+			var splititCheckoutUrl = jQuery(document).find(".splitit-redirect").attr("data-splititUrl");
+			window.location.href = splititCheckoutUrl;
+		}else{
+			jQuery(document).find("#p_method_pis_cc").prop('checked', true);
+			checkIfFoundUrlElse = 1;
+			getNumOfInstallments();	
+		}
+    	
+    });
     
     /*jQuery("#payment_form_pis_cc li").on("click",function(){
     	alert("sdfsfd");
@@ -95,6 +111,7 @@ jQuery(document).ready(function(){
 		jQuery.ajax({
 	        url : baseUrl+"payitsimple/payment/apiLogin/",
 	        type : 'POST',
+	        async: true,
 	        dataType:'json',
 	        data:{},
 	        success : function(obj){	        	
@@ -109,9 +126,19 @@ jQuery(document).ready(function(){
 	               		jQuery("#pis_cc_installments_no option:nth-child(2)").attr("value", "");
 	               }*/
 	               if ('checkoutUrl' in obj) {
-					  jQuery("#payment-buttons-container button").hide();
+
+	               	  jQuery(document).find(".splitit-redirect").attr('data-splititUrl',obj.checkoutUrl);
+	               	  isCheckoutUrl = 1;
+	               	  if(checkIfFoundUrlElse){
+	               	  	jQuery(document).find(".redirect-checkbox").prop('checked', true);
+						var splititCheckoutUrl = jQuery(document).find(".splitit-redirect").attr("data-splititUrl");
+						window.location.href = obj.checkoutUrl;
+	               	  }
+
+					  /*jQuery("#payment-buttons-container button").hide();
 					  jQuery(document).find(".splitit-checkout-url").remove();
 					  jQuery(document).find("#payment-buttons-container .back-link").before("<a class='splitit-checkout-url' href='"+obj.checkoutUrl+"' >continue</a>");
+					  */
 					  //jQuery("#payment-buttons-container .back-ling").after("<a href='"+obj.checkoutUrl+"' >redirect</a>");
 				    }
 	               numOfInstallmentsResponse = 1;

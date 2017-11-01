@@ -9,13 +9,14 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
     protected $_canCapture                  = true;
     protected $_canCapturePartial           = false;
     protected $_canCaptureOnce              = false;
-    protected $_canRefund                   = false;
-    protected $_canRefundInvoicePartial     = false;
+    protected $_canRefund                   = true;
+    protected $_canRefundInvoicePartial     = true;
     protected $_canVoid                     = false;
     protected $_canUseInternal              = false;
     protected $_canUseCheckout              = true;
     protected $_canUseForMultishipping      = false;
 
+    protected $_canCancel = false;
     public function assignData($data)
     {
         if (!($data instanceof Varien_Object)) {
@@ -629,7 +630,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                     $cartItemCount = Mage::helper('checkout/cart')->getSummaryCount();
                     $grandTotal = Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal();
                     $passedData = json_encode($params);
-                    $sql = 'INSERT INTO `' . $tablePrefix . 'SPLITIT_HOSTED_SOLUTION` (`installment_plan_number`, `quote_id`, `quote_item_count`, `customer_id`, `base_grand_total`, `additional_data`) VALUES ("'.$installmentPlan.'", '.$quote_id.', '.$cartItemCount.', '.$customerId.', '.$grandTotal.',\''.$passedData.'\')';
+                    $sql = 'INSERT INTO `' . $tablePrefix . 'splitit_hosted_solution` (`installment_plan_number`, `quote_id`, `quote_item_count`, `customer_id`, `base_grand_total`, `additional_data`) VALUES ("'.$installmentPlan.'", '.$quote_id.', '.$cartItemCount.', '.$customerId.', '.$grandTotal.',\''.$passedData.'\')';
                     $db_write->query($sql);  
                 }else if(isset($decodedResult["ResponseHeader"]) && count($decodedResult["ResponseHeader"]["Errors"])){
                     $errorMsg = "";
@@ -1027,6 +1028,52 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         
     }
 
+    public function refund(Varien_Object $payment, $amount){
+        $order = $payment->getOrder();
+        
+        $api = $this->_initApi($this->getStore());
+        $sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
+        $installmentPlanNumber = $payment->getAuthorizationTransaction()->getTxnId();
+        $installmentPlanNumber = substr($installmentPlanNumber, 0, strpos($installmentPlanNumber, '-'));
+        $params = [
+            "RequestHeader" => [
+                "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
+            ],
+            "InstallmentPlanNumber" => $installmentPlanNumber,
+            "Amount" => ["Value" => $amount],
+            "_RefundStrategy" => "FutureInstallmentsFirst"
+            
+        ];
+        $result = $api->refundInstallmentPlan($this->getApiUrl(), $params);
+        $decodedResult = Mage::helper('core')->jsonDecode($result);
+
+        if(isset($decodedResult["ResponseHeader"]["Succeeded"]) && $decodedResult["ResponseHeader"]["Succeeded"] == 1){
+            $response["status"] = true;
+            
+            
+        }else if(isset($decodedResult["ResponseHeader"]) && count($decodedResult["ResponseHeader"]["Errors"])){
+            $errorMsg = "";
+            $i = 1;
+            foreach ($decodedResult["ResponseHeader"]["Errors"] as $key => $value) {
+                $errorMsg .= "Code : ".$value["ErrorCode"]." - ".$value["Message"];
+                if($i < count($decodedResult["ResponseHeader"]["Errors"])){
+                    $errorMsg .= ", ";
+                }
+                $i++;
+            }
+            Mage::throwException($errorMsg);
+        }
+
+        return $this;
+ 
+    }
+
+    public function cancel(Varien_Object $payment){
+        echo $payment->getTransactionId();
+        die("--fdfd");
+    }
+
+    
     public function getTermnConditionText(){
         $str = '<p style="text-align: left;">1. &nbsp;Buyer, whose name appears below ("Buyer", "You", or "Your"), promises to pay the full amount of the Total Authorized Purchase Price in the number of installment payments set forth in the Recurring Installment Payment Authorization ("Authorization") to Seller ("Seller", "We" or "Us") by authorizing Seller to charge Buyer’s credit card in equal monthly installments as set forth in the Authorization (each an "Installment") each month until paid in full.</p>
 <p style="text-align: left;">2. &nbsp;Buyer agrees that Seller will obtain authorization on Buyer’s credit card for the full amount of the Purchase at the time of sale, and Seller will obtain authorizations on Buyer’s credit card each month for the Installment and the entire remaining balance of the Purchase. Buyer understands that this authorization will remain in effect until Buyer cancels it in writing.</p>

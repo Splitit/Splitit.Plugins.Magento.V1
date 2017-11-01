@@ -75,6 +75,9 @@ table.tablePage2 td{ width:50%; vertical-align: middle; }
 .payment-images img{ height: auto; margin: 0 3px; width: 45px;}
 #approval-popup.overflowHidden, .overflowHidden > #main{overflow-y: hidden;}
 .apr-tc{display: inline-block; background: #2E8AB8; color: #fff; padding: 6px 15px; margin-top: 5px; width: 320px; cursor: pointer;}
+.splitit-redirect{display: inline-block; background: #2E8AB8; color: #fff; padding: 6px 15px; margin-top: 5px; cursor: pointer; font-size: 12px;}
+.redirect-checkbox+div.validation-advice{font-size: 0;}
+.redirect-checkbox+div.validation-advice:before{ content:"Please click to pay with Splitit's secured payment."; color: #df280a; font-size: 13px; }
 .terms-condition-loader{display: none; vertical-align: middle;}
 .terms-conditions{ font-size: 0; }
 .terms-conditions div{font-size: 0; line-height: normal;}

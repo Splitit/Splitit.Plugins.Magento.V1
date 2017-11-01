@@ -129,6 +129,14 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
         }    
     }
 
+    public function refundInstallmentPlan($apiUrl, $params){
+        try{
+            return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Refund" , $params);        
+        }catch(Exception $e){
+            echo $e->getMessage();
+        }    
+    }
+
     /**
      * @param $gwUrl string
      * @param $method string

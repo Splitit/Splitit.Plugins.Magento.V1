@@ -105,4 +105,27 @@ class PayItSimple_Payment_Model_Observer
             return true;
         }
     }
+
+    public function orderCancelAfter(Varien_Event_Observer $observer){
+        $event = $observer->getEvent();
+        
+        $order = $observer->getEvent()->getOrder();
+
+        $payment = $order->getPayment();
+        if($payment->getMethod() == "pis_cc"){
+            $storeId = Mage::app()->getStore()->getStoreId();
+            $api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
+            $sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
+            $installmentPlanNumber = $payment->getLastTransId();
+            $cancelResponse = Mage::getModel("pis_payment/pisMethod")->cancelInstallmentPlan($api, $installmentPlanNumber);
+            if(!$cancelResponse["status"]){
+                Mage::throwException(
+                    Mage::helper('payment')->__($cancelResponse["data"])
+                );
+            }
+
+        }
+        
+        
+    }
 }

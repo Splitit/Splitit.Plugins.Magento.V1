@@ -3,8 +3,13 @@
 
 <?php $this->getAvailableInstallments(); // set installments in session?>
 <?php $paymentMode = Mage::helper('pis_payment')->getPaymentMode();?>
+<div data-baseurl="<?php echo Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB);  ?>" class="redirect-class"></div>
 <?php if($paymentMode == "hosted_solution"): ?>
-<ul><li style="padding: 5px 0;"> <b><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('ecomm_redirect_to_payment_form'); ?></b></li></ul>
+<ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:none;">
+    <li style="padding: 5px 0;"> <div class="splitit-redirect" data-splititUrl=""><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('ecomm_redirect_to_payment_form'); ?></div>
+        <input style="visibility: hidden; float: left; margin-right: 5px; position: absolute; margin-top: 2px;" type="checkbox" id="<?php echo $_code ?>_terms" name="" class="required-entry redirect-checkbox"/>
+    </li>
+</ul>
 <?php endif;?>
 <?php if($paymentMode == "embedded_payment"):?>
 <ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:none;">
