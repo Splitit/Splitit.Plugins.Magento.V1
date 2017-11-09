@@ -1034,7 +1034,10 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         $api = $this->_initApi($this->getStore());
         $sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
         $installmentPlanNumber = $payment->getAuthorizationTransaction()->getTxnId();
-        $installmentPlanNumber = substr($installmentPlanNumber, 0, strpos($installmentPlanNumber, '-'));
+        $ipn = substr($installmentPlanNumber, 0, strpos($installmentPlanNumber, '-'));
+        if($ipn != ""){
+            $installmentPlanNumber = $ipn;
+        }
         $params = [
             "RequestHeader" => [
                 "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
