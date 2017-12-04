@@ -125,6 +125,20 @@ class PayItSimple_Payment_Model_Observer
             }
 
         }
+
+        if($payment->getMethod() == "pis_paymentform"){
+            $storeId = Mage::app()->getStore()->getStoreId();
+            $api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId = null);
+            $sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
+            $installmentPlanNumber = $payment->getLastTransId();
+            $cancelResponse = Mage::getModel("pis_payment/pisPaymentFormMethod")->cancelInstallmentPlan($api, $installmentPlanNumber);
+            if(!$cancelResponse["status"]){
+                Mage::throwException(
+                    Mage::helper('payment')->__($cancelResponse["data"])
+                );
+            }
+
+        }
         
         
     }

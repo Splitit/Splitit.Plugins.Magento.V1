@@ -106,7 +106,7 @@ jQuery(document).ready(function(){
 
 	function getNumOfInstallments(){
 		var selectedInstallment = jQuery("#pis_cc_installments_no").val();
-		jQuery("body").find(".pis-login-loader").show();
+		jQuery("body").find("#dt_method_pis_cc .pis-login-loader").show();
 		jQuery("body").find(".terms-condition-loader").hide();
 		jQuery.ajax({
 	        url : baseUrl+"payitsimple/payment/apiLogin/",
@@ -151,7 +151,7 @@ jQuery(document).ready(function(){
 	            }
 	            //samePayment = jQuery("#payment-buttons-container button").attr("onclick");
 	            //jQuery("#payment-buttons-container button").attr("onclick","");
-	            jQuery("body").find(".pis-login-loader").hide();
+	            jQuery("body").find("#dt_method_pis_cc .pis-login-loader").hide();
 
 	        },
 	        //async:false

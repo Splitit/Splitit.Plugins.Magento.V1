@@ -151,6 +151,26 @@
                 <centinel_is_mode_strict>0</centinel_is_mode_strict>
                 <installment_price_text>No interest</installment_price_text>
             </pis_cc>
+            <pis_paymentform>
+                <active>0</active>
+                <model>pis_payment/pisPaymentFormMethod</model>
+                <order_status>pending</order_status>
+                <payment_action>authorize</payment_action>
+                <title>Monthly payments - 0% Interest</title>
+                <faq_link_enabled>1</faq_link_enabled>
+                <faq_link_title>Tell me more</faq_link_title>
+                <api_url>https://web-api.splitit.com/</api_url>
+                <api_url_sandbox>https://web-api-sandbox.splitit.com/</api_url_sandbox>
+                <sandbox_flag>0</sandbox_flag>
+                <debug>0</debug>
+                <cctypes>MC,VI</cctypes>
+                <allowspecific>0</allowspecific>
+                <specificcountry>US</specificcountry>
+                <centinel>0</centinel>
+                <useccv>1</useccv>
+                <centinel_is_mode_strict>0</centinel_is_mode_strict>
+                <installment_price_text>No interest</installment_price_text>
+            </pis_paymentform>
         </payment>
     </default>
     <phpunit>

@@ -1,0 +1,8 @@
+<?php $_code=$this->getMethodCode();
+		$this->getAvailableInstallments();
+?>
+<ul class="form-list" id="payment_form_<?php echo $_code ?>" style="display:none;">
+    <li style="padding: 5px 0;"> 
+    	<div class="" style="margin-left: 40px"><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslationPaymentForm('ecomm_redirect_to_payment_form'); ?></div>
+    </li>
+</ul>

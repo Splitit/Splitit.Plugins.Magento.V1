@@ -2,9 +2,9 @@
 
 class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract
 {
-	public function getTranslation(){
+	public function getTranslation($paymentMethodCode){
 		$storeId = Mage::app()->getStore()->getStoreId();
-		$lvals = Mage::getStoreConfig('payment/pis_cc/translate_languages', $storeId);
+		$lvals = Mage::getStoreConfig('payment/'.$paymentMethodCode.'/translate_languages', $storeId);
       	return $translatedJsonVal = json_decode($lvals,true);
 	}
 
@@ -12,13 +12,13 @@ class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract
 		return "en_US";
 	}
 
-	public function getInstallmentPriceText(){
+	public function getInstallmentPriceText($code){
 		$storeId = Mage::app()->getStore()->getStoreId();
 		$storelang = Mage::getStoreConfig('general/locale/code', $storeId);
 		$defaultLang = $this->getDefaultLanguage();
-		$translation = $this->getTranslation();
+		$translation = $this->getTranslation($code);
 		$text = "";
-		if(Mage::getStoreConfig('payment/pis_cc/enable_installment_price')==1 && Mage::getStoreConfig('payment/pis_cc/active') == 1){
+		if(Mage::getStoreConfig('payment/'.$code.'/enable_installment_price')==1 && Mage::getStoreConfig('payment/'.$code.'/active') == 1){
 			if(!empty($translation) && isset($translation[$storelang]["ecomm_no_interest"]["translatedData"]) && $translation[$storelang]["ecomm_no_interest"]["translatedData"] != "" ){
 				$text = $translation[$storelang]["ecomm_no_interest"]["translatedData"];
 			}else if(!empty($translation) && isset($translation[$defaultLang]["ecomm_no_interest"]["translatedData"])){
@@ -33,7 +33,7 @@ class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract
 		$storeId = Mage::app()->getStore()->getStoreId();
 		$storelang = Mage::getStoreConfig('general/locale/code', $storeId);
 		$defaultLang = $this->getDefaultLanguage();
-		$translation = $this->getTranslation();
+		$translation = $this->getTranslation('pis_cc');
 		$text = "";
 		if(Mage::getStoreConfig('payment/pis_cc/faq_link_enabled') == 1 && Mage::getStoreConfig('payment/pis_cc/active') == 1){
 			if(!empty($translation) && isset($translation[$storelang]["ecomm_tell_me_more"]["translatedData"]) && $translation[$storelang]["ecomm_tell_me_more"]["translatedData"] != "" ){
@@ -50,9 +50,26 @@ class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract
 		$storeId = Mage::app()->getStore()->getStoreId();
 		$storelang = Mage::getStoreConfig('general/locale/code', $storeId);
 		$defaultLang = $this->getDefaultLanguage();
-		$translation = $this->getTranslation();
+		$translation = $this->getTranslation('pis_cc');
 		$text = "";
 		if(Mage::getStoreConfig('payment/pis_cc/active') == 1){
+			if(!empty($translation) && isset($translation[$storelang][$key]["translatedData"]) && $translation[$storelang][$key]["translatedData"] != "" ){
+				$text = $translation[$storelang][$key]["translatedData"];
+			}else if(!empty($translation) && isset($translation[$defaultLang][$key]["translatedData"])){
+				$text = $translation[$defaultLang][$key]["translatedData"];
+				
+			}	
+		}
+		return $text;
+	}
+
+	public function getCreditCardFormTranslationPaymentForm($key){
+		$storeId = Mage::app()->getStore()->getStoreId();
+		$storelang = Mage::getStoreConfig('general/locale/code', $storeId);
+		$defaultLang = $this->getDefaultLanguage();
+		$translation = $this->getTranslation('pis_paymentform');
+		$text = "";
+		if(Mage::getStoreConfig('payment/pis_paymentform/active') == 1){
 			if(!empty($translation) && isset($translation[$storelang][$key]["translatedData"]) && $translation[$storelang][$key]["translatedData"] != "" ){
 				$text = $translation[$storelang][$key]["translatedData"];
 			}else if(!empty($translation) && isset($translation[$defaultLang][$key]["translatedData"])){
@@ -66,7 +83,7 @@ class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract
 	public function getCultureName(){
 		$storeId = Mage::app()->getStore()->getStoreId();
 		$storelang = Mage::getStoreConfig('general/locale/code', $storeId);
-		$splititSupportedCultures = $this->getSplititSupportedCultures();
+		$splititSupportedCultures = $this->getSplititSupportedCultures('PisMethod');
 		if(count($splititSupportedCultures) && in_array(str_replace('_', '-', $storelang), $splititSupportedCultures)){
 			return str_replace('_', '-', $storelang);
 		}else{
@@ -74,8 +91,19 @@ class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract
 		}
 	}
 
-	public function getSplititSupportedCultures(){
-		$apiUrl = Mage::getSingleton('pis_payment/PisMethod')->getApiUrl();
+	public function getCultureNameForPaymentForm(){
+		$storeId = Mage::app()->getStore()->getStoreId();
+		$storelang = Mage::getStoreConfig('general/locale/code', $storeId);
+		$splititSupportedCultures = $this->getSplititSupportedCultures('PisPaymentFormMethod');
+		if(count($splititSupportedCultures) && in_array(str_replace('_', '-', $storelang), $splititSupportedCultures)){
+			return str_replace('_', '-', $storelang);
+		}else{
+			return Mage::getStoreConfig('payment/pis_paymentform/splitit_fallback_language');
+		}
+	}
+
+	public function getSplititSupportedCultures($model){
+		$apiUrl = Mage::getSingleton('pis_payment/'.$model)->getApiUrl();
         $getSplititSupportedCultures = Mage::getSingleton('pis_payment/api')->getSplititSupportedCultures($apiUrl."api/Infrastructure/SupportedCultures");
         $decodedResult = Mage::helper('core')->jsonDecode($getSplititSupportedCultures);
         if(isset($decodedResult["ResponseHeader"]["Succeeded"]) && $decodedResult["ResponseHeader"]["Succeeded"] == 1 && count($decodedResult["SupportedCultures"])){
@@ -112,6 +140,10 @@ class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract
 
 	public function getPaymentMode(){
 		return Mage::getStoreConfig('payment/pis_cc/payment_mode');
+	}
+
+	public function getPaymentAction(){
+		return Mage::getStoreConfig('payment/pis_paymentform/payment_action');	
 	}
 
 }

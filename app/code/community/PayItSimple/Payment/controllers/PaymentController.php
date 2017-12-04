@@ -192,6 +192,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
     }
 
     public function successExitAction(){
+        
         $params = $this->getRequest()->getParams();
         // remove plan from session which were created when user click on radio button
         //Mage::getSingleton('core/session')->setSplititInstallmentPlanNumber("");
@@ -216,8 +217,8 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 
         // get installmentplan details        
         $storeId = Mage::app()->getStore()->getStoreId();
-        $api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
-        $planDetails = Mage::getSingleton("pis_payment/pisMethod")->getInstallmentPlanDetails($api );
+        $api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId = null);
+        $planDetails = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->getInstallmentPlanDetails($api );
         
         Mage::log('======= get installmentplan details :  ======= ');
         Mage::log($planDetails);
@@ -225,31 +226,73 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         $sql = 'SELECT * FROM `' . $tablePrefix . 'splitit_hosted_solution` where installment_plan_number = "'.$params["InstallmentPlanNumber"].'"';
         //$data = $db_read->fetchAllRow($sql); // fetch All row in a table
         $data = $db_read->fetchRow($sql);
-        $grandTotal = Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal();
-        if(count($data) && $grandTotal == $planDetails["grandTotal"]){
-            $quote = Mage::getSingleton('checkout/session')->getQuote();
-            $quote->assignCustomer(Mage::getSingleton('customer/session')->getCustomer());
-            $quote->collectTotals()->getPayment()->setMethod('pis_cc');
-            $service = Mage::getModel('sales/service_quote', $quote);
-            $service->submitAll();
+        
+        $orderId = Mage::getSingleton('checkout/session')->getLastOrderId();
+        $orderIncrementId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
+        $orderObj = Mage::getModel('sales/order')->load($orderId);
+        $grandTotal = $orderObj->getGrandTotal();
 
-            $order = $service->getOrder();
-            $order->save();
-            $quote->delete();
+        if(count($data) && $grandTotal == $planDetails["grandTotal"]){
+
+            $payment = $orderObj->getPayment();
+            $paymentAction = Mage::helper('pis_payment')->getPaymentAction();
+            
+            $payment->setTransactionId(Mage::getSingleton('core/session')->getInstallmentPlanNumber());
+            $payment->setParentTransactionId(Mage::getSingleton('core/session')->getInstallmentPlanNumber());
+            $payment->setInstallmentsNo($planDetails["numberOfInstallments"]);
+            $payment->setIsTransactionClosed(0);
+            $payment->setCurrencyCode($planDetails["currencyCode"]);
+            $payment->setCcType($planDetails["cardBrand"]["Code"]);   
+            $payment->setIsTransactionApproved(true);
+
+            $payment->registerAuthorizationNotification($grandTotal);
+            
+            $orderObj->addStatusToHistory(
+            $orderObj->getStatus(),
+                'Payment InstallmentPlan was created with number ID: '
+                . Mage::getSingleton('core/session')->getInstallmentPlanNumber(),
+                false
+            );
+            $updateStatus = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->updateRefOrderNumber($api, $orderObj);        
+            if($updateStatus["status"] == false){
+                Mage::throwException(
+                    Mage::helper('payment')->__($updateStatus["data"])
+                );    
+            }
+
+            if($paymentAction == "authorize_capture"){
+
+                $sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
+                $params = array('InstallmentPlanNumber' => Mage::getSingleton('core/session')->getInstallmentPlanNumber());
+                $params = array_merge($params, array("RequestHeader"=> array('SessionId' => $sessionId)));
+                $result = $api->startInstallment(Mage::getSingleton("pis_payment/pisPaymentFormMethod")->getApiUrl(), $params);
+                $payment->setShouldCloseParentTransaction(true);
+                $payment->setIsTransactionClosed(1);
+                $payment->registerCaptureNotification($grandTotal);
+                $orderObj->addStatusToHistory(
+                    false,
+                    'Payment NotifyOrderShipped was sent with number ID: '.Mage::getSingleton('core/session')->getInstallmentPlanNumber(), false
+                );
+            }
+            //$orderObj->queueNewOrderEmail();
+            $orderObj->sendNewOrderEmail();
+            $orderObj->save();
+
             // update order_created in splitit_hosted_solution
             $db_write = Mage::getSingleton('core/resource')->getConnection('core_write');
             // get order id and increment number from session to update in splitit_hosted_solution table
-            $orderIncrementId = Mage::getSingleton('core/session')->getOrderIncrementId();
-            $orderId = Mage::getSingleton('core/session')->getOrderId();
+            
             $updateQue = 'UPDATE `' . $tablePrefix . 'splitit_hosted_solution` SET order_created = 1, order_id = "'.$orderId.'", order_increment_id = "'.$orderIncrementId.'" WHERE installment_plan_number = "'.$params["InstallmentPlanNumber"].'"';
             $db_write->query($updateQue);
             Mage::log('====== Order Id =====:'.$orderId.'==== Order Increment Id ======:'.$orderIncrementId);
 
-            Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."payitsimple/payment/success")->sendResponse();
+
+            //Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."payitsimple/payment/success")->sendResponse();
+            Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."checkout/onepage/success")->sendResponse();
         }else{
 
             Mage::log('====== Order cancel due to Grand total and Payment detail total coming from Api is not same. =====');
-            $cancelResponse = Mage::getSingleton("pis_payment/pisMethod")->cancelInstallmentPlan($api, $params["InstallmentPlanNumber"]);
+            $cancelResponse = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->cancelInstallmentPlan($api, $params["InstallmentPlanNumber"]);
             if($cancelResponse["status"]){
                 Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."payitsimple/payment/cancel")->sendResponse();
             }
@@ -335,6 +378,33 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         $cancelResponse = Mage::getSingleton("pis_payment/pisMethod")->cancelInstallmentPlan($api, $params["InstallmentPlanNumber"]);
         if($cancelResponse["status"]){
             Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."payitsimple/payment/cancel")->sendResponse();
+        }
+    }
+
+    public function redirectAction(){
+
+        echo Mage::helper('pis_payment')->getCreditCardFormTranslation('ecomm_redirect_to_payment_form');
+
+
+        $splititCheckoutUrl = Mage::getSingleton('checkout/session')->getSplititCheckoutUrl();
+        $splititInstallmentPlanNumber = Mage::getSingleton('checkout/session')->getSplititInstallmentPlanNumber();
+        if($splititCheckoutUrl != ""){
+            $tablePrefix = (string) Mage::getConfig()->getTablePrefix();
+            $db_read = Mage::getSingleton('core/resource')->getConnection('core_read');
+            $sql1 = 'SELECT * FROM `' . $tablePrefix . 'splitit_hosted_solution` where installment_plan_number = "'.$splititInstallmentPlanNumber.'"'; 
+            $data = $db_read->fetchRow($sql1);
+            // check if order already created via Async etc.
+            if(count($data) && $data["order_id"] == 0 && $data["order_increment_id"] == null){
+                $orderId = Mage::getSingleton('checkout/session')->getLastOrderId();
+                $orderIncrementId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
+                $db_write = Mage::getSingleton('core/resource')->getConnection('core_write');
+                // get order id and increment number from session to update in splitit_hosted_solution table
+                
+                $updateQue = 'UPDATE `' . $tablePrefix . 'splitit_hosted_solution` SET order_id = "'.$orderId.'", order_increment_id = "'.$orderIncrementId.'" WHERE installment_plan_number = "'.$splititInstallmentPlanNumber.'"';
+                $db_write->query($updateQue);    
+                Mage::app()->getFrontController()->getResponse()->setRedirect($splititCheckoutUrl)->sendResponse();
+                //return true;
+            }
         }
     }
 }

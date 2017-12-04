@@ -1,5 +1,5 @@
 <?php
-class PayItSimple_Payment_Block_Adminhtml_Addresses extends Mage_Adminhtml_Block_System_Config_Form_Field
+class PayItSimple_Payment_Block_Adminhtml_DependingOnCartTotalPaymentForm extends Mage_Adminhtml_Block_System_Config_Form_Field
 {
    
 public $_storeId = "";
@@ -47,7 +47,7 @@ public $_storeId = "";
    protected function _getElementHtml(Varien_Data_Form_Element_Abstract $element)
    {
       $this->setElement($element);
-      $doctv = Mage::getStoreConfig('payment/pis_cc/depanding_on_cart_total_values', $this->_storeId); 
+      $doctv = Mage::getStoreConfig('payment/pis_paymentform/depanding_on_cart_total_values', $this->_storeId); 
       $html = "";
       if($doctv == ""){
         $html = $this->getTableHtmlWhenEmpty();
@@ -62,7 +62,7 @@ public $_storeId = "";
    // return html when there is not prior configuration is set for Depending on cart total
    protected function getTableHtmlWhenEmpty()
    {
-      $html = '<table class="data border splitit" id="tiers_table" cellspacing="0" border="1">
+      $html = '<table class="data border splitit_payment_form" id="tiers_table_payment_form" cellspacing="0" border="1">
       <div class="tiers_table_overlay"></div>
          <colgroup>
             <col width="120">
@@ -79,7 +79,7 @@ public $_storeId = "";
                <th class="last">Action</th>
             </tr>
          </thead>
-         <tbody id="tier_price_container">
+         <tbody id="tier_price_container_payment_form">
             <tr>
                <td>
                 From<br><label>'. $this->_getFirstAvailableCurrencySymbol() .'</label> <input style="max-width:90%!important;" type="text" class="doctv_from" name="doctv_from" /><br>To<br><label>'. $this->_getFirstAvailableCurrencySymbol() .'<input type="text" style="max-width:90%!important;" name="doctv_to" class="doctv_to" />
@@ -112,7 +112,7 @@ public $_storeId = "";
          <tfoot>
             <tr>
                <td style="display:none"></td>
-               <td colspan="4" class="a-right"><button id="id_e33ad31ef8ac28bb6e4a4fd4d54f5f9e" title="Add Tier" type="button" class="scalable add" onclick="addRow();" style=""><span><span><span>Add Tier</span></span></span></button></td>
+               <td colspan="4" class="a-right"><button id="id_e33ad31ef8ac28bb6e4a4fd4d54f5f9e" title="Add Tier" type="button" class="scalable add" onclick="addRowPaymentForm();" style=""><span><span><span>Add Tier</span></span></span></button></td>
             </tr>
          </tfoot>
       </table>'; 
@@ -125,7 +125,7 @@ public $_storeId = "";
       $doctv = json_decode($doctv);
       $currencySymbolsArray = json_decode($this->_getAvailableCurrencySymbolsArray(),true);
 
-      $html = '<table class="data border splitit" id="tiers_table" cellspacing="0" border="1">
+      $html = '<table class="data border splitit_payment_form" id="tiers_table_payment_form" cellspacing="0" border="1">
       <div class="tiers_table_overlay"></div>
          <colgroup>
             <col width="120">
@@ -142,7 +142,7 @@ public $_storeId = "";
                <th class="last">Action</th>
             </tr>
          </thead>
-         <tbody id="tier_price_container">';
+         <tbody id="tier_price_container_payment_form">';
       $rowHtml = "";   
       foreach ($doctv as $key => $value) {
         $rowHtml .= '<tr>';
@@ -181,7 +181,7 @@ public $_storeId = "";
          <tfoot>
          <tr>
                <td style="display:none"></td>
-               <td colspan="4" class="a-right"><button id="id_e33ad31ef8ac28bb6e4a4fd4d54f5f9e" title="Add Tier" type="button" class="scalable add" onclick="addRow();" style=""><span><span><span>Add Tier</span></span></span></button></td>
+               <td colspan="4" class="a-right"><button id="id_e33ad31ef8ac28bb6e4a4fd4d54f5f9e" title="Add Tier" type="button" class="scalable add" onclick="addRowPaymentForm();" style=""><span><span><span>Add Tier</span></span></span></button></td>
             </tr>
          </tfoot>
       </table>';
@@ -193,9 +193,7 @@ public $_storeId = "";
    protected function _getCurrencies() 
    {
       $currencies = array();
-      // get allowed currencies from all websites/store ( core_config_data )
-      $codes = $this->_getAllAllowedCurrencies();
-      //$codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);//print_r($codes);die;
+      $codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);//print_r($codes);die;
       $currenyOptions = "";
       if (is_array($codes) && count($codes) > 0) {
           $rates = Mage::getModel('directory/currency')->getCurrencyRates(
@@ -219,9 +217,7 @@ public $_storeId = "";
     protected function _getSelectedCurrency($currency)
    {
       $currencies = array();
-      // get allowed currencies from all websites/store ( core_config_data )
-      $codes = $this->_getAllAllowedCurrencies();
-      //$codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);//print_r($codes);die;
+      $codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);//print_r($codes);die;
       $currenyOptions = "";
       if (is_array($codes) && count($codes) > 0) {
           $rates = Mage::getModel('directory/currency')->getCurrencyRates(
@@ -246,21 +242,6 @@ public $_storeId = "";
   
    }
 
-   protected function _getAllAllowedCurrencies(){
-      $currencyCode = Mage::getModel('core/config_data')
-                      ->getCollection()
-                      ->addFieldToFilter('path','currency/options/allow')
-                      ->getData();
-      // get unique currency
-      foreach ($currencyCode as $key => $value) {
-        foreach(explode(",", $value["value"]) as $k =>$v){
-          $codes[] = $v;    
-        }
-        
-      }
-      return $codes = array_unique($codes);
-   }
-
    protected function _getBaseCurrency(){
     $currentCurrency = Mage::app()->getStore()->getBaseCurrencyCode();
     return $currencyLabel = '<input disabled class="doctv_currency" value="'.$currentCurrency.'"/>';
@@ -271,8 +252,7 @@ public $_storeId = "";
    }
 
    protected function _getAvailableCurrencySymbolsArray(){
-      //$codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);
-      $codes = $this->_getAllAllowedCurrencies(); 
+      $codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);
       $currencySymbolsArray = [];
       foreach ($codes as $key => $value) {
         $currencySymbolsArray[$value] = Mage::app()->getLocale()->currency($value)->getSymbol();
