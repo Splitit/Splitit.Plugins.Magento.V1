@@ -372,13 +372,37 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
     }
 
     public function cancelExitAction(){
-        $params = $this->getRequest()->getParams();
+
+        /*$params = $this->getRequest()->getParams();
         $storeId = Mage::app()->getStore()->getStoreId();
         $api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
         $cancelResponse = Mage::getSingleton("pis_payment/pisMethod")->cancelInstallmentPlan($api, $params["InstallmentPlanNumber"]);
         if($cancelResponse["status"]){
             Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."payitsimple/payment/cancel")->sendResponse();
-        }
+        }*/
+
+        $session = Mage::getSingleton('checkout/session');
+        $session->setQuoteId($session->getSplititQuoteId());
+        
+        if ($session->getLastRealOrderId()) {
+            $order = Mage::getModel('sales/order')->loadByIncrementId($session->getLastRealOrderId());
+            if ($order->getId()) {
+                $order->cancel()->save();
+            }
+            Mage::helper('paypal/checkout')->restoreQuote();
+            $order = Mage::getSingleton('checkout/session')->getLastRealOrder();
+            $quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
+            if ($quote->getId()) {
+                $quote->setIsActive(1)
+                    ->setReservedOrderId(null)
+                    ->save();
+                Mage::getSingleton('checkout/session')
+                    ->replaceQuote($quote)
+                    ->unsLastRealOrderId();
+                
+            }
+        }    
+        Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."checkout/cart")->sendResponse();
     }
 
     public function redirectAction(){

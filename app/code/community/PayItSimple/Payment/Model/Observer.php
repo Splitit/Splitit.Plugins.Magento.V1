@@ -112,33 +112,36 @@ class PayItSimple_Payment_Model_Observer
         $order = $observer->getEvent()->getOrder();
 
         $payment = $order->getPayment();
-        if($payment->getMethod() == "pis_cc"){
-            $storeId = Mage::app()->getStore()->getStoreId();
-            $api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
-            $sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
-            $installmentPlanNumber = $payment->getLastTransId();
-            $cancelResponse = Mage::getModel("pis_payment/pisMethod")->cancelInstallmentPlan($api, $installmentPlanNumber);
-            if(!$cancelResponse["status"]){
-                Mage::throwException(
-                    Mage::helper('payment')->__($cancelResponse["data"])
-                );
+        if($payment->getLastTransId() != ""){
+            if($payment->getMethod() == "pis_cc"){
+                $storeId = Mage::app()->getStore()->getStoreId();
+                $api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
+                $sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
+                $installmentPlanNumber = $payment->getLastTransId();
+                $cancelResponse = Mage::getModel("pis_payment/pisMethod")->cancelInstallmentPlan($api, $installmentPlanNumber);
+                if(!$cancelResponse["status"]){
+                    Mage::throwException(
+                        Mage::helper('payment')->__($cancelResponse["data"])
+                    );
+                }
+
             }
 
-        }
+            if($payment->getMethod() == "pis_paymentform"){
+                $storeId = Mage::app()->getStore()->getStoreId();
+                $api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId = null);
+                $sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
+                $installmentPlanNumber = $payment->getLastTransId();
+                $cancelResponse = Mage::getModel("pis_payment/pisPaymentFormMethod")->cancelInstallmentPlan($api, $installmentPlanNumber);
+                if(!$cancelResponse["status"]){
+                    Mage::throwException(
+                        Mage::helper('payment')->__($cancelResponse["data"])
+                    );
+                }
 
-        if($payment->getMethod() == "pis_paymentform"){
-            $storeId = Mage::app()->getStore()->getStoreId();
-            $api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId = null);
-            $sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
-            $installmentPlanNumber = $payment->getLastTransId();
-            $cancelResponse = Mage::getModel("pis_payment/pisPaymentFormMethod")->cancelInstallmentPlan($api, $installmentPlanNumber);
-            if(!$cancelResponse["status"]){
-                Mage::throwException(
-                    Mage::helper('payment')->__($cancelResponse["data"])
-                );
             }
-
         }
+        
         
         
     }
