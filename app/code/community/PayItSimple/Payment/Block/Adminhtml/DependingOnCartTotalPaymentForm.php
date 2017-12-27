@@ -85,7 +85,7 @@ public $_storeId = "";
                 From<br><label>'. $this->_getFirstAvailableCurrencySymbol() .'</label> <input style="max-width:90%!important;" type="text" class="doctv_from" name="doctv_from" /><br>To<br><label>'. $this->_getFirstAvailableCurrencySymbol() .'<input type="text" style="max-width:90%!important;" name="doctv_to" class="doctv_to" />
                </td>
                <td>
-                <select id="" name="doctv_installments" class=" select multiselect doctv_installments" size="10" multiple="multiple">
+                <select name="doctv_installments" class=" select multiselect doctv_installments" size="10" multiple="multiple">
                   <option value="2">2 Installments</option>
                   <option value="3">3 Installments</option>
                   <option value="4">4 Installments</option>
@@ -100,19 +100,19 @@ public $_storeId = "";
                   </select>
                </td>
                <td>
-                <select id="" name="doctv_currency" class=" select doctv_currency">
+                <select name="doctv_currency" class=" select doctv_currency">
                   '.$this->_getCurrencies().'
                  </select>
                </td>
                <td>
-                <button title="Delete Tier" type="button" class="scalable delete icon-btn delete-product-option" id="" onclick="deleteRow(this);"><span><span><span>Delete</span></span></span></button>
+                <button title="Delete Tier" type="button" class="scalable delete icon-btn delete-product-option" onclick="deleteRow(this);"><span><span><span>Delete</span></span></span></button>
                </td>
             </tr>
          </tbody>
          <tfoot>
             <tr>
                <td style="display:none"></td>
-               <td colspan="4" class="a-right"><button id="id_e33ad31ef8ac28bb6e4a4fd4d54f5f9e" title="Add Tier" type="button" class="scalable add" onclick="addRowPaymentForm();" style=""><span><span><span>Add Tier</span></span></span></button></td>
+               <td colspan="4" class="a-right"><button id="id_e33ad31ef8ac28bb6e4a4fd4d54f5f9eee" title="Add Tier" type="button" class="scalable add" onclick="addRowPaymentForm();" style=""><span><span><span>Add Tier</span></span></span></button></td>
             </tr>
          </tfoot>
       </table>'; 
@@ -148,7 +148,7 @@ public $_storeId = "";
         $rowHtml .= '<tr>';
         $rowHtml .= '<td> From<br><label>'. $currencySymbolsArray[$value->doctv->currency] .'</label> <input type="text" style="max-width:90%!important;" class="doctv_from" name="doctv_from" value="'.$value->doctv->from.'" /><br>To<br><label>'. $currencySymbolsArray[$value->doctv->currency] .'</label> <input type="text" style="max-width:90%!important;" name="doctv_to" class="doctv_to" value="'.$value->doctv->to.'"/> </td>';
         $rowHtml .= '<td>
-                <select id="" name="doctv_installments" class=" select multiselect doctv_installments" size="10" multiple="multiple">';
+                <select name="doctv_installments" class=" select multiselect doctv_installments" size="10" multiple="multiple">';
         $i = 2;
         $installments = explode(",", $value->doctv->installments);
         $selected = "";
@@ -164,13 +164,13 @@ public $_storeId = "";
                   
                
         $rowHtml .= '<td>
-                <select id="" name="doctv_currency" class=" select doctv_currency">
+                <select name="doctv_currency" class=" select doctv_currency">
                   '.$this->_getSelectedCurrency($value->doctv->currency).'
                 </select>  
                </td>';
         //$rowHtml .= '<td>'.$this->_getBaseCurrency().'</td>';         
         $rowHtml .= '<td>
-                <button title="Delete Tier" type="button" class="scalable delete icon-btn delete-product-option" id="" onclick="deleteRow(this);"><span><span><span>Delete</span></span></span></button>
+                <button title="Delete Tier" type="button" class="scalable delete icon-btn delete-product-option" onclick="deleteRow(this);"><span><span><span>Delete</span></span></span></button>
                </td>
             </tr>';
 
@@ -181,7 +181,7 @@ public $_storeId = "";
          <tfoot>
          <tr>
                <td style="display:none"></td>
-               <td colspan="4" class="a-right"><button id="id_e33ad31ef8ac28bb6e4a4fd4d54f5f9e" title="Add Tier" type="button" class="scalable add" onclick="addRowPaymentForm();" style=""><span><span><span>Add Tier</span></span></span></button></td>
+               <td colspan="4" class="a-right"><button id="id_e33ad31ef8ac28bb6e4a4fd4d54f5f9eee" title="Add Tier" type="button" class="scalable add" onclick="addRowPaymentForm();" style=""><span><span><span>Add Tier</span></span></span></button></td>
             </tr>
          </tfoot>
       </table>';

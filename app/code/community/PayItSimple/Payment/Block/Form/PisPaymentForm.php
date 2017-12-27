@@ -96,7 +96,7 @@ class PayItSimple_Payment_Block_Form_PisPaymentForm extends Mage_Payment_Block_F
     public function getMethodLabelAfterHtml(){
         $markFaq = Mage::getConfig()->getBlockClassName('core/template');
         $markFaq = new $markFaq;
-        $markFaq->setTemplate('payitsimple/form/method_faq.phtml')
+        $markFaq->setTemplate('payitsimple/form/method_faq_paymentform.phtml')
             ->setPaymentInfoEnabled($this->getMethod()->getConfigData('faq_link_enabled'))
             ->setPaymentInfoTitle($this->getMethod()->getConfigData('faq_link_title'));
         return $markFaq->toHtml();

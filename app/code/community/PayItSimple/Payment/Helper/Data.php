@@ -3,6 +3,7 @@
 class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract
 {
 	public function getTranslation($paymentMethodCode){
+		
 		$storeId = Mage::app()->getStore()->getStoreId();
 		$lvals = Mage::getStoreConfig('payment/'.$paymentMethodCode.'/translate_languages', $storeId);
       	return $translatedJsonVal = json_decode($lvals,true);
@@ -29,13 +30,14 @@ class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract
 		return $text;
 	}
 
-	public function getPaymentInfoTitle(){
+	public function getPaymentInfoTitle($code){
 		$storeId = Mage::app()->getStore()->getStoreId();
 		$storelang = Mage::getStoreConfig('general/locale/code', $storeId);
 		$defaultLang = $this->getDefaultLanguage();
-		$translation = $this->getTranslation('pis_cc');
+		$translation = $this->getTranslation($code);
+		
 		$text = "";
-		if(Mage::getStoreConfig('payment/pis_cc/faq_link_enabled') == 1 && Mage::getStoreConfig('payment/pis_cc/active') == 1){
+		if(Mage::getStoreConfig('payment/'.$code.'/faq_link_enabled') == 1 && Mage::getStoreConfig('payment/'.$code.'/active') == 1){
 			if(!empty($translation) && isset($translation[$storelang]["ecomm_tell_me_more"]["translatedData"]) && $translation[$storelang]["ecomm_tell_me_more"]["translatedData"] != "" ){
 				$text = $translation[$storelang]["ecomm_tell_me_more"]["translatedData"];
 			}else if(!empty($translation) && isset($translation[$defaultLang]["ecomm_tell_me_more"]["translatedData"])){

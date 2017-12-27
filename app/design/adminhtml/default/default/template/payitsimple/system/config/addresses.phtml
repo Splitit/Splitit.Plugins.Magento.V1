@@ -441,7 +441,7 @@ count = "";
           +'From<br><input type="text" class="doctv_from" name="doctv_from" /><br>To<br><input type="text" class="doctv_to" name="doctv_to" />'
          +'</td>'
          +'<td>'
-          +'<select id="doctv_installments" name="doctv_installments" class=" select multiselect doctv_installments" size="10" multiple="multiple">'
+          +'<select id="doctv_installments_pf" name="doctv_installments" class=" select multiselect doctv_installments" size="10" multiple="multiple">'
             +'<option value="2">2 Installments</option>'
             +'<option value="3">3 Installments</option>'
             +'<option value="4">4 Installments</option>'
@@ -456,7 +456,7 @@ count = "";
             +'</select>'
          +'</td>'
          +'<td>'
-          +'<select id="" class="doctv_currency" name="doctv_currency" class=" select">'
+          +'<select class="doctv_currency" name="doctv_currency" class=" select">'
             +currenyOptions+
            +'</select>'
            /*+currenyOptions*/
@@ -528,13 +528,13 @@ function createJsonOfDependingOnCartTotalForPaymentForm(){
 
 // all the logic to store and process with Translation
 jQuery(document).ready(function(){
-  // show selected language data
+  // show selected language data for embedded
   jQuery("#payment_pis_cc_select_language").on("change", function(){
     var selectedLanguage = jQuery(this).val();
     jQuery("#languages_table_"+selectedLanguage).show().siblings().hide();
   });
 
-  // check if edited the Translation column
+  // check if edited the Translation column for embedded
   var inputOldVal = "";
   var inputNewVal = "";
   jQuery("input[id^='translation_'").on("click, focus", function(){
@@ -544,6 +544,30 @@ jQuery(document).ready(function(){
     jQuery(this).siblings("input").val('1');
   });
   jQuery("input[id^='translation_']").on("blur",function(){
+    inputNewVal = jQuery(this).val();
+    if(inputNewVal != inputOldVal){
+      jQuery(this).siblings("input").val('1');
+    }else{
+      jQuery(this).siblings("input").val('0');
+    }
+  });
+
+  // show selected language data for payment form
+  jQuery("#payment_pis_paymentform_select_language").on("change", function(){
+    var selectedLanguage = jQuery(this).val();
+    jQuery("#payment_form_languages_table_"+selectedLanguage).show().siblings().hide();
+  });
+
+  // check if edited the Translation column for payment form
+  var inputOldVal = "";
+  var inputNewVal = "";
+  jQuery("input[id^='pf_translation_'").on("click, focus", function(){
+    inputOldVal = jQuery(this).val();
+  });
+  jQuery("input[id^='pf_translation_'").on("keyup", function(){
+    jQuery(this).siblings("input").val('1');
+  });
+  jQuery("input[id^='pf_translation_']").on("blur",function(){
     inputNewVal = jQuery(this).val();
     if(inputNewVal != inputOldVal){
       jQuery(this).siblings("input").val('1');

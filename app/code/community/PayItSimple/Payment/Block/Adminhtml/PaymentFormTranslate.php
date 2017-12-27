@@ -92,12 +92,12 @@ class PayItSimple_Payment_Block_Adminhtml_PaymentFormTranslate extends Mage_Admi
              foreach($translationData as $key => $val) {          
                 $html.='
                    <tr>
-                   <td><input type="text" name="key[]" id="key_'.$k.'_'.$i.'" value="'.$key.'" readonly/></td>
-                   <td><input type="text" name="english[]" id="english_'.$k.'_'.$i.'"  value="'.$val.'" readonly/></td>';
+                   <td><input type="text" name="key[]" id="pf_key_'.$k.'_'.$i.'" value="'.$key.'" readonly/></td>
+                   <td><input type="text" name="english[]" id="pf_english_'.$k.'_'.$i.'"  value="'.$val.'" readonly/></td>';
                    if($k == 'en_US'){// auto complete English text when load first time
-                    $html.= '<td><input type="text" name="translation[]" id="translation_'.$k.'_'.$i.'" value="'.$val.'" /><input type="hidden" name="edited[]" id="edited_'.$k.'_'.$i.'" value="0"/></td>';
+                    $html.= '<td><input type="text" name="translation[]" id="pf_translation_'.$k.'_'.$i.'" value="'.$val.'" /><input type="hidden" name="edited[]" id="pf_edited_'.$k.'_'.$i.'" value="0"/></td>';
                    }else{
-                   $html.= '<td><input type="text" name="translation[]" id="translation_'.$k.'_'.$i.'" value="" /><input type="hidden" name="edited[]" id="edited_'.$k.'_'.$i.'" value="0"/></td>';
+                   $html.= '<td><input type="text" name="translation[]" id="pf_translation_'.$k.'_'.$i.'" value="" /><input type="hidden" name="edited[]" id="pf_edited_'.$k.'_'.$i.'" value="0"/></td>';
                    }
                    $html.= '</tr>';
                    $i++;
@@ -151,20 +151,20 @@ protected function getTableLanguageWhenFilled($translatedJsonVal)
               if(isset($translatedJsonVal[$k][$key])){ // check if value found in DB
                 $html.='
                  <tr>
-                 <td><input type="text" name="key[]" id="key_'.$k.'_'.$i.'" value="'.$key.'" readonly/></td>
-                 <td><input type="text" name="english[]" id="english_'.$k.'_'.$i.'"  value="'.$val.'" readonly/></td>
-                 <td><input type="text" name="translation[]" id="translation_'.$k.'_'.$i.'" value="'.$translatedJsonVal[$k][$key]["translatedData"].'" /><input type="hidden" name="edited[]" id="edited_'.$k.'_'.$i.'" value="'.$translatedJsonVal[$k][$key]["edited"].'"/></td>
+                 <td><input type="text" name="key[]" id="pf_key_'.$k.'_'.$i.'" value="'.$key.'" readonly/></td>
+                 <td><input type="text" name="english[]" id="pf_english_'.$k.'_'.$i.'"  value="'.$val.'" readonly/></td>
+                 <td><input type="text" name="translation[]" id="pf_translation_'.$k.'_'.$i.'" value="'.$translatedJsonVal[$k][$key]["translatedData"].'" /><input type="hidden" name="edited[]" id="pf_edited_'.$k.'_'.$i.'" value="'.$translatedJsonVal[$k][$key]["edited"].'"/></td>
                  </tr>';
                  
               }else{ // it will run when developer add new key in translation and not found in DB
                 $html.='
                  <tr>
-                 <td><input type="text" name="key[]" id="key_'.$k.'_'.$i.'" value="'.$key.'" readonly/></td>
-                 <td><input type="text" name="english[]" id="english_'.$k.'_'.$i.'"  value="'.$val.'" readonly/></td>';
+                 <td><input type="text" name="key[]" id="pf_key_'.$k.'_'.$i.'" value="'.$key.'" readonly/></td>
+                 <td><input type="text" name="english[]" id="pf_english_'.$k.'_'.$i.'"  value="'.$val.'" readonly/></td>';
                  if($k == 'en_US'){// auto complete English text when load first time for new added key
-                  $html.= '<td><input type="text" name="translation[]" id="translation_'.$k.'_'.$i.'" value="'.$val.'" /><input type="hidden" name="edited[]" id="edited_'.$k.'_'.$i.'" value="0"/></td>';
+                  $html.= '<td><input type="text" name="translation[]" id="pf_translation_'.$k.'_'.$i.'" value="'.$val.'" /><input type="hidden" name="edited[]" id="pf_edited_'.$k.'_'.$i.'" value="0"/></td>';
                  }else{
-                 $html.= '<td><input type="text" name="translation[]" id="translation_'.$k.'_'.$i.'" value="" /><input type="hidden" name="edited[]" id="edited_'.$k.'_'.$i.'" value="0"/></td>';
+                 $html.= '<td><input type="text" name="translation[]" id="pf_translation_'.$k.'_'.$i.'" value="" /><input type="hidden" name="edited[]" id="pf_edited_'.$k.'_'.$i.'" value="0"/></td>';
                  }
                  $html.= '</tr>';
                  
@@ -187,24 +187,8 @@ protected function getTableLanguageWhenFilled($translatedJsonVal)
 
    protected function getTranslationData(){
     return $translationData = array(
-                          'pd_credit_card_type' => 'Credit Card Type',
-                          'pd_credit_card' => 'Credit Card Number',
-                          'pd_exp_date' => 'Expiration Date',
-                          'pd_exp_month_long' => 'Month',
-                          'pd_exp_year_long' => 'Year',
-                          'pd_cvv' => 'Card Verification Number',
-                          'pd_whatiscvv' => 'What is this ?',
-                          'pd_installments' => 'installments',
-                          'pd_per_month' => '/mon',
-                          'pd_number_of_installments' => 'Number Of Installments',
-                          'visa' => 'Visa',
-                          'mastercard' => 'MasterCard',
-                          'tc_approval' => 'Approval',
-                          'tc_clicktoapprovetermsandconditions' => 'Click To Approve Terms and Conditions',
                           'ecomm_no_interest' => 'No interest',
                           'ecomm_tell_me_more' => 'Tell me more',
-                          'common_pleaseselect' => 'Please Select',
-                          'common_i_approve' => 'I Approve',
                           'ecomm_redirect_to_payment_form' => 'Click to pay with Splitit\'s secured payment form'
 
         );
