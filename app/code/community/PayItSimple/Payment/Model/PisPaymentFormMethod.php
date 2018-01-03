@@ -1006,6 +1006,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
             $response["cardExpYear"] = $decodedResult["PlansList"][0]["ActiveCard"]["CardExpYear"];
             $response["grandTotal"] = $decodedResult["PlansList"][0]["OriginalAmount"]["Value"];
             $response["currencyCode"] = $decodedResult["PlansList"][0]["OriginalAmount"]["Currency"]["Code"];
+            $response["planStatus"] = $decodedResult["PlansList"][0]["InstallmentPlanStatus"]["Code"];
             
         }else if(isset($decodedResult["ResponseHeader"]) && count($decodedResult["ResponseHeader"]["Errors"])){
             $errorMsg = "";

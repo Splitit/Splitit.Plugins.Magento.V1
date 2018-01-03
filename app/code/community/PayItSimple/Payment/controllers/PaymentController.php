@@ -232,7 +232,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         $orderObj = Mage::getModel('sales/order')->load($orderId);
         $grandTotal = $orderObj->getGrandTotal();
 
-        if(count($data) && $grandTotal == $planDetails["grandTotal"]){
+        if(count($data) && $grandTotal == $planDetails["grandTotal"] && ($planDetails["planStatus"] == "PendingMerchantShipmentNotice" || $planDetails["planStatus"] == "InProgress")){
 
             $payment = $orderObj->getPayment();
             $paymentAction = Mage::helper('pis_payment')->getPaymentAction();
@@ -344,7 +344,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         // get installmentplan details        
         $storeId = Mage::app()->getStore()->getStoreId();
         $api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
-        $planDetails = Mage::getSingleton("pis_payment/pisMethod")->getInstallmentPlanDetails($api );
+        $planDetails = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->getInstallmentPlanDetails($api );
         
         Mage::log('======= get installmentplan details :  ======= ');
         Mage::log($planDetails);
@@ -357,7 +357,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         $orderIncrementId = $data["order_increment_id"];
         $orderObj = Mage::getModel('sales/order')->load($orderId);
         $grandTotal = $orderObj->getGrandTotal();
-        if(count($data) && $grandTotal == $planDetails["grandTotal"]){
+        if(count($data) && $grandTotal == $planDetails["grandTotal"] && ($planDetails["planStatus"] == "PendingMerchantShipmentNotice" || $planDetails["planStatus"] == "InProgress")){
 
             $payment = $orderObj->getPayment();
             $paymentAction = Mage::helper('pis_payment')->getPaymentAction();
