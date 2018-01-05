@@ -690,6 +690,11 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 
     public function installmentplaninitParams($firstInstallmentAmount, $billAddress, $customerInfo, $cultureName, $numOfInstallments = null, $selectedInstallment){
         $storeId = Mage::app()->getStore()->getId();
+        $paymentAction = Mage::helper('pis_payment')->getPaymentAction();
+        $autoCapture = false;
+        if($paymentAction == "authorize_capture"){
+            $autoCapture = true;
+        }
         $params = [
             "RequestHeader" => [
                 "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
@@ -707,7 +712,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
                     "Value" => $firstInstallmentAmount,
                     "CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
                 ],
-                "AutoCapture" => "false",
+                "AutoCapture" => $autoCapture,
                 "ExtendedParams" => [
                     "CreateAck" => "NotReceived"
                 ],
@@ -996,6 +1001,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
         $response = ["status"=>false, "data" => "", "numberOfInstallments" => "", "cardBrand" => "", "cardNumber" => "", "cardExpMonth" => "", "cardExpYear" => ""];
         $result = $api->getInstallmentPlanDetails($this->getApiUrl(), $params);
         $decodedResult = Mage::helper('core')->jsonDecode($result);
+
         
         if(isset($decodedResult["ResponseHeader"]["Succeeded"]) && $decodedResult["ResponseHeader"]["Succeeded"] == 1){
             $response["status"] = true;

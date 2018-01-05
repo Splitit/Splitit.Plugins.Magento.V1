@@ -195,33 +195,36 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         }else{
             $api = $this->_initApi($this->getStore());
             $sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
+
+            // call start Installments Api only from admin capture
+            $params = array_merge($params, array("RequestHeader"=> array('SessionId' => $sessionId)));
+            $result = $api->startInstallment($this->getApiUrl(), $params);
+            $result = Mage::helper('core')->jsonDecode($result);
+            $this->debugData('REQUEST: ' . $api->getRequest());
+            $this->debugData('RESPONSE: ' . $api->getResponse());
+            if (!$result) {
+                $e = $api->getError();
+                $errorMsg = "";
+                
+                $errorCode = 503;
+                $isErrorCode503Found = 0;
+                foreach ($result["ResponseHeader"]["Errors"] as $key => $value) {
+                    $errorMsg .= $value["ErrorCode"]." : ".$value["Message"];
+                    if($value["ErrorCode"] == $errorCode){
+                        $isErrorCode503Found = 1;
+                        break;
+                    }
+                }    
+                
+                
+                if($isErrorCode503Found == 0)
+                    Mage::throwException($errorMsg."  ".$e['code'].' '.$e['message']);
+            }elseif(isset($result["serverError"])){
+                    $errorMsg = $result["serverError"];
+                    Mage::throwException($errorMsg);
+            }
         }
-        $params = array_merge($params, array("RequestHeader"=> array('SessionId' => $sessionId)));
-        $result = $api->startInstallment($this->getApiUrl(), $params);
-        $result = Mage::helper('core')->jsonDecode($result);
-        $this->debugData('REQUEST: ' . $api->getRequest());
-        $this->debugData('RESPONSE: ' . $api->getResponse());
-        if (!$result) {
-            $e = $api->getError();
-            $errorMsg = "";
-            
-            $errorCode = 503;
-            $isErrorCode503Found = 0;
-            foreach ($result["ResponseHeader"]["Errors"] as $key => $value) {
-                $errorMsg .= $value["ErrorCode"]." : ".$value["Message"];
-                if($value["ErrorCode"] == $errorCode){
-                    $isErrorCode503Found = 1;
-                    break;
-                }
-            }    
-            
-            
-            if($isErrorCode503Found == 0)
-                Mage::throwException($errorMsg."  ".$e['code'].' '.$e['message']);
-        }elseif(isset($result["serverError"])){
-                $errorMsg = $result["serverError"];
-                Mage::throwException($errorMsg);
-        }
+        
 
         $payment->setIsTransactionClosed(1);
         $order = $payment->getOrder();
@@ -636,6 +639,12 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
 
     public function installmentplaninitParams($firstInstallmentAmount, $billAddress, $customerInfo, $cultureName, $numOfInstallments = null, $selectedInstallment){
         $storeId = Mage::app()->getStore()->getId();
+        $autoCapture = false;
+        $paymentAction = Mage::getStoreConfig('payment/pis_cc/payment_action');  
+        if($paymentAction == "authorize_capture"){
+            $autoCapture = true;
+        }
+
         $params = [
             "RequestHeader" => [
                 "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
@@ -653,7 +662,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                     "Value" => $firstInstallmentAmount,
                     "CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
                 ],
-                "AutoCapture" => "false",
+                "AutoCapture" => $autoCapture,
                 "ExtendedParams" => [
                     "CreateAck" => "NotReceived"
                 ],

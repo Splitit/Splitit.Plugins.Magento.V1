@@ -262,10 +262,11 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 
             if($paymentAction == "authorize_capture"){
 
-                $sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
+                // comment start installment for autocapture true.
+                /*$sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
                 $params = array('InstallmentPlanNumber' => Mage::getSingleton('core/session')->getInstallmentPlanNumber());
                 $params = array_merge($params, array("RequestHeader"=> array('SessionId' => $sessionId)));
-                $result = $api->startInstallment(Mage::getSingleton("pis_payment/pisPaymentFormMethod")->getApiUrl(), $params);
+                $result = $api->startInstallment(Mage::getSingleton("pis_payment/pisPaymentFormMethod")->getApiUrl(), $params);*/
                 $payment->setShouldCloseParentTransaction(true);
                 $payment->setIsTransactionClosed(1);
                 $payment->registerCaptureNotification($grandTotal);
@@ -388,10 +389,11 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 
             if($paymentAction == "authorize_capture"){
 
-                $sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
+                // comment start installment for autocapture true.
+                /*$sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
                 $params = array('InstallmentPlanNumber' => Mage::getSingleton('core/session')->getInstallmentPlanNumber());
                 $params = array_merge($params, array("RequestHeader"=> array('SessionId' => $sessionId)));
-                $result = $api->startInstallment(Mage::getSingleton("pis_payment/pisMethod")->getApiUrl(), $params);
+                $result = $api->startInstallment(Mage::getSingleton("pis_payment/pisMethod")->getApiUrl(), $params);*/
                 $payment->setShouldCloseParentTransaction(true);
                 $payment->setIsTransactionClosed(1);
                 $payment->registerCaptureNotification($grandTotal);
