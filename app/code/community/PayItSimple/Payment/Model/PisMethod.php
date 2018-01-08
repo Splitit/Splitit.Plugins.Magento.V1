@@ -74,6 +74,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
             );
         }
         //$api = $this->_initApi($this->getStore());
+        Mage::log('=========splitit : Authorize for Embedded =========');
+        Mage::log('=========splitit : create installment plan for Embedded =========');
         
         $api = $this->getApi();
         $result = $this->createInstallmentPlan($api, $payment, $amount);
@@ -83,6 +85,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
             $errorMsg = "";
             if(isset($result["serverError"])){
                 $errorMsg = $result["serverError"];
+                Mage::log('=========splitit : create api have serverError for Embedded =========');
+                Mage::log($errorMsg);
                 Mage::throwException(
                     Mage::helper('payment')->__($errorMsg)
                 ); 
@@ -91,6 +95,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                 foreach ($result["ResponseHeader"]["Errors"] as $key => $value) {
                 $errorMsg .= $value["ErrorCode"]." : ".$value["Message"];
                 }
+                Mage::log('=========splitit : create api have ResponseHeader Error for Embedded =========');
+                Mage::log($errorMsg);
                 Mage::throwException(
                     Mage::helper('payment')->__($errorMsg)
                 );         
@@ -186,10 +192,13 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         } else {
             $authNumber = $payment->getAuthorizationTransaction()->getTxnId();
         }
-        
+        Mage::log('=========splitit : Capture for Embedded =========');
+        Mage::log('=========splitit : installment plan number : '.$authNumber.' =========');
+
         $paymentAction = Mage::getStoreConfig('payment/pis_cc/payment_action');  
         $params = array('InstallmentPlanNumber' => $authNumber);
         if($paymentAction == "authorize_capture"){
+            Mage::log('=========splitit : Auto Capture at time of purchase. No need to call startInstallment api for Embedded =========');
             $api = $this->getApi();
             $sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
         }else{
@@ -198,6 +207,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
 
             // call start Installments Api only from admin capture
             $params = array_merge($params, array("RequestHeader"=> array('SessionId' => $sessionId)));
+            Mage::log('=========splitit : Auto Capture at time of shipment. calling startInstallment api for Embedded =========');
             $result = $api->startInstallment($this->getApiUrl(), $params);
             $result = Mage::helper('core')->jsonDecode($result);
             $this->debugData('REQUEST: ' . $api->getRequest());
@@ -215,12 +225,15 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                         break;
                     }
                 }    
-                
+                Mage::log('=========splitit : startInstallment api has error for Embedded =========');
+                Mage::log($errorMsg."  ".$e['code'].' '.$e['message']);
                 
                 if($isErrorCode503Found == 0)
                     Mage::throwException($errorMsg."  ".$e['code'].' '.$e['message']);
             }elseif(isset($result["serverError"])){
                     $errorMsg = $result["serverError"];
+                    Mage::log('=========splitit : startInstallment api has serverError for Embedded =========');
+                    Mage::log($errorMsg);
                     Mage::throwException($errorMsg);
             }
         }
@@ -286,9 +299,9 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         $version=$m->getVersion();
 
         if($version >= 1.9){
-            $touchPointVersion = "M1.9S2.1";
+            $touchPointVersion = "M1.9S2.2";
         }elseif($version >= 1.8){
-            $touchPointVersion = "M1.8S2.1";
+            $touchPointVersion = "M1.8S2.2";
         }
         $result = $api->login(
             $this->getApiUrl(),
@@ -456,7 +469,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                     return $response;
                 }
 
-
+                Mage::log('=========splitit : InstallmentPlan Init Params for embedded =========');
+                Mage::log($params);
                 $result = Mage::getSingleton("pis_payment/api")->installmentplaninit($this->getApiUrl(), $params);
                 // check for approval URL from response
                 $decodedResult = Mage::helper('core')->jsonDecode($result);
@@ -465,6 +479,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                     $intallmentPlan = $decodedResult["InstallmentPlan"]["InstallmentPlanNumber"];
                     // set Installment plan number into session
                     Mage::getSingleton('core/session')->setInstallmentPlanNumber($intallmentPlan);
+                    Mage::log('=========splitit : InstallmentPlan Number : '.$intallmentPlan.' =========');
                     $approvalUrlResponse = Mage::getSingleton("pis_payment/api")->getApprovalUrlResponse($decodedResult["ApprovalUrl"]);
                     $approvalUrlRes = Mage::helper('core')->jsonDecode($approvalUrlResponse);
                     if(isset($approvalUrlRes["Global"]["ResponseResult"]["Errors"]) && count($approvalUrlRes["Global"]["ResponseResult"]["Errors"])){

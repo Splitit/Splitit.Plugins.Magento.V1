@@ -334,9 +334,9 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
         $version=$m->getVersion();
 
         if($version >= 1.9){
-            $touchPointVersion = "M1.9S2.1";
+            $touchPointVersion = "M1.9S2.2";
         }elseif($version >= 1.8){
-            $touchPointVersion = "M1.8S2.1";
+            $touchPointVersion = "M1.8S2.2";
         }
         $result = $api->login(
             $this->getApiUrl(),
@@ -406,6 +406,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
     }
 
     public function updateRefOrderNumber($api, $order){
+
         $params = [
             "RequestHeader" => [
                 "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
@@ -418,6 +419,8 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
                 "RefOrderNumber" => $order->getIncrementId(),
             ],
         ];
+        Mage::log('========== splitit update ref order number params ==============');
+        Mage::log($params);
         $response = ["status"=>false, "data" => ""];
         $result = $api->updateRefOrderNumber($this->getApiUrl(), $params);
         $decodedResult = Mage::helper('core')->jsonDecode($result);

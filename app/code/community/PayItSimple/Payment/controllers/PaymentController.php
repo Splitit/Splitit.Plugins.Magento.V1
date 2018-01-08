@@ -139,7 +139,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
     }
 
     public function installmentplaninitAction(){
-
+        Mage::log('=========splitit : InstallmentPlan Init for Embedded =========');
         $params = $this->getRequest()->getParams();
         $selectedInstallment = "";
         $response = [
@@ -187,7 +187,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         $db_read = Mage::getSingleton('core/resource')->getConnection('core_read');
         $sql1 = 'SELECT * FROM `' . $tablePrefix . 'splitit_hosted_solution` where installment_plan_number = "'.$params.'" and order_created = 1'; 
         $data = $db_read->fetchRow($sql1);
-        print_r($data);
+        //print_r($data);
 
     }
 
@@ -230,8 +230,9 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         $orderId = Mage::getSingleton('checkout/session')->getLastOrderId();
         $orderIncrementId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
         $orderObj = Mage::getModel('sales/order')->load($orderId);
-        $grandTotal = $orderObj->getGrandTotal();
-
+        $grandTotal = number_format((float)$orderObj->getGrandTotal(), 2, '.', '');
+        $planDetails["grandTotal"] = number_format((float)$planDetails["grandTotal"], 2, '.', '');
+        Mage::log('======= grandTotal(orderObj):'.$grandTotal.', grandTotal(planDetails):'.$planDetails["grandTotal"].'   ======= ');
         if(count($data) && $grandTotal == $planDetails["grandTotal"] && ($planDetails["planStatus"] == "PendingMerchantShipmentNotice" || $planDetails["planStatus"] == "InProgress")){
 
             $payment = $orderObj->getPayment();
@@ -253,6 +254,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
                 . Mage::getSingleton('core/session')->getInstallmentPlanNumber(),
                 false
             );
+            Mage::log('========== splitit update ref order number ==============');
             $updateStatus = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->updateRefOrderNumber($api, $orderObj);        
             if($updateStatus["status"] == false){
                 Mage::throwException(
@@ -357,7 +359,10 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         $orderId = $data["order_id"];
         $orderIncrementId = $data["order_increment_id"];
         $orderObj = Mage::getModel('sales/order')->load($orderId);
-        $grandTotal = $orderObj->getGrandTotal();
+        $grandTotal = number_format((float)$orderObj->getGrandTotal(), 2, '.', '');
+        $planDetails["grandTotal"] = number_format((float)$planDetails["grandTotal"], 2, '.', '');
+        Mage::log('======= grandTotal(orderObj):'.$grandTotal.', grandTotal(planDetails):'.$planDetails["grandTotal"].'   ======= ');
+
         if(count($data) && $grandTotal == $planDetails["grandTotal"] && ($planDetails["planStatus"] == "PendingMerchantShipmentNotice" || $planDetails["planStatus"] == "InProgress")){
 
             $payment = $orderObj->getPayment();
@@ -379,8 +384,8 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
                 . Mage::getSingleton('core/session')->getInstallmentPlanNumber(),
                 false
             );
-
-            $updateStatus = Mage::getSingleton("pis_payment/pisMethod")->updateRefOrderNumber($api, $orderObj);        
+            Mage::log('========== splitit update ref order number ==============');
+            $updateStatus = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->updateRefOrderNumber($api, $orderObj);        
             if($updateStatus["status"] == false){
                 Mage::throwException(
                     Mage::helper('payment')->__($updateStatus["data"])

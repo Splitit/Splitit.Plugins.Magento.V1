@@ -256,16 +256,16 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
     public function getApprovalUrlResponse($approvalUrl){
         $url = $approvalUrl . '&format=json';
         $ch = curl_init($url);
-        $jsonData = json_encode($params);
+        //$jsonData = json_encode($params);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");  
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS,$jsonData);
+        //curl_setopt($ch, CURLOPT_POSTFIELDS,$jsonData);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); 
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/json',                                                                                
-            'Content-Length:' . strlen($jsonData))                                                                       
+            'Content-Type: application/json'                                        
+            )                                                                       
         );
         $result = curl_exec($ch);
         
