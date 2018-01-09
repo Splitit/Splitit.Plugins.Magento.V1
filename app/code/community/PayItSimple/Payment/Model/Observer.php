@@ -27,23 +27,23 @@ class PayItSimple_Payment_Model_Observer
 
 
             if($method->getCode() == "pis_cc"){
-                $result->isAvailable = $this->checkAvailableInstallments();
-            }/*else{
-                $result->isAvailable = false;
-            }*/
+                $result->isAvailable = $this->checkAvailableInstallments("pis_cc");
+            }else if($method->getCode() == "pis_paymentform"){
+                $result->isAvailable = $this->checkAvailableInstallments("pis_paymentform");
+            }
 
     }
 
-    private function checkAvailableInstallments(){
+    private function checkAvailableInstallments($paymentMethod){
         $installments = array();
         $totalAmount = Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal();
-        $selectInstallmentSetup = Mage::getStoreConfig('payment/pis_cc/select_installment_setup');
+        $selectInstallmentSetup = Mage::getStoreConfig('payment/'.$paymentMethod.'/select_installment_setup');
         $installmentsInDropdown = [];
         $options = Mage::getModel('pis_payment/source_installments')->toOptionArray();
         
         $depandOnCart = 0;
         // check if splitit extension is disable from admin
-        $isDisabled = Mage::getStoreConfig('payment/pis_cc/active');
+        $isDisabled = Mage::getStoreConfig('payment/'.$paymentMethod.'/active');
         if(!$isDisabled){
             return false;
         }
@@ -51,7 +51,7 @@ class PayItSimple_Payment_Model_Observer
         // $selectInstallmentSetup == "" for checking when merchant first time upgrade extension that time $selectInstallmentSetup will be empty
         if($selectInstallmentSetup == "" || $selectInstallmentSetup == "fixed"){ // Select Fixed installment setup
             
-            $fixedInstallments = Mage::getStoreConfig('payment/pis_cc/available_installments');
+            $fixedInstallments = Mage::getStoreConfig('payment/'.$paymentMethod.'/available_installments');
             foreach (explode(',', $fixedInstallments) as $n) {
                 
                 if((array_key_exists($n, $options))){
@@ -62,7 +62,7 @@ class PayItSimple_Payment_Model_Observer
             
         }else{ // Select Depanding on cart installment setup
             $depandOnCart = 1;  
-            $depandingOnCartInstallments = Mage::getStoreConfig('payment/pis_cc/depanding_on_cart_total_values');
+            $depandingOnCartInstallments = Mage::getStoreConfig('payment/'.$paymentMethod.'/depanding_on_cart_total_values');
             $depandingOnCartInstallmentsArr = json_decode($depandingOnCartInstallments);
             $dataAsPerCurrency = [];
             foreach($depandingOnCartInstallmentsArr as $data){

@@ -19,15 +19,15 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         $storeId = Mage::app()->getStore()->getStoreId();
         $api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
         
-        $installmentsInDropdown = [];
-        $response = [
+        $installmentsInDropdown = array();
+        $response = array(
                         "status" => false,
                         "error" => "",
                         "success"=>"",
                         "data" => "",
                         "installmentNum" => "1",
 
-        ];
+        );
         /*if ($api->isLogin()){
 
             $result = Mage::getSingleton("pis_payment/pisMethod")->getValidNumberOfInstallments($api);
@@ -142,13 +142,13 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         Mage::log('=========splitit : InstallmentPlan Init for Embedded =========');
         $params = $this->getRequest()->getParams();
         $selectedInstallment = "";
-        $response = [
+        $response = array(
                         "status" => false,
                         "error" => "",
                         "success"=>"",
                         "data" => "",
                         
-        ];
+        );
         if(isset($params["selectedInstallment"])){
             $selectedInstallment = $params["selectedInstallment"];
         }

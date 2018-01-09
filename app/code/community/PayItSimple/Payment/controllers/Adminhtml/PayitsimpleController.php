@@ -36,8 +36,8 @@ class PayItSimple_Payment_Adminhtml_PayitsimpleController extends Mage_Adminhtml
         $paymentMethod = Mage::getModel('pis_payment/pisMethod');
         $api = $paymentMethod->getApi();
         $params = array(
-                    "SystemTextCategories" => ["Common","PaymentDetails","CardBrand","TermsAndConditions","EComm"],
-                    "RequestContext" => ["CultureName" => $language]
+                    "SystemTextCategories" => array("Common","PaymentDetails","CardBrand","TermsAndConditions","EComm"),
+                    "RequestContext" => array("CultureName" => $language)
         );
         $url = $paymentMethod->getApiUrl()."api/Infrastructure/GetResources";
         $result = $api->getResourcesFromSplitit($url, $params);
@@ -85,8 +85,8 @@ class PayItSimple_Payment_Adminhtml_PayitsimpleController extends Mage_Adminhtml
         $paymentMethod = Mage::getModel('pis_payment/pisPaymentFormMethod');
         $api = $paymentMethod->getApi();
         $params = array(
-                    "SystemTextCategories" => ["Common","PaymentDetails","CardBrand","TermsAndConditions","EComm"],
-                    "RequestContext" => ["CultureName" => $language]
+                    "SystemTextCategories" => array("Common","PaymentDetails","CardBrand","TermsAndConditions","EComm"),
+                    "RequestContext" => array("CultureName" => $language)
         );
         $url = $paymentMethod->getApiUrl()."api/Infrastructure/GetResources";
         $result = $api->getResourcesFromSplitit($url, $params);

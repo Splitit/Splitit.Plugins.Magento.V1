@@ -402,7 +402,7 @@
                         <check translate="label">
                             <label>Check Credential API</label>
                             <frontend_type>button</frontend_type>
-                            <frontend_model>pis_payment/adminhtml_system_config_form_buttonpaymentform</frontend_model>
+                            <frontend_model>pis_payment/adminhtml_system_config_form_buttonPaymentForm</frontend_model>
                             <sort_order>45</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -536,7 +536,7 @@
                         </available_installments>
                         <addresses>
                             <label>Depending on cart total</label>
-                            <frontend_model>pis_payment/adminhtml_dependingoncarttotalpaymentform</frontend_model>
+                            <frontend_model>pis_payment/adminhtml_dependingOnCartTotalPaymentForm</frontend_model>
                             <!-- <backend_model>adminhtml/system_config_backend_serialized</backend_model> -->
                             <sort_order>112</sort_order>
                             <show_in_default>1</show_in_default>
@@ -613,7 +613,7 @@
                         <check_for_updates translate="label">
                             <label>Check Credential API</label>
                             <frontend_type>button</frontend_type>
-                            <frontend_model>pis_payment/adminhtml_system_config_form_checkforupdatespaymentform</frontend_model>
+                            <frontend_model>pis_payment/adminhtml_system_config_form_checkforupdatesPaymentForm</frontend_model>
                             <sort_order>145</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -631,7 +631,7 @@
                     
                     <translate>
                             <label>Language Translation</label>
-                            <frontend_model>pis_payment/adminhtml_paymentformtranslate</frontend_model>
+                            <frontend_model>pis_payment/adminhtml_paymentFormTranslate</frontend_model>
                             <!-- <backend_model>adminhtml/system_config_backend_serialized</backend_model> -->
                             <sort_order>155</sort_order>
                             <show_in_default>1</show_in_default>

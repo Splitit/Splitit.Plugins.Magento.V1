@@ -205,7 +205,7 @@ protected function getTableLanguageWhenFilled($translatedJsonVal)
                           'ecomm_tell_me_more' => 'Tell me more',
                           'common_pleaseselect' => 'Please Select',
                           'common_i_approve' => 'I Approve',
-                          'ecomm_redirect_to_payment_form' => 'Click to pay with Splitit\'s secured payment form'
+                          'ecomm_redirect_to_payment_form' => 'You will redirect to secured payment form'
 
         );
    }

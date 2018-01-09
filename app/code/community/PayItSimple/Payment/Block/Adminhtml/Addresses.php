@@ -273,7 +273,7 @@ public $_storeId = "";
    protected function _getAvailableCurrencySymbolsArray(){
       //$codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);
       $codes = $this->_getAllAllowedCurrencies(); 
-      $currencySymbolsArray = [];
+      $currencySymbolsArray = array();
       foreach ($codes as $key => $value) {
         $currencySymbolsArray[$value] = Mage::app()->getLocale()->currency($value)->getSymbol();
       }
@@ -282,7 +282,7 @@ public $_storeId = "";
 
    protected function _getFirstAvailableCurrencySymbol(){
       $codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);
-      $firstCurrencySymbol = [];
+      $firstCurrencySymbol = array();
       foreach ($codes as $key => $value) {
         $firstCurrencySymbol = Mage::app()->getLocale()->currency($value)->getSymbol();
         break;

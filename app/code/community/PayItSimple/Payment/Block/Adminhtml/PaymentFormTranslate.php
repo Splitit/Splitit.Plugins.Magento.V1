@@ -189,7 +189,7 @@ protected function getTableLanguageWhenFilled($translatedJsonVal)
     return $translationData = array(
                           'ecomm_no_interest' => 'No interest',
                           'ecomm_tell_me_more' => 'Tell me more',
-                          'ecomm_redirect_to_payment_form' => 'Click to pay with Splitit\'s secured payment form'
+                          'ecomm_redirect_to_payment_form' => 'You will redirect to secured payment form'
 
         );
    }
