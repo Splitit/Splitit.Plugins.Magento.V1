@@ -2,6 +2,10 @@
 
 class PayItSimple_Payment_Adminhtml_PayitsimpleController extends Mage_Adminhtml_Controller_Action
 {
+    protected function _isAllowed()
+    {
+        return Mage::getSingleton('admin/session')->isAllowed('system/config');
+    }
     /**
      * Return some checking result
      *
@@ -50,7 +54,8 @@ class PayItSimple_Payment_Adminhtml_PayitsimpleController extends Mage_Adminhtml
                 }
             }
         }
-        echo json_encode($finalResult);
+        //echo json_encode($finalResult);
+        Mage::app()->getResponse()->setBody(Mage::helper('core')->jsonEncode($finalResult));
         return ;
     }
 
@@ -99,7 +104,8 @@ class PayItSimple_Payment_Adminhtml_PayitsimpleController extends Mage_Adminhtml
                 }
             }
         }
-        echo json_encode($finalResult);
+        //echo json_encode($finalResult);
+        Mage::app()->getResponse()->setBody(Mage::helper('core')->jsonEncode($finalResult));
         return ;
     }
 }

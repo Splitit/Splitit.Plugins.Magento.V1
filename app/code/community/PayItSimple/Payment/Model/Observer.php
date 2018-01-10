@@ -38,7 +38,7 @@ class PayItSimple_Payment_Model_Observer
         $installments = array();
         $totalAmount = Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal();
         $selectInstallmentSetup = Mage::getStoreConfig('payment/'.$paymentMethod.'/select_installment_setup');
-        $installmentsInDropdown = [];
+        $installmentsInDropdown = array();
         $options = Mage::getModel('pis_payment/source_installments')->toOptionArray();
         
         $depandOnCart = 0;
@@ -64,7 +64,7 @@ class PayItSimple_Payment_Model_Observer
             $depandOnCart = 1;  
             $depandingOnCartInstallments = Mage::getStoreConfig('payment/'.$paymentMethod.'/depanding_on_cart_total_values');
             $depandingOnCartInstallmentsArr = json_decode($depandingOnCartInstallments);
-            $dataAsPerCurrency = [];
+            $dataAsPerCurrency = array();
             foreach($depandingOnCartInstallmentsArr as $data){
                 $dataAsPerCurrency[$data->doctv->currency][] = $data->doctv;
             }

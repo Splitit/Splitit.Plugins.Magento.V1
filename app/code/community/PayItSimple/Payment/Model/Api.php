@@ -109,7 +109,7 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
         try{
             return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Update" , $params);        
         }catch(Exception $e){
-            echo $e->getMessage();
+            $this->setError($e->getMessage());
         } 
     }
 
@@ -117,7 +117,7 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
         try{
             return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Get" , $params);        
         }catch(Exception $e){
-            echo $e->getMessage();
+            $this->setError($e->getMessage());
         } 
     }
 
@@ -125,7 +125,7 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
         try{
             return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Cancel" , $params);        
         }catch(Exception $e){
-            echo $e->getMessage();
+            $this->setError($e->getMessage());
         }    
     }
 
@@ -133,7 +133,7 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
         try{
             return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Refund" , $params);        
         }catch(Exception $e){
-            echo $e->getMessage();
+            $this->setError($e->getMessage());
         }    
     }
 
@@ -248,7 +248,7 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
         try{
             return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Initiate" , $params);        
         }catch(Exception $e){
-            echo $e->getMessage();
+            $this->setError($e->getMessage());
         } 
         
     }

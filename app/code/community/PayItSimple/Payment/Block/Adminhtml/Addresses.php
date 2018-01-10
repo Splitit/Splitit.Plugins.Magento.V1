@@ -198,10 +198,7 @@ public $_storeId = "";
       //$codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);//print_r($codes);die;
       $currenyOptions = "";
       if (is_array($codes) && count($codes) > 0) {
-          $rates = Mage::getModel('directory/currency')->getCurrencyRates(
-                  Mage::app()->getStore()->getBaseCurrency(),
-                  $codes
-          );
+          $rates = Mage::getModel('directory/currency')->getCurrencyRates(Mage::app()->getStore()->getBaseCurrency(),$codes);
 
           foreach ($codes as $code) {
               if (isset($rates[$code])) {
@@ -224,10 +221,7 @@ public $_storeId = "";
       //$codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);//print_r($codes);die;
       $currenyOptions = "";
       if (is_array($codes) && count($codes) > 0) {
-          $rates = Mage::getModel('directory/currency')->getCurrencyRates(
-                  Mage::app()->getStore()->getBaseCurrency(),
-                  $codes
-          );
+          $rates = Mage::getModel('directory/currency')->getCurrencyRates(Mage::app()->getStore()->getBaseCurrency(), $codes);
           $selected = '';
           foreach ($codes as $code) {
               if (isset($rates[$code])) {

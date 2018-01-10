@@ -1078,8 +1078,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
     }
 
     public function cancel(Varien_Object $payment){
-        echo $payment->getTransactionId();
-        die("--fdfd");
+        $payment->getTransactionId();
+        
     }
 
     
