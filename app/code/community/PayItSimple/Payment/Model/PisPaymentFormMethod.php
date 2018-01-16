@@ -60,6 +60,10 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
                 Mage::getSingleton('checkout/session')->setSplititInstallmentPlanNumber($initResponse["installmentPlanNumber"]);
                 
                 return Mage::getBaseUrl()."payitsimple/payment/redirect";     
+            }else{
+                Mage::throwException(
+                    Mage::helper('payment')->__($response['data'])
+                );
             }
             
         }else{
