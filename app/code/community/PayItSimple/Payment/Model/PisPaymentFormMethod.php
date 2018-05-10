@@ -53,7 +53,9 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
             }
             if(isset($initResponse["checkoutUrl"]) && $initResponse["checkoutUrl"] != ""){
                 $response["checkoutUrl"] = $initResponse["checkoutUrl"];   
-                //die("--eeeeee");
+//                print_r($initResponse);
+//                print_r($response);
+//                die("--eeeeee");
                 $quote = Mage::getSingleton('checkout/session')->getQuote();
                 Mage::getSingleton('checkout/session')->setSplititQuoteId($quote->getId());
                 Mage::getSingleton('checkout/session')->setSplititCheckoutUrl($response["checkoutUrl"]);

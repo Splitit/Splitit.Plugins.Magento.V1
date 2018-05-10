@@ -328,10 +328,32 @@
                             <show_in_store>0</show_in_store>
                             <frontend_class>validate-number</frontend_class>
                         </sort_order>
-                        
-                
-                        
-
+                        <per_product_heading translate="label">
+                            <label>Per Product Enable</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>170</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </per_product_heading>
+                        <splitit_per_product translate="label">
+                            <label>Enable Splitit per product</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>pis_payment/source_perproduct</source_model>
+                            <sort_order>171</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </splitit_per_product>
+                        <splitit_product_skus translate="label">
+                            <label>List of product SKUs</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>pis_payment/source_productskus</source_model>
+                            <sort_order>172</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </splitit_product_skus>
                     </fields>
                 </pis_cc>
                 <pis_paymentform translate="label">
@@ -659,10 +681,32 @@
                             <show_in_store>0</show_in_store>
                             <frontend_class>validate-number</frontend_class>
                         </sort_order>
-                        
-                
-                        
-
+                        <per_product_heading translate="label">
+                            <label>Per Product Enable</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>170</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </per_product_heading>
+                        <splitit_per_product translate="label">
+                            <label>Enable Splitit per product</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>pis_payment/source_perproduct</source_model>
+                            <sort_order>171</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </splitit_per_product>
+                        <splitit_product_skus translate="label">
+                            <label>List of product SKUs</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>pis_payment/source_productskus</source_model>
+                            <sort_order>172</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </splitit_product_skus>
                     </fields>
                 </pis_paymentform>
             </groups>

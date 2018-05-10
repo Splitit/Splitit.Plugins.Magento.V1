@@ -14,7 +14,9 @@ class PayItSimple_Payment_Model_Observer
             else{
                 $_block->setChild('child'.$_child->getProduct()->getId(), $_child);
             }
-            $_block->setTemplate('payitsimple/splitprice.phtml');
+            if($this->checkProductBasedAvailability("pis_cc")||$this->checkProductBasedAvailability("pis_paymentform")){
+                $_block->setTemplate('payitsimple/splitprice.phtml');
+            }
         }
     }
 
@@ -27,9 +29,9 @@ class PayItSimple_Payment_Model_Observer
 
 
             if($method->getCode() == "pis_cc"){
-                $result->isAvailable = $this->checkAvailableInstallments("pis_cc");
+                $result->isAvailable = $this->checkAvailableInstallments("pis_cc")&&$this->checkProductBasedAvailability("pis_cc");
             }else if($method->getCode() == "pis_paymentform"){
-                $result->isAvailable = $this->checkAvailableInstallments("pis_paymentform");
+                $result->isAvailable = $this->checkAvailableInstallments("pis_paymentform")&&$this->checkProductBasedAvailability("pis_paymentform");
             }
 
     }
@@ -104,6 +106,37 @@ class PayItSimple_Payment_Model_Observer
         }else{
             return true;
         }
+    }
+    
+    public function checkProductBasedAvailability($paymentMethod) {
+        $check = TRUE;
+        if (Mage::getStoreConfig('payment/'.$paymentMethod.'/splitit_per_product')) {
+            $cart = Mage::getSingleton('checkout/session')->getQuote();
+// get array of all items what can be display directly
+            $itemsVisible = $cart->getAllVisibleItems();
+            $allowedProducts = Mage::getStoreConfig('payment/'.$paymentMethod.'/splitit_product_skus');
+            $allowedProducts = explode(',', $allowedProducts);
+            if (Mage::getStoreConfig('payment/'.$paymentMethod.'/splitit_per_product') == 1) {
+                $check = TRUE;
+                foreach ($itemsVisible as $item) {
+                    if (!in_array($item->getProductId(), $allowedProducts)) {
+                        $check = FALSE;
+                        break;
+                    }
+                }
+            }
+            if (Mage::getStoreConfig('payment/'.$paymentMethod.'/splitit_per_product') == 2) {
+                $check = FALSE;
+                foreach ($itemsVisible as $item) {
+                    if (in_array($item->getProductId(), $allowedProducts)) {
+                        $check = TRUE;
+                        break;
+                    }
+                }
+            }
+        }
+//        var_dump($check);
+        return $check;
     }
 
     public function orderCancelAfter(Varien_Event_Observer $observer){
