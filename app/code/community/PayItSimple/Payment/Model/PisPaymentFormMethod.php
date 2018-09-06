@@ -784,7 +784,8 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
                 "RequestedNumberOfInstallments" => implode(',', array_keys($numOfInstallments)) ,
                 "SuccessAsyncURL" => Mage::getBaseUrl()."payitsimple/payment/successAsync",
                 "SuccessExitURL" => Mage::getBaseUrl()."payitsimple/payment/successExit",
-                "CancelExitURL" => Mage::getBaseUrl()."payitsimple/payment/cancelExit"
+                "CancelExitURL" => Mage::getBaseUrl()."payitsimple/payment/cancelExit",
+                "ErrorExitURL" => Mage::getBaseUrl()."payitsimple/payment/errorExit"
                 
             )
         );

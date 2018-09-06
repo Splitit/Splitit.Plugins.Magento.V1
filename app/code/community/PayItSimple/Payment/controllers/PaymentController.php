@@ -378,6 +378,33 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "checkout/cart")->sendResponse();
     }
 
+    public function errorExitAction() {
+
+
+        $session = Mage::getSingleton('checkout/session');
+        $session->setQuoteId($session->getSplititQuoteId());
+
+        if ($session->getLastRealOrderId()) {
+            $order = Mage::getModel('sales/order')->loadByIncrementId($session->getLastRealOrderId());
+            if ($order->getId()) {
+                $order->cancel()->save();
+            }
+            Mage::helper('paypal/checkout')->restoreQuote();
+            $order = Mage::getSingleton('checkout/session')->getLastRealOrder();
+            $quote = Mage::getModel('sales/quote')->load($order->getQuoteId());
+            if ($quote->getId()) {
+                $quote->setIsActive(1)
+                        ->setReservedOrderId(null)
+                        ->save();
+                Mage::getSingleton('checkout/session')
+                        ->replaceQuote($quote)
+                        ->unsLastRealOrderId();
+            }
+        }
+        Mage::getSingleton('core/session')->addError($this->__('The payment has been denied.'));
+        Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "checkout/cart")->sendResponse();
+    }
+
     public function redirectAction() {
 
         Mage::helper('pis_payment')->getCreditCardFormTranslation('ecomm_redirect_to_payment_form');
