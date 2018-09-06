@@ -156,7 +156,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                     "InstallmentPlanNumber" => $transactionId
             );
         $result = $api->startInstallment($this->getApiUrl(), $params);
-         if (!$result){
+         if (isset($result["ResponseHeader"])&&isset($result["ResponseHeader"]["Errors"])&&!empty($result["ResponseHeader"]["Errors"])){
             $e = $api->getError();
             Mage::throwException($e['code'].' '.$e['message']);
         }
@@ -212,7 +212,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
             $result = Mage::helper('core')->jsonDecode($result);
             $this->debugData('REQUEST: ' . $api->getRequest());
             $this->debugData('RESPONSE: ' . $api->getResponse());
-            if (!$result) {
+            if (isset($result["ResponseHeader"])&&isset($result["ResponseHeader"]["Errors"])&&!empty($result["ResponseHeader"]["Errors"])) {
                 $e = $api->getError();
                 $errorMsg = "";
                 
@@ -273,7 +273,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
             ),
         );
         $result = $api->createInstallmentPlan($this->getApiUrl(),$params);
-        if (!$result){
+        if (isset($result["ResponseHeader"])&&isset($result["ResponseHeader"]["Errors"])&&!empty($result["ResponseHeader"]["Errors"])){
             $e = $api->getError();
             Mage::throwException($e['code'].' '.$e['message']);
         }

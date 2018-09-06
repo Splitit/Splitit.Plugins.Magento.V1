@@ -5,6 +5,9 @@ class PayItSimple_Payment_Model_Observer
     {
         $_block = $observer->getBlock();     
         $_type = $_block->getType();
+        $extensionEnabled = Mage::getStoreConfig('payment/pis_cc/active')||Mage::getStoreConfig('payment/pis_paymentform/active')?true:false;
+        if(!$extensionEnabled)
+            return;
         if (($_type == 'catalog/product_price' && $_block->getTemplate()=='catalog/product/price.phtml') or $_type == 'checkout/cart_totals') {
             $_child = clone $_block;
             $_child->setType('payitsimple/block');
