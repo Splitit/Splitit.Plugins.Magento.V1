@@ -347,8 +347,8 @@
                         </splitit_per_product>
                         <splitit_product_skus translate="label">
                             <label>List of product SKUs</label>
-                            <frontend_type>multiselect</frontend_type>
-                            <source_model>pis_payment/source_productskus</source_model>
+                            <frontend_type>text</frontend_type>
+                            <!-- <source_model>pis_payment/source_productskus</source_model> -->
                             <sort_order>172</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -708,8 +708,8 @@
                         </splitit_per_product>
                         <splitit_product_skus translate="label">
                             <label>List of product SKUs</label>
-                            <frontend_type>multiselect</frontend_type>
-                            <source_model>pis_payment/source_productskus</source_model>
+                            <frontend_type>text</frontend_type>
+                            <!-- <source_model>pis_payment/source_productskus</source_model> -->
                             <sort_order>172</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>

@@ -12,6 +12,20 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         $this->renderLayout();
     }
 
+    
+    public function prodlistAction(){
+        $params = $this->getRequest()->getParams();
+        $result = array();
+        if(isset($params['isAjax'])&&$params['isAjax']){
+            $Productlist = Mage::getSingleton('pis_payment/source_productskus');
+            if((isset($params['term'])&&$params['term'])||(isset($params['prodIds'])&&$params['prodIds'])){
+                $result = $Productlist->toOptionArray($params);
+            }
+        }
+        echo json_encode($result);
+        return;
+    }
+    
     public function apiLoginAction() {
 
         $storeId = Mage::app()->getStore()->getStoreId();

@@ -15,7 +15,10 @@
     </default>
     <adminhtml_system_config_edit>
 	   <reference name="head">
-	   		  <action method="addJs"><file>payitsimple/jquery-1.12.4.js</file></action>
+	   		  <action method="addCss"><file>jquery-ui.css</file></action>
+              <action method="addCss"><file>pis_prodlist.css</file></action>
+              <action method="addJs"><file>payitsimple/jquery-1.12.4.js</file></action>
+              <action method="addJs"><file>payitsimple/jquery-ui.js</file></action>
 	   </reference> 
 	</adminhtml_system_config_edit>
 </layout>
