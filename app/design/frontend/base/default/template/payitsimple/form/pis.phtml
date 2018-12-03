@@ -19,7 +19,7 @@
                 <option value=""><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('common_pleaseselect'); ?></option>
             <?php $_ccType = $this->getInfoData('cc_type') ?>
             <?php foreach ($this->getCcAvailableTypes() as $_typeCode => $_typeName): ?>
-                <option value="<?php echo $_typeCode ?>"<?php if($_typeCode==$_ccType): ?> selected="selected"<?php endif ?>><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation(strtolower($_typeName)); ?></option>
+                <option value="<?php echo $_typeCode ?>"<?php if($_typeCode==$_ccType): ?> selected="selected"<?php endif ?>><?php $translation=Mage::helper('pis_payment')->getCreditCardFormTranslation(strtolower($_typeName)); echo $translation?$translation:$_typeName;?></option>
             <?php endforeach ?>
             </select>
         </div>

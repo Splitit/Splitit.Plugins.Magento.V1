@@ -12,7 +12,6 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         $this->renderLayout();
     }
 
-    
     public function prodlistAction(){
         $params = $this->getRequest()->getParams();
         $result = array();
@@ -25,7 +24,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         echo json_encode($result);
         return;
     }
-    
+
     public function apiLoginAction() {
 
         $storeId = Mage::app()->getStore()->getStoreId();
@@ -394,6 +393,13 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 
     public function errorExitAction() {
 
+        /* $params = $this->getRequest()->getParams();
+          $storeId = Mage::app()->getStore()->getStoreId();
+          $api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
+          $cancelResponse = Mage::getSingleton("pis_payment/pisMethod")->cancelInstallmentPlan($api, $params["InstallmentPlanNumber"]);
+          if($cancelResponse["status"]){
+          Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."payitsimple/payment/cancel")->sendResponse();
+          } */
 
         $session = Mage::getSingleton('checkout/session');
         $session->setQuoteId($session->getSplititQuoteId());
