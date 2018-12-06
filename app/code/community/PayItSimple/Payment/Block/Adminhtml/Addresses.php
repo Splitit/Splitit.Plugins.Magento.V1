@@ -86,6 +86,7 @@ public $_storeId = "";
                </td>
                <td>
                 <select name="doctv_installments" class=" select multiselect doctv_installments" size="10" multiple="multiple">
+                  <option value="1">1 Installment</option>
                   <option value="2">2 Installments</option>
                   <option value="3">3 Installments</option>
                   <option value="4">4 Installments</option>

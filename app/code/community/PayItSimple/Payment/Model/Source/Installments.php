@@ -5,7 +5,8 @@ class PayItSimple_Payment_Model_Source_Installments
     public function toOptionArray()
     {
         return array(
-            2 => array('value' => '2', 'label' => Mage::helper('pis_payment')->__('2 Installments')),
+            1 => array('value' => '1', 'label' => Mage::helper('pis_payment')->__('1 Installment')),
+            array('value' => '2', 'label' => Mage::helper('pis_payment')->__('2 Installments')),
             array('value' => '3', 'label' => Mage::helper('pis_payment')->__('3 Installments')),
             array('value' => '4', 'label' => Mage::helper('pis_payment')->__('4 Installments')),
             array('value' => '5', 'label' => Mage::helper('pis_payment')->__('5 Installments')),
