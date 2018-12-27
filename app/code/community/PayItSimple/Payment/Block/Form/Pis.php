@@ -170,6 +170,7 @@ public function getAvailableInstallments_copy()
         $markFaq = new $markFaq;
         $markFaq->setTemplate('payitsimple/form/method_faq.phtml')
             ->setPaymentInfoEnabled($this->getMethod()->getConfigData('faq_link_enabled'))
+            ->setPaymentInfoUrl($this->getMethod()->getConfigData('faq_link_title_url'))
             ->setPaymentInfoTitle($this->getMethod()->getConfigData('faq_link_title'));
         return $markFaq->toHtml();
     }

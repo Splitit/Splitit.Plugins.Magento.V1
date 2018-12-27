@@ -20,6 +20,11 @@ class PayItSimple_Payment_Block_Form_PisPaymentForm extends Mage_Payment_Block_F
         return $installments;
     }
 
+    public function getCheckoutURL(){
+        Mage::getModel("pis_payment/pisPaymentFormMethod")->getOrderPlaceRedirectUrl();
+        return Mage::getSingleton('checkout/session')->getSplititCheckoutUrl();
+    }
+
     public function getAvailableInstallments()
     {
         $method = $this->getMethod();
@@ -98,6 +103,7 @@ class PayItSimple_Payment_Block_Form_PisPaymentForm extends Mage_Payment_Block_F
         $markFaq = new $markFaq;
         $markFaq->setTemplate('payitsimple/form/method_faq_paymentform.phtml')
             ->setPaymentInfoEnabled($this->getMethod()->getConfigData('faq_link_enabled'))
+            ->setPaymentInfoUrl($this->getMethod()->getConfigData('faq_link_title_url'))
             ->setPaymentInfoTitle($this->getMethod()->getConfigData('faq_link_title'));
         return $markFaq->toHtml();
     }

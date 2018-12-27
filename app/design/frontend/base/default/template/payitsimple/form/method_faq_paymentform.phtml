@@ -1,5 +1,5 @@
 <?php if ($this->getPaymentInfoEnabled()):?>
-<a style="float: none;" href="#" onclick="popWin('<?php echo $this->getUrl('payitsimple/payment/help')?>', 'Tell me more', 'width=800,height=1075,left=0,top=0,location=no,status=no,resizable=no'); return false;"><?php //echo $this->getPaymentInfoTitle() ?>
+<a style="float: none;" href="<?php echo $this->getPaymentInfoUrl(); ?>" onclick="popWin(this.href, 'Tell me more', 'width=800,height=1075,left=0,top=0,location=no,status=no,resizable=no'); return false;"><?php //echo $this->getPaymentInfoTitle() ?>
 <?php echo Mage::helper('pis_payment')->getPaymentInfoTitle("pis_paymentform"); ?>	
 </a>
 <?php endif; ?>
