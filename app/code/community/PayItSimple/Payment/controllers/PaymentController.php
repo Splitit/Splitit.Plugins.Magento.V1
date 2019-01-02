@@ -44,11 +44,11 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
             $ipnForLogs = Mage::getSingleton('core/session')->getSplititSessionid();
             Mage::log('Splitit session Id : ' . $ipnForLogs);
             $response["status"] = true;
-            $paymentMode = Mage::helper('pis_payment')->getPaymentMode();
+            /*$paymentMode = Mage::helper('pis_payment')->getPaymentMode();*/
             // get plan number from session if already created
             //$planFromSession = Mage::getSingleton('core/session')->getSplititInstallmentPlanNumber();
 
-            if ($paymentMode == "hosted_solution") {
+            /*if ($paymentMode == "hosted_solution") {
 
                 $initResponse = Mage::getModel("pis_payment/pisMethod")->installmentplaninitForHostedSolution();
                 $response["data"] = $initResponse["data"];
@@ -61,7 +61,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
                 if (isset($initResponse["checkoutUrl"]) && $initResponse["checkoutUrl"] != "") {
                     $response["checkoutUrl"] = $initResponse["checkoutUrl"];
                 }
-            }
+            }*/
         } else {
             foreach ($api->getError() as $key => $value) {
                 $response["error"] .= $value . " ";
