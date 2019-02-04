@@ -66,6 +66,16 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
 
         return $this->makePhpCurlRequest($url, "InstallmentPlan/Create",$params);
     }
+    
+    public function get3DSecureParameters($url, array $params)
+    {
+        if (Mage::getSingleton('core/session')->getSplititSessionid() == "") {
+            $this->setError(self::ERROR_UNKNOWN, __FUNCTION__ . ' method required Login action first.');
+            return false;
+        }
+
+        return $this->makePhpCurlRequest($url, "InstallmentPlan/Get3DSecureParameters",$params);
+    }
 
     public function startInstallment($url, array $params){
         if (Mage::getSingleton('core/session')->getSplititSessionid() == "") {
