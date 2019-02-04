@@ -81,6 +81,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
             "error" => "",
             "success" => "",
             "data" => "",
+            "attempt3DSecure" => false
         );
         if (isset($params["selectedInstallment"])) {
             $selectedInstallment = $params["selectedInstallment"];
@@ -96,6 +97,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 
         if ($splititSessionId != "") {
             $result = Mage::getSingleton("pis_payment/pisMethod")->installmentplaninit($api, $selectedInstallment);
+            $response['attempt3DSecure']=$result['attempt3DSecure'];
             $response["data"] = $result["data"];
             if ($result["status"]) {
                 $response["status"] = true;
@@ -113,6 +115,115 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         //echo $jsonData = Mage::helper('core')->jsonEncode($response);   
         return;
     }
+    
+    public function cipAction() {
+        Mage::log('=========splitit : CreateInstallmentPlan for Embedded =========');
+        $params = $this->getRequest()->getParams();
+        $response = array(
+            "status" => false,
+            "error" => "",
+            "msg" => "",
+            "urlData" => "",
+            "placeOrder" => false
+        );
+        /*print_r($params);exit;*/
+        try{
+            if(!isset($params['ccDetails'])||!$params['ccDetails']||!isset($params['ccDetails']['cc_number'])||!$params['ccDetails']['cc_number']){
+                 Mage::throwException(
+                                Mage::helper('payment')->__("Please fill required card details")
+                            );
+            }
+            $splititSessionId = Mage::getSingleton('core/session')->getSplititSessionid();
+
+            if ($splititSessionId != "") {
+                    /*$api = Mage::getSingleton("pis_payment/pisMethod")->getApi();*/
+                    /*echo '<pre>GRAND TOTAL===';
+                    print_r(Mage::getModel('checkout/session')->getQuote()->getGrandTotal());
+                    echo 'CC Number===';
+                    print_r(Mage::getModel('checkout/session')->getQuote()->getPayment()->getMethodInstance()->getInfoInstance()->getCcNumber());
+                    die;*/
+                    $result = Mage::getSingleton("pis_payment/pisMethod")->createInstallmentPlanAfterInit($params['ccDetails']);
+                    Mage::getSingleton('checkout/session')->setSecureThreeData($result);
+                    $result = Mage::helper('core')->jsonDecode($result);
+                    /*$result["ResponseHeader"]["Errors"]=array();*/
+                    /*print_r($result);die;*/
+                    // show error if there is any error from spliti it when click on place order
+                    if(!$result["ResponseHeader"]["Succeeded"]){
+                        $errorMsg = "";
+                        if(isset($result["serverError"])){
+                            $errorMsg = $result["serverError"];
+                            Mage::log('=========splitit : create api have serverError for Embedded =========');
+                            Mage::log($errorMsg);
+                            Mage::throwException(
+                                Mage::helper('payment')->__($errorMsg)
+                            ); 
+                             
+                        }else{
+                            if(isset($result["ResponseHeader"]["Errors"])&&isset($result["ResponseHeader"]["Errors"][0])&&isset($result["ResponseHeader"]["Errors"][0]['ErrorCode'])&&($result["ResponseHeader"]["Errors"][0]['ErrorCode']=='641')){
+                                $response['status']=true;
+                                $response['msg']=$result["ResponseHeader"]["Errors"][0]['Message'];
+                                $secure3Ddata = Mage::getSingleton("pis_payment/pisMethod")->get3DSecureParameters();
+                                $secure3Ddata = Mage::helper('core')->jsonDecode($secure3Ddata);
+                                // print_r($secure3Ddata);die;
+                                // show error if there is any error from splitit
+                                if(!$secure3Ddata["ResponseHeader"]["Succeeded"]){
+                                    $errorMsg = "";
+                                    if(isset($secure3Ddata["serverError"])){
+                                        $errorMsg = $secure3Ddata["serverError"];
+                                        Mage::log('=========splitit : Get3DSecureParameters api have serverError for Embedded =========');
+                                        Mage::log($errorMsg);
+                                        Mage::throwException(
+                                            Mage::helper('payment')->__($errorMsg)
+                                        ); 
+                                         
+                                    }else{
+                                        foreach ($secure3Ddata["ResponseHeader"]["Errors"] as $key => $value) {
+                                        $errorMsg .= $value["ErrorCode"]." : ".$value["Message"];
+                                        }
+                                        Mage::log('=========splitit : Get3DSecureParameters api have ResponseHeader Error for Embedded =========');
+                                        Mage::log($errorMsg);
+                                        Mage::throwException(
+                                            Mage::helper('payment')->__($errorMsg)
+                                        );         
+                                    }                                    
+                                }
+                                unset($secure3Ddata['ResponseHeader']);
+                                $response['urlData'] = $secure3Ddata;
+                            } else {
+                                if(empty($result["ResponseHeader"]["Errors"])){
+                                    $response['placeOrder']=true;
+                                    $response['placeOrderUrl']=Mage::getBaseUrl()."payitsimple/payment/secure3DSuccess";
+                                }
+                                foreach ($result["ResponseHeader"]["Errors"] as $key => $value) {
+                                $errorMsg .= $value["ErrorCode"]." : ".$value["Message"];
+                                }
+                                Mage::log('=========splitit : create api have ResponseHeader Error for Embedded =========');
+                                Mage::log($errorMsg);
+                                Mage::throwException(
+                                    Mage::helper('payment')->__($errorMsg)
+                                );         
+                            }
+                        }
+                    }
+                    /*else {
+                        $response['placeOrder']=true;
+                        $response['placeOrderUrl']=Mage::getBaseUrl()."payitsimple/payment/secure3DSuccess";
+                    }*/
+            } else {
+                $errorMsg = "703 - Session is not valid";
+                Mage::log('=========splitit : create api have serverError for Embedded =========');
+                Mage::log($errorMsg);
+                Mage::throwException(
+                    Mage::helper('payment')->__($errorMsg)
+                );
+            }
+        } catch(Exception $e){
+            $response["error"] = $e->getMessage();
+        }
+
+        Mage::app()->getResponse()->setBody(Mage::helper('core')->jsonEncode($response));
+        return;
+    }
 
     public function testAction() {
         $params = "02741420601104472804";
@@ -121,6 +232,29 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
         $sql1 = 'SELECT * FROM `' . $tablePrefix . 'splitit_hosted_solution` where installment_plan_number = "' . $params . '" and order_created = 1';
         $data = $db_read->fetchRow($sql1);
         //print_r($data);
+    }
+
+    public function secure3DFailureAction(){
+        $params = $this->getRequest()->getParams();
+        Mage::getSingleton('checkout/session')->addError("3D secure validation failed. Please contact Bank.");
+        Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "checkout/cart")->sendResponse();
+    }
+
+    public function secure3DSuccessAction(){
+        $params = $this->getRequest()->getParams();
+        try{
+            $orderId = Mage::getSingleton("pis_payment/pisMethod")->place3DSecureOrder();
+            if($orderId){
+                Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "checkout/onepage/success")->sendResponse();
+            } else {
+                Mage::throwException(
+                    Mage::helper('payment')->__("Unable to place order.")
+                );
+            }
+        } catch(Exception $e){
+            Mage::getSingleton('checkout/session')->addError($e->getMessage());
+            Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "checkout/cart")->sendResponse();
+        }
     }
 
     public function successExitAction() {
@@ -446,6 +580,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 
                 $updateQue = 'UPDATE `' . $tablePrefix . 'splitit_hosted_solution` SET order_id = "' . $orderId . '", order_increment_id = "' . $orderIncrementId . '" WHERE installment_plan_number = "' . $splititInstallmentPlanNumber . '"';
                 $db_write->query($updateQue);
+                
                 Mage::app()->getFrontController()->getResponse()->setRedirect($splititCheckoutUrl)->sendResponse();
                 //return true;
             }
