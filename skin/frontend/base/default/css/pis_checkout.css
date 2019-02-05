@@ -268,4 +268,276 @@ button.okBtn {
   {
     width: 98vw;
   }
+=======
+.approval-popup_ovelay{ position:fixed; width:100%; height:100%; left:0; top:0; background:rgba(0,0,0,.8); z-index:999;}
+#approval-popup {
+    background: #fff none repeat scroll 0 0;
+    border: 1px solid #999;
+    border-radius: 0 0 5px 5px;
+    height: 80%;
+    left: 10%;
+    max-height: 580px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: fixed;
+    top: 10%;
+    width: 80%;
+    z-index: 9999;
+}
+#i_acknowledge_area{
+    padding: 10px 0 5px;
+    font-family: "Helvetica Neue", Verdana, Arial, sans-serif;
+
+}
+#i_acknowledge_area input{margin-right: 8px; position: relative; top:2px;}
+.i_acknowledge_lbl{font-size: 14px; display: inline; font-weight: normal; }
+.i_ack_err{font-size: 11px; color:#ff0000; }
+.close-btn{
+
+    height: 80%;
+    left: 10%;
+    max-height: 580px;
+    position: fixed;
+    top: 10%;
+    width: 80%;
+    z-index: 9999;}
+
+.approval-popup-logo{max-width: 80px;}
+.closeapprovalpopup_btn{width: 25px; height: 25px; position: absolute; overflow: hidden; top: 17px; right: 20px; cursor: pointer;}
+.closeapprovalpopup_btn{opacity: 0.5;}
+#main{ max-height: 530px; position: relative; z-index: 0; height:100%; }
+#main .mainHeader{background:#279dd8;}
+.tableResponsive{overflow:hidden; overflow-x: auto;}
+#wiz-header{}
+.wiz-header-left{width:45px; padding:20px;}
+.wiz-header-center{text-align:center; color:#fff; font-size:14px;}
+.currencySymbolIcon{font-size: 26px}
+.wiz-header-right{width:45px; padding:20px;}
+#payment-schedule{float:left; display:none; position: absolute; z-index: 99; top:60px; height: calc(100% - 60px);overflow: hidden; overflow-y: auto;}
+#termAndConditionpopup{display: none; height: calc(100% - 20px); overflow: hidden;  overflow-y: scroll; position: absolute; top: 10px; left: 0; z-index: 9;}
+._popup_overlay{position: absolute; top: 0;left: 0;width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1; display: none;}
+#termAndConditionpopup a{text-decoration: underline;color:#fff;}
+.popup-content{background-color: #279dd8; border-color: #279dd8; border-radius: 5px 5px 0 0; border-style: solid; border-width: 10px 10px 0; color: white; font-size: 14px; margin: 10px 10px 0; max-height: calc(100% - 66px); overflow-y: auto; text-align: initial; padding-bottom: 20px;}
+.popupContentTable{table-layout: fixed; width: 100%; color: white; line-height: 25px; text-align: center;}
+.popupContentTable tr{border-bottom:1px dotted #fff; height:35px;  }
+.popupContentTable tr td {text-align: center;}
+.popup-footer{background-color: #279dd8; border-radius: 0 0 5px 5px; margin: 0 10px;}
+.popup-btn{background-color: #279dd8; border-radius: 0 0 5px 5px;  margin: 0 10px;}
+.popup-btn-area{color: white;font-size: 16px; line-height: 27px; text-align: center; white-space: nowrap;}
+.popup-btn-area-terms{color: white;font-size: 16px; line-height: 27px; text-align: right; white-space: nowrap;padding-bottom: 10px;}
+.popup-btn-icon{border: 1px solid; border-radius: 5px; display: inline-block; margin: 10px 0; padding: 1px 27px 3px; cursor: pointer;}
+.popup-btn-icon-terms{display: inline-block; cursor: pointer; }
+.form-block{float: left; vertical-align:top; width:50%;}
+.form-block-area{margin:0 20px;}
+.spacer15{height:15px; display:block;}
+.tablePage2{width:100%;}
+table.tablePage2 td{ width:50%; vertical-align: middle; }
+.tablePage2TD{height:48px; border-bottom:1px dotted #56565d;}
+.text-right{text-align: right;}
+#payment-schedule-link{color: #0392d6; float: left; line-height: 48px; cursor: pointer;}
+.form-block.right{float: right}
+.important_note_sec{padding-top: 10px; padding-bottom: 5px; font-weight: bold; text-align: left;}
+.pnlEula{text-align: justify; white-space: pre-wrap;}
+.iAgreeBtn{text-align:center;float:left;width:100%;margin-top:20px;padding-bottom:20px;}
+#iagree{background:#279dd8 none repeat scroll 0 0; border: 1px solid #279dd8; border-radius: 5px; color: #fff; padding: 4px 27px 6px;}
+.termAndConditionBtn{text-align: center; font-size: 12px; float: left; width: 100%; padding: 10px 0px 20px;}
+.termAndConditionBtn a{text-decoration:none; color:#000;padding:0 5px;}
+.payment-images{display: inline-block; float:right; padding-left: 20px; }
+.payment-images img{ height: auto; margin: 0 3px; width: 45px;}
+#approval-popup.overflowHidden, .overflowHidden > #main{overflow-y: hidden;}
+.apr-tc{display: inline-block; background: #2E8AB8; color: #fff; padding: 6px 15px; margin-top: 5px; width: 320px; cursor: pointer;}
+.splitit-redirect{display: inline-block; background: #2E8AB8; color: #fff; padding: 6px 15px; margin-top: 5px; cursor: pointer; font-size: 12px;}
+.redirect-checkbox+div.validation-advice{font-size: 0;}
+.redirect-checkbox+div.validation-advice:before{ content:"Please click to pay with Splitit's secured payment."; color: #df280a; font-size: 13px; }
+.terms-condition-loader{display: none; vertical-align: middle;}
+.terms-conditions{ font-size: 0; }
+.terms-conditions div{font-size: 0; line-height: normal;}
+.terms-conditions div:before{content: 'Please approve terms and conditions.'; color: #df280a; font-size: 13px; margin: 10px 0 5px; display: block; }
+#opc-payment{position: relative;}
+#payment-tool-tip{position:absolute;top: 220px!important; right: -75px;}
+#payment-tool-tip img{max-width:100%;}
+.splitit-checkout-url{  float: left; margin-left: 0; margin-right: 10px; margin-bottom: 0;    background: #3399cc; color: #ffffff!important; text-decoration: none!important;padding: 7px 15px; text-transform: uppercase;display: inline-block; min-width: 140px;
+    text-align: center; font-weight: normal; line-height: 19px; font-size: 13px;
+    font-family: "Raleway", "Helvetica Neue", Verdana, Arial, sans-serif;}
+@media only screen and (max-width: 1024px) {}
+@media only screen and (max-width: 900px) {
+    .form-block{width:100%;}
+    .popupContentTable{min-width: 580px;}
+    .popup-content{overflow-y: auto; text-align: initial;}
+    #payment-schedule{position: relative; width: 100%;}
+    #payment-tool-tip {position: absolute; top: 220px!important; right: -200px; width: 100%; background: white; padding: 5px;}
+
+}
+@media only screen and (max-width: 767px) {
+    #payment-tool-tip {right: 0;}
+}
+
+/* Absolute Center Spinner */
+.loading {
+  position: fixed;
+  z-index: 999;
+  height: 2em;
+  width: 2em;
+  overflow: visible;
+  margin: auto;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+/* Transparent Overlay */
+.loading:before {
+  content: '';
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.3);
+}
+
+/* :not(:required) hides these rules from IE9 and below */
+.loading:not(:required) {
+  /* hide "loading..." text */
+  font: 0/0 a;
+  color: transparent;
+  text-shadow: none;
+  background-color: transparent;
+  border: 0;
+}
+
+.loading:not(:required):after {
+  content: '';
+  display: block;
+  font-size: 10px;
+  width: 1em;
+  height: 1em;
+  margin-top: -0.5em;
+  -webkit-animation: spinner 1500ms infinite linear;
+  -moz-animation: spinner 1500ms infinite linear;
+  -ms-animation: spinner 1500ms infinite linear;
+  -o-animation: spinner 1500ms infinite linear;
+  animation: spinner 1500ms infinite linear;
+  border-radius: 0.5em;
+  -webkit-box-shadow: rgba(0, 0, 0, 0.75) 1.5em 0 0 0, rgba(0, 0, 0, 0.75) 1.1em 1.1em 0 0, rgba(0, 0, 0, 0.75) 0 1.5em 0 0, rgba(0, 0, 0, 0.75) -1.1em 1.1em 0 0, rgba(0, 0, 0, 0.5) -1.5em 0 0 0, rgba(0, 0, 0, 0.5) -1.1em -1.1em 0 0, rgba(0, 0, 0, 0.75) 0 -1.5em 0 0, rgba(0, 0, 0, 0.75) 1.1em -1.1em 0 0;
+  box-shadow: rgba(0, 0, 0, 0.75) 1.5em 0 0 0, rgba(0, 0, 0, 0.75) 1.1em 1.1em 0 0, rgba(0, 0, 0, 0.75) 0 1.5em 0 0, rgba(0, 0, 0, 0.75) -1.1em 1.1em 0 0, rgba(0, 0, 0, 0.75) -1.5em 0 0 0, rgba(0, 0, 0, 0.75) -1.1em -1.1em 0 0, rgba(0, 0, 0, 0.75) 0 -1.5em 0 0, rgba(0, 0, 0, 0.75) 1.1em -1.1em 0 0;
+}
+
+/* Animation */
+
+@-webkit-keyframes spinner {
+  0% {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@-moz-keyframes spinner {
+  0% {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@-o-keyframes spinner {
+  0% {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes spinner {
+  0% {
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+._3dAlertWrraper {
+    width: 35vw;
+    position: fixed;
+    top: 50%;
+    background: #fff;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -moz-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border-radius: 5px;
+    z-index: 999;
+}
+
+._3dAlertContentWrraper {
+    margin-bottom: 10px;
+        padding-bottom: 15px;
+    border-bottom: 1px solid #ccc;
+}
+
+._3dAlertContentWrraper h2 {
+    margin: 0px 0 15px 0;
+}
+
+._btnWrraper {
+    text-align: right;
+}
+
+button.okBtn {
+    padding: 8px 20px;
+    font-size: 16px;
+    -webkit-appearance: none;
+    background: #fff;
+    box-shadow: none;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+@media (max-width:767px)
+{
+  ._3dAlertWrraper
+  {
+    width: 98vw;
+  }
+
 }
