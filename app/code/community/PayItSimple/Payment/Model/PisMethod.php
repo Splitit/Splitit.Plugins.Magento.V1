@@ -1203,8 +1203,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
             $items = $quoteObj->getAllItems();
             /*$quoteObj->reserveOrderId();*/
 
-            $quoteObj->getShippingAddress()->setCollectShippingRates(true);
-            $quoteObj->getShippingAddress()->collectShippingRates();
+            /*$quoteObj->getShippingAddress()->setCollectShippingRates(true);
+            $quoteObj->getShippingAddress()->collectShippingRates();*/
 
             $quoteObj->collectTotals();
 
