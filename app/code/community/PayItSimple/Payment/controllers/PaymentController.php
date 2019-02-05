@@ -236,7 +236,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 
     public function secure3DFailureAction(){
         $params = $this->getRequest()->getParams();
-        Mage::getSingleton('checkout/session')->addError("3D secure validation failed. Please contact Bank.");
+        Mage::getSingleton('checkout/session')->addError(Mage::helper('payment')->__("Failed to verify credit card, please try using a different card."));
         Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "checkout/cart")->sendResponse();
     }
 
