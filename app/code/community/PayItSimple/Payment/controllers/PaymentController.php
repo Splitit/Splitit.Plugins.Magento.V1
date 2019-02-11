@@ -205,7 +205,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
                             }
                         }
                     }
-                    /*else {
+                    /*else { // for reproducing 3Dsecure order while using a non-3DSecure Credit card.
                         $response['placeOrder']=true;
                         $response['placeOrderUrl']=Mage::getBaseUrl()."payitsimple/payment/secure3DSuccess";
                     }*/
