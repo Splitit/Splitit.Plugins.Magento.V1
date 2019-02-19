@@ -78,38 +78,31 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         Mage::log('=========splitit : create installment plan for Embedded =========');
         
         $api = $this->getApi();
-        $Secure3d=Mage::getStoreConfig('payment/pis_cc/enable_3d_secure');
-        if(!boolval($Secure3d)){
-            $result = $this->createInstallmentPlan($api, $payment, $amount);
-            $result = Mage::helper('core')->jsonDecode($result);
-            // show error if there is any error from spliti it when click on place order
-            if(!$result["ResponseHeader"]["Succeeded"]){
-                $errorMsg = "";
-                if(isset($result["serverError"])){
-                    $errorMsg = $result["serverError"];
-                    Mage::log('=========splitit : create api have serverError for Embedded =========');
-                    Mage::log($errorMsg);
-                    Mage::throwException(
-                        Mage::helper('payment')->__($errorMsg)
-                    ); 
-                     
-                }else{
-                    foreach ($result["ResponseHeader"]["Errors"] as $key => $value) {
-                    $errorMsg .= $value["ErrorCode"]." : ".$value["Message"];
-                    }
-                    Mage::log('=========splitit : create api have ResponseHeader Error for Embedded =========');
-                    Mage::log($errorMsg);
-                    Mage::throwException(
-                        Mage::helper('payment')->__($errorMsg)
-                    );         
+        $result = $this->createInstallmentPlan($api, $payment, $amount);
+        $result = Mage::helper('core')->jsonDecode($result);
+        // show error if there is any error from spliti it when click on place order
+        if(!$result["ResponseHeader"]["Succeeded"]){
+            $errorMsg = "";
+            if(isset($result["serverError"])){
+                $errorMsg = $result["serverError"];
+                Mage::log('=========splitit : create api have serverError for Embedded =========');
+                Mage::log($errorMsg);
+                Mage::throwException(
+                    Mage::helper('payment')->__($errorMsg)
+                ); 
+                 
+            }else{
+                foreach ($result["ResponseHeader"]["Errors"] as $key => $value) {
+                $errorMsg .= $value["ErrorCode"]." : ".$value["Message"];
                 }
-                
+                Mage::log('=========splitit : create api have ResponseHeader Error for Embedded =========');
+                Mage::log($errorMsg);
+                Mage::throwException(
+                    Mage::helper('payment')->__($errorMsg)
+                );         
             }
-        } else {
-            $secure3Ddata=Mage::getSingleton('checkout/session')->getSecureThreeData();
-            $result = Mage::helper('core')->jsonDecode($secure3Ddata);            
+            
         }
-
         $payment->setTransactionId($result['InstallmentPlan']['InstallmentPlanNumber']);
         
         $payment->setIsTransactionClosed(0);
@@ -280,52 +273,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
             ),
         );
         $result = $api->createInstallmentPlan($this->getApiUrl(),$params);
-        if (isset($result["ResponseHeader"])&&isset($result["ResponseHeader"]["Errors"])&&!empty($result["ResponseHeader"]["Errors"])){
-            $e = $api->getError();
-            Mage::throwException($e['code'].' '.$e['message']);
-        }
-        return $result;
-    }
-
-    public function createInstallmentPlanAfterInit($cardDetails)
-    {
-        $api = $this->getApi();
-        $cultureName = Mage::helper('pis_payment')->getCultureName();
-        $params = array(
-            "RequestHeader" => array(
-                "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
-                "ApiKey"    => $this->getConfigData('api_terminal_key', $storeId),
-                "CultureName" => $cultureName
-            ),
-            "InstallmentPlanNumber" => Mage::getSingleton('core/session')->getInstallmentPlanNumber(),
-            "CreditCardDetails" => array(
-                "CardCvv" => $cardDetails['cc_cid'],
-                "CardNumber" => $cardDetails['cc_number'],
-                "CardExpYear" => $cardDetails['cc_exp_year'],
-                "CardExpMonth" => $cardDetails['cc_exp_month']
-            ),
-            "PlanApprovalEvidence" => array(
-                "AreTermsAndConditionsApproved" => "True"
-            ),
-        );
-        $result = $api->createInstallmentPlan($this->getApiUrl(),$params);
-        if (isset($result["ResponseHeader"])&&isset($result["ResponseHeader"]["Errors"])&&!empty($result["ResponseHeader"]["Errors"])){
-            $e = $api->getError();
-            Mage::throwException($e['code'].' '.$e['message']);
-        }
-        return $result;
-    }
-
-    public function get3DSecureParameters()
-    {
-        $api = $this->getApi();
-        $params = array(
-            "RequestHeader" => array(
-                "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid()
-            ),
-            "InstallmentPlanNumber" => Mage::getSingleton('core/session')->getInstallmentPlanNumber()
-        );
-        $result = $api->get3DSecureParameters($this->getApiUrl(),$params);
         if (isset($result["ResponseHeader"])&&isset($result["ResponseHeader"]["Errors"])&&!empty($result["ResponseHeader"]["Errors"])){
             $e = $api->getError();
             Mage::throwException($e['code'].' '.$e['message']);
@@ -529,7 +476,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                 $result = Mage::getSingleton("pis_payment/api")->installmentplaninit($this->getApiUrl(), $params);
                 // check for approval URL from response
                 $decodedResult = Mage::helper('core')->jsonDecode($result);
-                // print_r($decodedResult);die;
                 
                 if(isset($decodedResult) && isset($decodedResult["ApprovalUrl"]) && $decodedResult["ApprovalUrl"] != ""){
                     $intallmentPlan = $decodedResult["InstallmentPlan"]["InstallmentPlanNumber"];
@@ -538,9 +484,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                     Mage::log('=========splitit : InstallmentPlan Number : '.$intallmentPlan.' =========');
                     $approvalUrlResponse = Mage::getSingleton("pis_payment/api")->getApprovalUrlResponse($decodedResult["ApprovalUrl"]);
                     $approvalUrlRes = Mage::helper('core')->jsonDecode($approvalUrlResponse);
-                    if(isset($params['PlanData']["Attempt3DSecure"])&&$params['PlanData']["Attempt3DSecure"]){
-                        $response['attempt3DSecure']=$params['PlanData']["Attempt3DSecure"];
-                    }
                     if(isset($approvalUrlRes["Global"]["ResponseResult"]["Errors"]) && count($approvalUrlRes["Global"]["ResponseResult"]["Errors"])){
                         $i = 1;
                         $errorMsg = "";
@@ -716,7 +659,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         $storeId = Mage::app()->getStore()->getId();
         $autoCapture = false;
         $paymentAction = Mage::getStoreConfig('payment/pis_cc/payment_action');  
-        $Secure3d=Mage::getStoreConfig('payment/pis_cc/enable_3d_secure');
         if($paymentAction == "authorize_capture"){
             $autoCapture = true;
         }
@@ -738,7 +680,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                     "Value" => $firstInstallmentAmount,
                     "CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
                 ),
-                "AutoCapture" => $autoCapture,                
+                "AutoCapture" => $autoCapture,
                 "ExtendedParams" => array(
                     "CreateAck" => "NotReceived"
                 ),
@@ -757,7 +699,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                 "Email" => $customerInfo["email"],
                 "PhoneNumber" => $billAddress->getTelephone(),
                 "CultureName" => $cultureName
-            )            
+            ),
             /*"PaymentWizardData" => [
                 "RequestedNumberOfInstallments" => implode(',', array_keys($numOfInstallments)) ,
                 "SuccessAsyncURL" => Mage::getBaseUrl()."payitsimple/payment/successAsync",
@@ -766,15 +708,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                 
             ],*/
         );
-
-        if(boolval($Secure3d)){
-            $params['PlanData']["Attempt3DSecure"] = boolval($Secure3d);
-            $params["RedirectUrls"]= array(
-                "Succeeded"=> Mage::getBaseUrl()."payitsimple/payment/secure3DSuccess",
-                "Failed"=> Mage::getBaseUrl().'payitsimple/payment/secure3DFailure',
-                "Canceled"=> Mage::helper('checkout/url')->getCheckoutUrl()
-            );
-        }
 
         $cart = Mage::helper('checkout/cart')->getCart()->getQuote();
         $itemsArr = array();
@@ -1147,86 +1080,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
     public function cancel(Varien_Object $payment){
         $payment->getTransactionId();
         
-    }
-
-    public function ipnCheckData(){
-        Mage::getSingleton('core/session')->setInstallmentPlanNumber('68878166844213475672');
-        $planDetails = $this->getInstallmentPlanDetails($this->getApi());
-        print_r($planDetails);die;
-    }
-
-    public function place3DSecureOrder(){
-        $quote = Mage::getSingleton('checkout/session')->getQuote();
-        $secure3Ddata=Mage::getSingleton('checkout/session')->getSecureThreeData();
-        $result = Mage::helper('core')->jsonDecode($secure3Ddata);
-        $payment = $quote->getPayment();
-        $planDetails = $this->getInstallmentPlanDetails($this->getApi());
-        // echo '<pre>';print_r($planDetails);die;
-        $payment->setTransactionId($result['InstallmentPlan']['InstallmentPlanNumber']);
-        
-        $payment->setParentTransactionId($result['InstallmentPlan']['InstallmentPlanNumber']);
-        $payment->setInstallmentsNo($planDetails["numberOfInstallments"]);
-        $payment->setIsTransactionClosed(0);
-        $payment->setCurrencyCode($planDetails["currencyCode"]);
-        $payment->setCcType($planDetails["cardBrand"]["Code"]);
-        $payment->setIsTransactionApproved(true);
-        foreach (
-            array(
-                'ConsumerFullName',
-                'Email',
-                'Amount',
-                'InstallmentNumber'
-            ) as $param) {
-
-            unset($result[$param]);
-
-        }
-        //$st = $api->getInstallmentPlanStatusList();
-        //$result['InstallmentPlanStatus'] = $st[$result['InstallmentPlan']['InstallmentPlanStatus']['Id']];
-       
-        $payment->setTransactionAdditionalInfo(
-            Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS,
-            $result
-        );
-        /*$order = $payment->getOrder();
-        $order->addStatusToHistory(
-            $order->getStatus(),
-            'Payment InstallmentPlan was created with number ID: '
-            . Mage::getSingleton('core/session')->getInstallmentPlanNumber(),
-            false
-        );*/
-        // var_dump($payment->getMethodInstance());die;
-        $items = $quote->getAllVisibleItems();
-        try {
-            //$this->createOrder(6112, $payment);
-            $quoteObj = $quote;
-            $items = $quoteObj->getAllItems();
-            /*$quoteObj->reserveOrderId();*/
-
-            /*$quoteObj->getShippingAddress()->setCollectShippingRates(true);
-            $quoteObj->getShippingAddress()->collectShippingRates();*/
-
-            $quoteObj->collectTotals();
-
-            // set payment method
-            $quotePaymentObj = $quoteObj->getPayment();
-            $quotePaymentObj->setMethod($this->_code);
-            $quoteObj->setPayment($quotePaymentObj);
-
-            $quoteObj->collectTotals()->save();
-
-            $onePage = Mage::getSingleton('checkout/type_onepage');
-            $onePage->saveOrder();
-
-            $orderId = $onePage->getLastOrderId();
-
-            /*printf("Created order %s\n", $order->getIncrementId());*/
-            /*$quote->setIsActive(false)->save();*/
-        } catch (Exception $e) {
-            print_r($e->getTraceAsString());
-            die($e->getMessage());
-        }
-        return $orderId;
     }
 
     

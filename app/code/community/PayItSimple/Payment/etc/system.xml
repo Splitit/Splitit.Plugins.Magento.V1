@@ -145,14 +145,6 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                         </payment_action>
-                        <enable_3d_secure translate="label">
-                            <label>Enable 3D Secure</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>81</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                        </enable_3d_secure>
                         <order_status translate="label">
                             <label>New order status</label>
                             <frontend_type>select</frontend_type>
@@ -531,6 +523,13 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                         </attempt_3d_secure>
+                        <attempt_3d_secure_min_amount translate="label">
+                            <label>Minimal amount for 3D attempt</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>85.3</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                        </attempt_3d_secure_min_amount>                        
                         <cctypes translate="label">
                             <label>Credit Card Types</label>
                             <frontend_type>multiselect</frontend_type>

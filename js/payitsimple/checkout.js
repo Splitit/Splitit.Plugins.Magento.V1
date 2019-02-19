@@ -252,51 +252,7 @@ function installmentPlanInit(){
 	            if (obj.status == true) {
 	            	jQuery("#approval-popup").remove();
 	            	jQuery('body').append(obj.data);
-	            	if(obj.attempt3DSecure){
-	            		jQuery("#iagree").click(function(){
-	            			jQuery('body').append('<div class="loading">Loading&#8230;</div>');
-	            			jQuery(".loading").show();
-	            			/*jQuery('#payment-buttons-container').find('button').trigger('click');*/
-	            			var ccDetails = {};
-	            			jQuery('#payment_form_pis_cc li').each(function(){
-	            			jQuery(this).find('input,select').each(function(){
-	            				if(jQuery(this).attr('name')){
-	            					ccDetails[jQuery(this).attr('name').replace('payment[','').replace(']','')]=jQuery(this).val();
-	            				}
-	            			});
-	            			});
-            				jQuery.ajax({
-            			        url : baseUrl+"payitsimple/payment/cip/",
-            			        type : 'POST',
-            			        dataType:'json',
-            			        data: {'ccDetails':ccDetails},
-            			        success : function(obj){	        	
-            			        	
-            			            if (obj.status == true) {
-            			            	var fid=Math.random()*100000000000000000;
-            			            	jQuery('body').append('<div class="_3dAlertWrraper"><div class="_3dAlertContentWrraper"><h2>'+obj.msg+'</h2><p>you must complete a card verification as requested by your card issuer.</p></div>'+
-            			            		'<div class="_btnWrraper"><button name="ok" class="okBtn" onclick="jQuery(\'#'+fid+'\').submit();">ok</button></div></div>');
-            			            	/*alert(obj.msg);*/
-            			            	var $html = '<form id="'+fid+'" action="'+obj.urlData.IssuerRedirectUrl+'" method="POST">';
-            			            	$html+='<input name="PaReq" value="'+obj.urlData.PaReq+'" type="hidden"/>';
-            			            	$html+='<input name="MD" value="'+obj.urlData.Md+'" type="hidden"/>';
-            			            	$html+='<input name="TermUrl" value="'+obj.urlData.TermUrl+'" type="hidden" />';
-            			            	$html+='<input name="Complete" value="Authorize Transaction" type="submit"/>';
-            			            	$html+='</form>';
-            			            	jQuery('body').append($html);
-            			            	/*jQuery('#'+fid).submit();*/
-            			            }else {
-            			            	if(obj.placeOrder){
-            			            		window.location=obj.placeOrderUrl;
-            			            	} else {
-            			            		alert(obj.error);            			            		
-            			            	}
-            			            	jQuery(".loading").hide();
-            			            }
-            			        }
-            			    });
-	            		});
-	            	}
+
 	            }else {
 	            	alert(obj.data);
 	             
