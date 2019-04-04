@@ -255,6 +255,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
     protected function createInstallmentPlan($api, $payment, $amount)
     {
         $cultureName = Mage::helper('pis_payment')->getCultureName();
+        $storeId = Mage::app()->getStore()->getStoreId();
         $params = array(
             "RequestHeader" => array(
                 "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
@@ -663,6 +664,31 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
             $autoCapture = true;
         }
         $getStreet = $billAddress->getStreet();
+        $quote = Mage::getSingleton('checkout/session')->getQuote();
+        $grandTotal = round(floatval($quote->getGrandTotal()),2);
+        /*Re-calculate fee for init call if not in quote*/
+        // var_dump(($quote->getShippingAddress()->getFeeAmount()));die('======');
+        // if(!floatval($quote->getFeeAmount())){
+        if(!floatval($quote->getShippingAddress()->getFeeAmount())){
+            // $feeModel = Mage::getModel('pis_payment/fee');
+            // $address = $quote->getBillingAddress();
+            if (Mage::getStoreConfig('payment/pis_cc/splitit_fees')) {
+                $fee = Mage::getStoreConfig('payment/pis_cc/splitit_fees_value');
+                $feeType = Mage::getStoreConfig('payment/pis_cc/splitit_fees_method');
+                if ($feeType == PayItSimple_Payment_Model_Source_Feemethod::PERCENTAGE_FROM_TOTAL_AMOUNT) {
+                    $totals = $quote->getTotals();
+                    $sum    = 0;
+                    foreach ($totals as $total) {
+                        if ($total->getCode() != self::TOTAL_CODE) {
+                            $sum += (float)$total->getValue();
+                        }
+                    }
+
+                    $fee = ($sum * ($fee / 100));
+                }
+                $grandTotal+=$fee;
+            }
+        }
         $params = array(
             "RequestHeader" => array(
                 "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
@@ -670,7 +696,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
             ),
             "PlanData"      => array(
                 "Amount"    => array(
-                    "Value" => round(Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal(), 2),
+                    "Value" => $grandTotal,
                     "CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
                 ),
                 //"NumberOfInstallments" => $selectedInstallment,

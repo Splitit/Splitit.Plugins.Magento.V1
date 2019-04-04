@@ -72,11 +72,13 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
             foreach ($api->getError() as $key => $value) {
                 $response["error"] .= $value." ";    
             }
-            
+            Mage::throwException(
+                    Mage::helper('payment')->__($response['error'])
+                );
         }    
 
 
-        return Mage::getUrl('mygateway/payment/redirect', array('_secure' => true));
+        return Mage::getUrl('checkout/cart', array('_secure' => true));
     }
 
     public function assignData($data)

@@ -1,0 +1,18 @@
+
+<?php $title  = Mage::getModel('pis_payment/fee')->getTotalTitle(); ?>
+<?php if($this->getSource() instanceof Mage_Sales_Model_Order): ?>
+    <?php if ((float)$this->getSource()->getFeeAmountRefunded() > 0): ?>
+        <tr>
+            <td class="label"><strong><?php echo $title.' '.Mage::helper('pis_payment')->__('Refunded'); ?></strong></td>
+            <td><strong><?php echo $this->displayPrices($this->getSource()->getBaseFeeAmountRefunded(), $this->getSource()->getFeeAmountRefunded()); ?></strong></td>
+        </tr>
+    <?php endif; ?>
+<?php else: ?>
+    <?php if ((float)$this->getSource()->getFeeAmount()): ?>
+        <tr>
+            <td class="label"><strong><?php echo $title; ?></strong></td>
+            <td><strong><?php echo $this->displayPrices($this->getSource()->getBaseFeeAmount(), $this->getSource()->getFeeAmount()); ?></strong></td>
+        </tr>
+    <?php endif;  ?>
+<?php endif; ?>
+

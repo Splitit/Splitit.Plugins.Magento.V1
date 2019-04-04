@@ -177,8 +177,5 @@ class PayItSimple_Payment_Model_Observer
 
             }
         }
-        
-        
-        
     }
 }
