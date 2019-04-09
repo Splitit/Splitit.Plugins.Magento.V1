@@ -12,7 +12,7 @@ jQuery(document).ready(function(){
 	//baseUrl = jQuery("#payment-img").attr("data-baseurl");
 	baseUrl = jQuery(".redirect-class").attr("data-baseurl");
 	if(typeof baseUrl === 'undefined'){
-		baseUrl = curUrl.substring(0, curUrl.indexOf('checkout'));
+		baseUrl = window.location.origin+'/';
 	}
 
 
