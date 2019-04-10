@@ -679,7 +679,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                     $totals = $quote->getTotals();
                     $sum    = 0;
                     foreach ($totals as $total) {
-                        if ($total->getCode() != self::TOTAL_CODE) {
+                        if ($total->getCode() != PayItSimple_Payment_Model_Fee::TOTAL_CODE) {
                             $sum += (float)$total->getValue();
                         }
                     }
