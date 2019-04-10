@@ -667,7 +667,13 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
         $quote = Mage::getSingleton('checkout/session')->getQuote();
         $grandTotal = round(floatval($quote->getGrandTotal()),2);
         /*Re-calculate fee for init call if not in quote*/
-        // var_dump(($quote->getShippingAddress()->getFeeAmount()));die('======');
+        // var_dump(($quote->getShippingAddress()->getFeeAmount()));
+        // echo "==shipping \n";
+        // var_dump(($quote->getBillingAddress()->getFeeAmount()));
+        // echo "==billing \n";
+        // var_dump(($quote->getFeeAmount()));
+        // echo "==quote \n";
+        // die('======');
         // if(!floatval($quote->getFeeAmount())){
         if(!floatval($quote->getShippingAddress()->getFeeAmount())){
             // $feeModel = Mage::getModel('pis_payment/fee');
@@ -679,7 +685,9 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                     $totals = $quote->getTotals();
                     $sum    = 0;
                     foreach ($totals as $total) {
-                        if ($total->getCode() != PayItSimple_Payment_Model_Fee::TOTAL_CODE) {
+                        // echo "TOTAL_CODE==".$total->getCode()."\n"; 
+                        // echo "TOTAL_Value==".$total->getValue()."\n"; 
+                        if (($total->getCode() != PayItSimple_Payment_Model_Fee::TOTAL_CODE)&&($total->getCode() != 'grand_total')) {
                             $sum += (float)$total->getValue();
                         }
                     }
@@ -689,6 +697,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                 $grandTotal+=$fee;
             }
         }
+        // echo "grandTotal==$grandTotal";die('----');
         $params = array(
             "RequestHeader" => array(
                 "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
@@ -696,7 +705,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
             ),
             "PlanData"      => array(
                 "Amount"    => array(
-                    "Value" => $grandTotal,
+                    "Value" => round($grandTotal,2),
                     "CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
                 ),
                 //"NumberOfInstallments" => $selectedInstallment,

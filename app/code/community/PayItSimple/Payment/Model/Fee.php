@@ -71,11 +71,13 @@ class PayItSimple_Payment_Model_Fee extends Mage_Core_Model_Abstract {
                 $totals = $quote->getTotals();
                 $sum    = 0;
                 foreach ($totals as $total) {
-                    if ($total->getCode() != self::TOTAL_CODE) {
+                    // echo "TOTAL_CODE==".$total->getCode()."\n"; 
+                    // echo "TOTAL_Value==".$total->getValue()."\n"; 
+                    if (($total->getCode() != self::TOTAL_CODE) && ($total->getCode() != 'grand_total')) {
                         $sum += (float)$total->getValue();
                     }
                 }
-
+                // die($sum * ($fee / 100));
                 return ($sum * ($fee / 100));
             }
         } else {
