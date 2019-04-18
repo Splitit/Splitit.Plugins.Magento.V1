@@ -256,23 +256,90 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
     {
         $cultureName = Mage::helper('pis_payment')->getCultureName();
         $storeId = Mage::app()->getStore()->getStoreId();
-        $params = array(
-            "RequestHeader" => array(
-                "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
-                "ApiKey"    => $this->getConfigData('api_terminal_key', $storeId),
-                "CultureName" => $cultureName
-            ),
-            "InstallmentPlanNumber" => Mage::getSingleton('core/session')->getInstallmentPlanNumber(),
-            "CreditCardDetails" => array(
-                "CardCvv" => $payment->getCcCid(),
-                "CardNumber" => $payment->getCcNumber(),
-                "CardExpYear" => $payment->getCcExpYear(),
-                "CardExpMonth" => $payment->getCcExpMonth(),
-            ),
-            "PlanApprovalEvidence" => array(
-                "AreTermsAndConditionsApproved" => "True"
-            ),
-        );
+
+        $selectedInstallment = $payment->getInstallmentsNo();
+        if($selectedInstallment==1){
+            $firstInstallmentAmount = $this->getFirstInstallmentAmount($selectedInstallment);
+            $checkout = Mage::getSingleton('checkout/session')->getQuote();
+            $billAddress = $checkout->getBillingAddress();
+            $customerInfo = Mage::getSingleton('customer/session')->getCustomer()->getData();
+            if(!isset($customerInfo["firstname"])){
+                $customerInfo["firstname"] = $billAddress->getFirstname();
+                $customerInfo["lastname"] = $billAddress->getLastname();
+                $customerInfo["email"] = $billAddress->getEmail();
+            }
+            $autoCapture = false;
+            $paymentAction = Mage::getStoreConfig('payment/pis_cc/payment_action');
+            if($paymentAction == "authorize_capture"){
+                $autoCapture = true;
+            }
+            $params = [
+                "RequestHeader" => [
+                    "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
+                    "ApiKey"    => $this->getConfigData('api_terminal_key', $storeId),
+                ],
+                "PlanData"      => [
+                    "Amount"    => [
+                        "Value" => round(Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal(), 2),
+                        "CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
+                    ],
+                    "NumberOfInstallments" => $selectedInstallment,
+                    "PurchaseMethod" => "ECommerce",
+                    //"RefOrderNumber" => $quote_id,
+                    "FirstInstallmentAmount" => [
+                        "Value" => $firstInstallmentAmount,
+                        "CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
+                    ],
+                    "AutoCapture" => $autoCapture,
+                    "ExtendedParams" => [
+                        "CreateAck" => "NotReceived"
+                    ],
+                ],
+                "CreditCardDetails" => [
+                    "CardCvv" => $payment->getCcCid(),
+                    "CardNumber" => $payment->getCcNumber(),
+                    "CardExpYear" => $payment->getCcExpYear(),
+                    "CardExpMonth" => $payment->getCcExpMonth(),
+                ],
+                "BillingAddress" => [
+                    "AddressLine" => $billAddress->getStreet()[0], 
+                    "AddressLine2" => $billAddress->getStreet()[1],
+                    "City" => $billAddress->getCity(),
+                    "State" => $billAddress->getRegion(),
+                    //"Country" => Mage::app()->getLocale()->getCountryTranslation($billAddress->getCountry()),
+                    "Country" => $billAddress->getCountry(),
+                    "Zip" => $billAddress->getPostcode(),
+                ],
+                "ConsumerData" => [
+                    "FullName" => $customerInfo["firstname"]." ".$customerInfo["lastname"],
+                    "Email" => $customerInfo["email"],
+                    "PhoneNumber" => $billAddress->getTelephone(),
+                    "CultureName" => $cultureName
+                ],
+                "PlanApprovalEvidence" => [
+                    "AreTermsAndConditionsApproved" => "True"
+                ],
+            ];            
+        } else {
+            $params = array(
+                "RequestHeader" => array(
+                    "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
+                    "ApiKey"    => $this->getConfigData('api_terminal_key', $storeId),
+                    "CultureName" => $cultureName
+                ),
+                "InstallmentPlanNumber" => Mage::getSingleton('core/session')->getInstallmentPlanNumber(),
+                "CreditCardDetails" => array(
+                    "CardCvv" => $payment->getCcCid(),
+                    "CardNumber" => $payment->getCcNumber(),
+                    "CardExpYear" => $payment->getCcExpYear(),
+                    "CardExpMonth" => $payment->getCcExpMonth(),
+                ),
+                "PlanApprovalEvidence" => array(
+                    "AreTermsAndConditionsApproved" => "True"
+                ),
+            );            
+        }
+
         $result = $api->createInstallmentPlan($this->getApiUrl(),$params);
         if (isset($result["ResponseHeader"])&&isset($result["ResponseHeader"]["Errors"])&&!empty($result["ResponseHeader"]["Errors"])){
             $e = $api->getError();

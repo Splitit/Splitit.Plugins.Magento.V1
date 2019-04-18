@@ -1,7 +1,7 @@
 <?php $_code=$this->getMethodCode() ?>
 
 
-<?php $this->getAvailableInstallments(); // set installments in session?>
+<?php $availableInstallments = $this->getAvailableInstallments(); // set installments in session?>
 
 <?php 
     $flag = Mage::getStoreConfigFlag('web/url/use_store');
@@ -70,30 +70,30 @@
         </div>
     </li>
     <?php endif; ?>
-    <li>
+    <?php $countAvailInstallment = count($availableInstallments);
+        $i = 1;
+     ?>
+    <li style="<?php echo ($countAvailInstallment==1 && key($availableInstallments)==1)?'display: none;':''; ?>">
         <label for="<?php echo $_code ?>_installments_no" class="required"><em>*</em><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('pd_number_of_installments') ?></label>
         <div class="input-box">
             <select id="<?php echo $_code ?>_installments_no" name="payment[installments_no]" class="required-entry">
                 
             <?php $_iNo = $this->getInfoData('installments_no') ?>
-            <?php $countAvailInstallment = count($this->getAvailableInstallments());
-                $i = 1;
-             ?>
-            <?php foreach ($this->getAvailableInstallments() as $_num => $_typeName): ?>
+            <?php foreach ($availableInstallments as $_num => $_typeName): ?>
                 <?php /*<option value="<?php echo $_num ?>"<?php if($_num==$_iNo): ?> selected="selected"<?php endif ?>><?php echo $_typeName ?></option> */?>
                  <option <?php echo ($i == $countAvailInstallment)?"selected='selected'":""; $i++; ?> value="<?php echo $_num ?>"><?php echo $_typeName ?></option>
             <?php endforeach ?>
             </select>
         </div>
     </li>
-    <li style="margin-bottom: 0;">
+    <li style="margin-bottom: 0;<?php echo ($countAvailInstallment==1 && key($availableInstallments)==1)?'display: none;':''; ?>">
         <label class="required" style="display: block; float: none;"><em>*</em><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('tc_approval'); ?></label>
         <span class="apr-tc" onclick="installmentPlanInit()"><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('tc_clicktoapprovetermsandconditions'); ?></span>
         <span class="terms-condition-loader"><img src="<?php echo Mage::getBaseUrl('js').'payitsimple/payitsimplepament/opc-ajax-loader.gif' ?>" /></span>
     </li>
     <li class="terms-conditions">
-        <input style="visibility: hidden; float: left; margin-right: 5px; position: absolute; margin-top: 2px;" type="checkbox" id="<?php echo $_code ?>_terms" name="" class="required-entry" value="1" />
-        <label for="<?php echo $_code ?>_terms" class="required" style="height: 0; display: none;">
+        <input style="<?php echo ($countAvailInstallment==1 && key($availableInstallments)==1)?'position: inline-block;':'visibility: hidden; position: absolute;'; ?> float: left; margin-right: 5px; margin-top: 2px;" type="checkbox" id="<?php echo $_code ?>_terms" name="" class="required-entry" value="1" />
+        <label for="<?php echo $_code ?>_terms" class="required" style="height: 0; <?php echo ($countAvailInstallment==1 && key($availableInstallments)==1)?'':'display: none;'; ?>">
             <em>*</em><?php echo $this->__('I acknowledge that I have read and agree to the %s terms and conditions %s','<a href="#" style="float:none; margin-left:0px;" onclick="popWin(\'' . 'http://www.splitit.com/legal/customers-terms-and-conditions/' . "', 'terms and conditions', 'width=750,height=607,left=0,top=0,location=no,status=no,scrollbars=yes,resizable=no'); return false;\">",'</a>') ?>
         </label>
     </li>
