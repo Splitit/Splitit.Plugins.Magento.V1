@@ -86,7 +86,7 @@
             </select>
         </div>
     </li>
-    <li style="margin-bottom: 0;<?php echo ($countAvailInstallment==1 && key($availableInstallments)==1)?'display: none;':''; ?>">
+    <li style="margin-bottom: 0;<?php reset($availableInstallments); echo ($countAvailInstallment==1 && key($availableInstallments)==1)?'display: none;':''; ?>">
         <label class="required" style="display: block; float: none;"><em>*</em><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('tc_approval'); ?></label>
         <span class="apr-tc" onclick="installmentPlanInit()"><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('tc_clicktoapprovetermsandconditions'); ?></span>
         <span class="terms-condition-loader"><img src="<?php echo Mage::getBaseUrl('js').'payitsimple/payitsimplepament/opc-ajax-loader.gif' ?>" /></span>
