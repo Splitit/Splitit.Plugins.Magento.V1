@@ -575,7 +575,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
         $storeId = Mage::app()->getStore()->getId();
         $session = Mage::getSingleton('checkout/session');
         $quote_id = $session->getQuoteId();
-        $firstInstallmentAmount = 0;//$this->getFirstInstallmentAmount($selectedInstallment);
+        $firstInstallmentAmount = $this->getFirstInstallmentAmountHosted();
         $checkout = Mage::getSingleton('checkout/session')->getQuote();
         $billAddress = $checkout->getBillingAddress();
         $BillingAddressArr = $billAddress->getData();
@@ -721,11 +721,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
                 ),
                 //"NumberOfInstallments" => $selectedInstallment,
                 "PurchaseMethod" => "ECommerce",
-                //"RefOrderNumber" => $quote_id,
-                "FirstInstallmentAmount" => array(
-                    "Value" => $firstInstallmentAmount,
-                    "CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
-                ),
+                //"RefOrderNumber" => $quote_id,                
                 "AutoCapture" => $autoCapture,
                 /*"Attempt3DSecure" => (Mage::getStoreConfig('payment/pis_paymentform/attempt_3d_secure'))?true:false,*/
                 "ExtendedParams" => array(
@@ -755,6 +751,13 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
                 
             ],*/
         );
+
+        if($firstInstallmentAmount){
+            $params["PlanData"]["FirstInstallmentAmount"] = array(
+                    "Value" => $firstInstallmentAmount,
+                    "CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
+                );
+        }
 
         $_3DSecure = Mage::getStoreConfig('payment/pis_paymentform/attempt_3d_secure');
         $_3DSecureMinAmount = Mage::getStoreConfig('payment/pis_paymentform/attempt_3d_secure_min_amount');
@@ -809,6 +812,23 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
         
         //print_r($params);die("--fd");
         return $params;
+    }
+
+    public function getFirstInstallmentAmountHosted(){
+        $firstPayment = Mage::getStoreConfig('payment/pis_paymentform/first_payment');
+        $percentageOfOrder = Mage::getStoreConfig('payment/pis_paymentform/percentage_of_order');
+
+        $firstInstallmentAmount = 0;
+        if($firstPayment == "shipping"){
+            $firstInstallmentAmount = Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()->getShippingAmount();
+        } else if($firstPayment == "percentage") {
+            if($percentageOfOrder > 50){
+                $percentageOfOrder = 50;
+            }
+            $firstInstallmentAmount = ((Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal()*$percentageOfOrder)/100);
+        }
+
+        return round($firstInstallmentAmount,2);
     }
 
     public function getFirstInstallmentAmount($selectedInstallment){
