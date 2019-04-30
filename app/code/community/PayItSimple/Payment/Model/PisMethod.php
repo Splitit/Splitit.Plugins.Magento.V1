@@ -319,7 +319,30 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                 "PlanApprovalEvidence" => [
                     "AreTermsAndConditionsApproved" => "True"
                 ],
-            ];            
+            ];
+            $cart = Mage::helper('checkout/cart')->getCart()->getQuote();
+            $itemsArr = array();
+            $i = 0;
+            $currencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
+            foreach ($cart->getAllItems() as $item) {
+                $product = Mage::getModel("catalog/product")->load($item->getProductId());
+                $itemsArr[$i]["Name"] = $item->getName();
+                $itemsArr[$i]["SKU"] = $item->getSku();
+                $itemsArr[$i]["Price"] = array("Value"=>round($item->getPrice(), 2),"CurrencyCode"=>$currencyCode);
+                $itemsArr[$i]["Quantity"] = $item->getQty();
+                $itemsArr[$i]["Description"] = $product->getShortDescription();
+                //echo $productPrice = $item->getProduct()->getPrice();
+                $i++;
+                
+            }
+            $params['CartData'] = array(
+                "Items" => $itemsArr,
+                "AmountDetails" => array(
+                    "Subtotal" => round(Mage::getSingleton('checkout/session')->getQuote()->getSubtotal(), 2),
+                    "Tax" => round(Mage::helper('checkout')->getQuote()->getShippingAddress()->getData('tax_amount'), 2),
+                    "Shipping" => round(Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()->getShippingAmount(), 2)
+                )
+            );
         } else {
             $params = array(
                 "RequestHeader" => array(
