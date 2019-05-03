@@ -343,6 +343,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc
                     "Shipping" => round(Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()->getShippingAmount(), 2)
                 )
             );
+            Mage::log("====1 installment create=======");
+            Mage::log(json_encode($params));
         } else {
             $params = array(
                 "RequestHeader" => array(

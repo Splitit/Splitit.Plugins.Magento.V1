@@ -821,6 +821,10 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
         $firstInstallmentAmount = 0;
         if($firstPayment == "shipping"){
             $firstInstallmentAmount = Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()->getShippingAmount();
+        } elseif($firstPayment == "shipping_taxes"){
+            $shippingAmount = Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()->getShippingAmount();
+            $taxAmount = Mage::helper('checkout')->getQuote()->getShippingAddress()->getData('tax_amount');
+            $firstInstallmentAmount = $shippingAmount+$taxAmount;
         } else if($firstPayment == "percentage") {
             if($percentageOfOrder > 50){
                 $percentageOfOrder = 50;
