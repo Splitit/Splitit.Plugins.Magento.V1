@@ -782,7 +782,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
             $itemsArr[$i]["SKU"] = $item->getSku();
             $itemsArr[$i]["Price"] = array("Value"=>round($item->getPrice(), 2),"CurrencyCode"=>$currencyCode);
             $itemsArr[$i]["Quantity"] = $item->getQty();
-            $itemsArr[$i]["Description"] = $product->getShortDescription();
+            // $itemsArr[$i]["Description"] = $product->getShortDescription();
             //echo $productPrice = $item->getProduct()->getPrice();
             $i++;
             
