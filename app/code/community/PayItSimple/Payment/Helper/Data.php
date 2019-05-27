@@ -18,14 +18,20 @@ class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract
 		$storelang = Mage::getStoreConfig('general/locale/code', $storeId);
 		$defaultLang = $this->getDefaultLanguage();
 		$translation = $this->getTranslation($code);
+		$logoSrc = Mage::getStoreConfig('payment/' . $code . '/logo_src');
+		$logoLink = Mage::getStoreConfig('payment/' . $code . '/logo_background_href');
 		$text = "";
 		if(Mage::getStoreConfig('payment/'.$code.'/enable_installment_price')==1 && Mage::getStoreConfig('payment/'.$code.'/active') == 1){
 			if(!empty($translation) && isset($translation[$storelang]["ecomm_no_interest"]["translatedData"]) && $translation[$storelang]["ecomm_no_interest"]["translatedData"] != "" ){
 				$text = $translation[$storelang]["ecomm_no_interest"]["translatedData"];
 			}else if(!empty($translation) && isset($translation[$defaultLang]["ecomm_no_interest"]["translatedData"])){
 				$text = $translation[$defaultLang]["ecomm_no_interest"]["translatedData"];
-				
-			}	
+
+			}
+		}
+		if ($logoLink && $logoSrc) {
+			$replace = "<a href='" . $logoLink . "' target='_blank'><img style='height: 30px;display: inline-block;margin-bottom: -12px;' class='logoWidthSrc' src='" . $logoSrc . "' alt='SPLITIT'/></a>";
+			$text = str_replace('SPLITIT', $replace, $text);
 		}
 		return $text;
 	}

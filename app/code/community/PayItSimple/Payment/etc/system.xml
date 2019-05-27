@@ -137,6 +137,22 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </faq_link_title_url>
+                        <logo_src translate="label">
+                            <label>Split It logo Src</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>76</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </logo_src>
+                         <logo_background_href translate="label">
+                            <label>Split It background link</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>76</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </logo_background_href>
                         <payment_action translate="label">
                             <label>Payment Action</label>
                             <frontend_type>select</frontend_type>
@@ -526,6 +542,22 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </faq_link_title_url>
+                        <logo_src translate="label">
+                            <label>Split It logo Src</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>76</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </logo_src>
+                         <logo_background_href translate="label">
+                            <label>Split It background link</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>76</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </logo_background_href>
                         <payment_action translate="label">
                             <label>Payment Action</label>
                             <frontend_type>select</frontend_type>
