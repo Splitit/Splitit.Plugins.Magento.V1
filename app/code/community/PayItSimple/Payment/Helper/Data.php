@@ -29,7 +29,7 @@ class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract {
 			}
 		}
 		if ($logoLink && $logoSrc) {
-			$replace = "<a href='" . $logoLink . "' target='_blank'><img style='height: 24px;display: inline-block;margin-bottom: -8px;' class='logoWidthSrc' src='" . $logoSrc . "' alt='SPLITIT'/></a>";
+			$replace = "<a href='" . $logoLink . "' target='_blank'><img class='logoWidthSrc' src='" . $logoSrc . "' alt='SPLITIT'/></a>";
 			$text = str_replace('SPLITIT', $replace, $text);
 		}
 		return $text;

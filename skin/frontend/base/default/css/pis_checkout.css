@@ -100,4 +100,4 @@ table.tablePage2 td{ width:50%; vertical-align: middle; }
 @media only screen and (max-width: 767px) {
     #payment-tool-tip {right: 0;}
 }
-
+.logoWidthSrc{ height: 20px !important; display: inline-block !important; margin-bottom: -5px !important;}

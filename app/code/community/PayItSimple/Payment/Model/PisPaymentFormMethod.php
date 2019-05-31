@@ -761,8 +761,11 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 
         $_3DSecure = Mage::getStoreConfig('payment/pis_paymentform/attempt_3d_secure');
         $_3DSecureMinAmount = Mage::getStoreConfig('payment/pis_paymentform/attempt_3d_secure_min_amount');
+        if (!$_3DSecureMinAmount) {
+            $_3DSecureMinAmount = 0;
+        }
         if($_3DSecure && $_3DSecure != ""){
-            if($_3DSecureMinAmount && ($_3DSecureMinAmount != "") && (floatval($params['PlanData']['Amount']['Value']) >= floatval($_3DSecureMinAmount))){
+            if(floatval($params['PlanData']['Amount']['Value']) >= floatval($_3DSecureMinAmount)){
                 $params['PlanData']["Attempt3DSecure"] = true;
                 /*$params["RedirectUrls"]= array(
                     "Succeeded"=> $redirect_success_url . '?wc-api=splitit_payment_success',
@@ -770,7 +773,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
                     "Canceled"=> $redirect_cancel_url . '?wc-api=splitit_payment_error'
                 );*/
             }
-        }
+        
 
         $cart = Mage::helper('checkout/cart')->getCart()->getQuote();
         $itemsArr = array();
