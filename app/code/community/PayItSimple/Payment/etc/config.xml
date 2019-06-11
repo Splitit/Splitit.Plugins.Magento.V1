@@ -187,7 +187,7 @@
                 <faq_link_enabled>1</faq_link_enabled>
                 <faq_link_title>Tell me more</faq_link_title>
                 <faq_link_title_url>https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png</faq_link_title_url>
-                <logo_src>https://www.splitit.com/wp-content/uploads/2018/10/splitit_dark.svg</logo_src>
+                <logo_src>https://s3.amazonaws.com/splitit-logos/Offical Splitit Logo.png</logo_src>
                 <logo_background_href>https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png</logo_background_href>
                 <api_url>https://web-api.splitit.com/</api_url>
                 <api_url_sandbox>https://web-api-sandbox.splitit.com/</api_url_sandbox>
@@ -211,7 +211,7 @@
                 <faq_link_enabled>1</faq_link_enabled>
                 <faq_link_title>Tell me more</faq_link_title>
                 <faq_link_title_url>https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png</faq_link_title_url>
-                <logo_src>https://www.splitit.com/wp-content/uploads/2018/10/splitit_dark.svg</logo_src>
+                <logo_src>https://s3.amazonaws.com/splitit-logos/Offical Splitit Logo.png</logo_src>
                 <logo_background_href>https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png</logo_background_href>
                 <api_url>https://web-api.splitit.com/</api_url>
                 <api_url_sandbox>https://web-api-sandbox.splitit.com/</api_url_sandbox>
