@@ -323,14 +323,10 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			return $api;
 		}
 		// get magento version
-		$m = new Mage;
-		$version = $m->getVersion();
-
-		if ($version >= 1.9) {
-			$touchPointVersion = "M1.9S2.2";
-		} elseif ($version >= 1.8) {
-			$touchPointVersion = "M1.8S2.2";
-		}
+		$version=Mage::getVersion();
+                $edition=Mage::getEdition();
+                $touchPointVersion = "M".substr($edition, 0, 1).substr($version, 0, 3)."S2.2";
+                
 		$result = $api->login(
 			$this->getApiUrl(),
 			array(
@@ -655,8 +651,15 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 				$grandTotal = Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal();
 				$passedData = json_encode($params);
 
-				$sql = 'INSERT INTO `' . $tablePrefix . 'splitit_hosted_solution` (`installment_plan_number`, `quote_id`, `quote_item_count`, `customer_id`, `base_grand_total`, `additional_data`) VALUES ("' . $installmentPlan . '", ' . $quote_id . ', ' . $cartItemCount . ', ' . $customerId . ', ' . $grandTotal . ',\'' . $passedData . '\')';
-				$db_write->query($sql);
+                    $sql = 'INSERT INTO `' . $tablePrefix . 'splitit_hosted_solution` (`installment_plan_number`, `quote_id`, `quote_item_count`, `customer_id`, `base_grand_total`, `additional_data`) VALUES (:installmentPlan, :quote_id, :cartItemCount, :customerId, :grandTotal,:passedData)';
+                    $bind = array(
+                        'installmentPlan'=>$installmentPlan,
+                        'quote_id'=>$quote_id,
+                        'cartItemCount'=>$cartItemCount,
+                        'customerId'=>$customerId,
+                        'grandTotal'=>$grandTotal,
+                        'passedData'=>$passedData);
+                    $db_write->query($sql,$bind);  
 			} else if (isset($decodedResult["ResponseHeader"]) && count($decodedResult["ResponseHeader"]["Errors"])) {
 				$errorMsg = "";
 				$i = 1;

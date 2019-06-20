@@ -380,14 +380,10 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			return $api;
 		}
 		// get magento version
-		$m = new Mage;
-		$version = $m->getVersion();
+                $version=Mage::getVersion();
+                $edition=Mage::getEdition();
+                $touchPointVersion = "M".substr($edition, 0, 1).substr($version, 0, 3)."S2.2";
 
-		if ($version >= 1.9) {
-			$touchPointVersion = "M1.9S2.2";
-		} elseif ($version >= 1.8) {
-			$touchPointVersion = "M1.8S2.2";
-		}
 		$result = $api->login(
 			$this->getApiUrl(),
 			array(
