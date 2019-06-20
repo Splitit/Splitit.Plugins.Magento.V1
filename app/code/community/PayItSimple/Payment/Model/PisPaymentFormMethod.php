@@ -760,7 +760,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 		$itemsArr = array();
 		$i = 0;
 		$currencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
-		foreach ($cart->getAllItems() as $item) {
+		foreach ($cart->getAllVisibleItems() as $item) {
 			$product = Mage::getModel("catalog/product")->load($item->getProductId());
 			$itemsArr[$i]["Name"] = $item->getName();
 			$itemsArr[$i]["SKU"] = $item->getSku();
