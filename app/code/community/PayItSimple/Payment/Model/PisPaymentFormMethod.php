@@ -651,15 +651,15 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 				$grandTotal = Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal();
 				$passedData = json_encode($params);
 
-                    $sql = 'INSERT INTO `' . $tablePrefix . 'splitit_hosted_solution` (`installment_plan_number`, `quote_id`, `quote_item_count`, `customer_id`, `base_grand_total`, `additional_data`) VALUES (:installmentPlan, :quote_id, :cartItemCount, :customerId, :grandTotal,:passedData)';
-                    $bind = array(
-                        'installmentPlan'=>$installmentPlan,
-                        'quote_id'=>$quote_id,
-                        'cartItemCount'=>$cartItemCount,
-                        'customerId'=>$customerId,
-                        'grandTotal'=>$grandTotal,
-                        'passedData'=>$passedData);
-                    $db_write->query($sql,$bind);  
+                $sql = 'INSERT INTO `' . $tablePrefix . 'splitit_hosted_solution` (`installment_plan_number`, `quote_id`, `quote_item_count`, `customer_id`, `base_grand_total`, `additional_data`) VALUES (:installmentPlan, :quote_id, :cartItemCount, :customerId, :grandTotal,:passedData)';
+                $bind = array(
+                    'installmentPlan'=>$installmentPlan,
+                    'quote_id'=>$quote_id,
+                    'cartItemCount'=>$cartItemCount,
+                    'customerId'=>$customerId,
+                    'grandTotal'=>$grandTotal,
+                    'passedData'=>$passedData);
+                $db_write->query($sql,$bind);  
 			} else if (isset($decodedResult["ResponseHeader"]) && count($decodedResult["ResponseHeader"]["Errors"])) {
 				$errorMsg = "";
 				$i = 1;
