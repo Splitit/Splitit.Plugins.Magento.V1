@@ -6,7 +6,7 @@ $installer = $this;
 $installer->startSetup();
 
 $installer->run("
-CREATE TABLE `{$this->getTable('splitit_hosted_solution')}` (
+CREATE TABLE IF NOT EXISTS `{$this->getTable('splitit_hosted_solution')}` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `installment_plan_number` varchar(100) DEFAULT NULL COMMENT 'Txn Id',
   `quote_id` int(10) unsigned NOT NULL DEFAULT '0' COMMENT 'quote Id',

@@ -19,6 +19,15 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 	//protected $_infoBlockType = 'pis_payment/info_pis';
 	protected $_canCancel = false;
 
+	/**
+	 * Retrieve payment method title
+	 *
+	 * @return string
+	 */
+	public function getTitle() {
+		return '';
+	}
+
 	public function getOrderPlaceRedirectUrl() {
 
 		$storeId = Mage::app()->getStore()->getStoreId();
@@ -323,10 +332,10 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			return $api;
 		}
 		// get magento version
-		$version=Mage::getVersion();
-                $edition=Mage::getEdition();
-                $touchPointVersion = "M".substr($edition, 0, 1).substr($version, 0, 3)."S2.2";
-                
+		$version = Mage::getVersion();
+		$edition = Mage::getEdition();
+		$touchPointVersion = "M" . substr($edition, 0, 1) . substr($version, 0, 3) . "S2.2";
+
 		$result = $api->login(
 			$this->getApiUrl(),
 			array(
@@ -651,15 +660,15 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 				$grandTotal = Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal();
 				$passedData = json_encode($params);
 
-                $sql = 'INSERT INTO `' . $tablePrefix . 'splitit_hosted_solution` (`installment_plan_number`, `quote_id`, `quote_item_count`, `customer_id`, `base_grand_total`, `additional_data`) VALUES (:installmentPlan, :quote_id, :cartItemCount, :customerId, :grandTotal,:passedData)';
-                $bind = array(
-                    'installmentPlan'=>$installmentPlan,
-                    'quote_id'=>$quote_id,
-                    'cartItemCount'=>$cartItemCount,
-                    'customerId'=>$customerId,
-                    'grandTotal'=>$grandTotal,
-                    'passedData'=>$passedData);
-                $db_write->query($sql,$bind);  
+				$sql = 'INSERT INTO `' . $tablePrefix . 'splitit_hosted_solution` (`installment_plan_number`, `quote_id`, `quote_item_count`, `customer_id`, `base_grand_total`, `additional_data`) VALUES (:installmentPlan, :quote_id, :cartItemCount, :customerId, :grandTotal,:passedData)';
+				$bind = array(
+					'installmentPlan' => $installmentPlan,
+					'quote_id' => $quote_id,
+					'cartItemCount' => $cartItemCount,
+					'customerId' => $customerId,
+					'grandTotal' => $grandTotal,
+					'passedData' => $passedData);
+				$db_write->query($sql, $bind);
 			} else if (isset($decodedResult["ResponseHeader"]) && count($decodedResult["ResponseHeader"]["Errors"])) {
 				$errorMsg = "";
 				$i = 1;
@@ -766,7 +775,11 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			$itemsArr[$i]["SKU"] = $item->getSku();
 			$itemsArr[$i]["Price"] = array("Value" => round($item->getPrice(), 2), "CurrencyCode" => $currencyCode);
 			$itemsArr[$i]["Quantity"] = $item->getQty();
-			$itemsArr[$i]["Description"] = strip_tags($product->getShortDescription());
+			$_resource = Mage::getSingleton('catalog/product')->getResource();
+			$optionValue = $_resource->getAttributeRawValue($item->getProductId(), ['short_description'], Mage::app()->getStore());
+
+			$itemsArr[$i]["Description"] = strip_tags($optionValue);
+			//$itemsArr[$i]["Description"] = strip_tags($product->getShortDescription());
 			//echo $productPrice = $item->getProduct()->getPrice();
 			$i++;
 
@@ -1030,7 +1043,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 		$response = array("status" => false, "data" => "", "numberOfInstallments" => "", "cardBrand" => "", "cardNumber" => "", "cardExpMonth" => "", "cardExpYear" => "");
 		$result = $api->getInstallmentPlanDetails($this->getApiUrl(), $params);
 		$decodedResult = Mage::helper('core')->jsonDecode($result);
-
+		$errorCount = count($decodedResult["ResponseHeader"]["Errors"]);
 		if (isset($decodedResult["ResponseHeader"]["Succeeded"]) && $decodedResult["ResponseHeader"]["Succeeded"] == 1) {
 			$response["status"] = true;
 			$response["numberOfInstallments"] = $decodedResult["PlansList"][0]["NumberOfInstallments"];
@@ -1042,12 +1055,12 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			$response["currencyCode"] = $decodedResult["PlansList"][0]["OriginalAmount"]["Currency"]["Code"];
 			$response["planStatus"] = $decodedResult["PlansList"][0]["InstallmentPlanStatus"]["Code"];
 
-		} else if (isset($decodedResult["ResponseHeader"]) && count($decodedResult["ResponseHeader"]["Errors"])) {
+		} else if (isset($decodedResult["ResponseHeader"]) && $errorCount) {
 			$errorMsg = "";
 			$i = 1;
 			foreach ($decodedResult["ResponseHeader"]["Errors"] as $key => $value) {
 				$errorMsg .= "Code : " . $value["ErrorCode"] . " - " . $value["Message"];
-				if ($i < count($decodedResult["ResponseHeader"]["Errors"])) {
+				if ($i < $errorCount) {
 					$errorMsg .= ", ";
 				}
 				$i++;
@@ -1114,16 +1127,16 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 		);
 		$result = $api->refundInstallmentPlan($this->getApiUrl(), $params);
 		$decodedResult = Mage::helper('core')->jsonDecode($result);
-
+		$errorCount = count($decodedResult["ResponseHeader"]["Errors"]);
 		if (isset($decodedResult["ResponseHeader"]["Succeeded"]) && $decodedResult["ResponseHeader"]["Succeeded"] == 1) {
 			$response["status"] = true;
 
-		} else if (isset($decodedResult["ResponseHeader"]) && count($decodedResult["ResponseHeader"]["Errors"])) {
+		} else if (isset($decodedResult["ResponseHeader"]) && $errorCount) {
 			$errorMsg = "";
 			$i = 1;
 			foreach ($decodedResult["ResponseHeader"]["Errors"] as $key => $value) {
 				$errorMsg .= "Code : " . $value["ErrorCode"] . " - " . $value["Message"];
-				if ($i < count($decodedResult["ResponseHeader"]["Errors"])) {
+				if ($i < $errorCount) {
 					$errorMsg .= ", ";
 				}
 				$i++;

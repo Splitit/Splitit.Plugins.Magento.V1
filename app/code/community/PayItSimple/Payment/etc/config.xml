@@ -42,7 +42,15 @@
                     </sip_payment_payment_method_is_active>
                 </observers>
             </payment_method_is_active>
-            
+             <sales_model_service_quote_submit_before>
+        <observers>
+            <validateAddress_pispaymentmethod>
+                <type>singleton</type>
+                <class>pis_payment/observer</class>
+                <method>validateAddress</method>
+            </validateAddress_pispaymentmethod>
+        </observers>
+    </sales_model_service_quote_submit_before>
         </events>
     </frontend>
     <admin>
@@ -93,6 +101,17 @@
                 </fee>
             </totals>
         </pdf>
+        <payment>
+            <cc>
+                <types>
+                    <UP>
+                        <code>UP</code>
+                        <name>Union Pay</name>
+                        <order>60</order>
+                    </UP>
+                </types>
+            </cc>
+        </payment>
         <models>            
             <pis_payment>
                 <class>PayItSimple_Payment_Model</class>
@@ -101,23 +120,12 @@
             <pis_payment_mysql4>
                 <class>PayItSimple_Payment_Model_Mysql4</class>
                 <entities>
-                    <pis_payment>
-                        <table>pis_payment</table>
-                    </pis_payment>
+                    <pispayment>
+                        <table>splitit_hosted_solution</table>
+                    </pispayment>
                 </entities>
             </pis_payment_mysql4>
         </models>
-        <events>
-            <order_cancel_after>
-                <observers>
-                    <sip_payment_order_cancel_after_obs>
-                        <type>singleton</type>
-                        <class>PayItSimple_Payment_Model_Observer</class>
-                        <method>orderCancelAfter</method>
-                    </sip_payment_order_cancel_after_obs>
-                </observers>
-            </order_cancel_after>
-        </events>
         <resources>
             <pis_payment_setup>
                 <setup>
@@ -138,6 +146,17 @@
                 </connection>
             </pis_payment_read>
         </resources>
+        <events>
+            <order_cancel_after>
+                <observers>
+                    <sip_payment_order_cancel_after_obs>
+                        <type>singleton</type>
+                        <class>PayItSimple_Payment_Model_Observer</class>
+                        <method>orderCancelAfter</method>
+                    </sip_payment_order_cancel_after_obs>
+                </observers>
+            </order_cancel_after>
+        </events>        
         <sales>
             <quote>
                 <totals>
@@ -183,7 +202,7 @@
                 <model>pis_payment/pisMethod</model>
                 <order_status>processing</order_status>
                 <payment_action>authorize</payment_action>
-                <title>Monthly payments - 0% Interest</title>
+                <title>SPLITIT 0% Interest Monthly Payments</title>
                 <faq_link_enabled>1</faq_link_enabled>
                 <faq_link_title>Tell me more</faq_link_title>
                 <faq_link_title_url>https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png</faq_link_title_url>
@@ -193,8 +212,9 @@
                 <api_url_sandbox>https://web-api-sandbox.splitit.com/</api_url_sandbox>
                 <sandbox_flag>0</sandbox_flag>
                 <debug>0</debug>
-                <cctypes>MC,VI</cctypes>
-                <splitit_fees>0</splitit_fees>
+                <cctypes>MC,VI,UP</cctypes>
+                <splitit_fees>1</splitit_fees>
+                <installments_count>6</installments_count>
                 <allowspecific>0</allowspecific>
                 <specificcountry>US</specificcountry>
                 <centinel>0</centinel>
@@ -207,7 +227,7 @@
                 <model>pis_payment/pisPaymentFormMethod</model>
                 <order_status>pending</order_status>
                 <payment_action>authorize</payment_action>
-                <title>Monthly payments - 0% Interest</title>
+                <title>SPLITIT 0% Interest Monthly Payments</title>
                 <faq_link_enabled>1</faq_link_enabled>
                 <faq_link_title>Tell me more</faq_link_title>
                 <faq_link_title_url>https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png</faq_link_title_url>

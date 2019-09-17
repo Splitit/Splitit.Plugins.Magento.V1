@@ -101,3 +101,5 @@ table.tablePage2 td{ width:50%; vertical-align: middle; }
     #payment-tool-tip {right: 0;}
 }
 .logoWidthSrc{ height: 20px !important; display: inline-block !important; margin-bottom: -5px !important;}
+img.logoWidthSrc-helplog {    display: inline-block;    width: 15px;    vertical-align: middle;    margin-bottom: 4px;    margin-left: 2px;}
+.product-options-bottom span.ins-text {    display: none; }

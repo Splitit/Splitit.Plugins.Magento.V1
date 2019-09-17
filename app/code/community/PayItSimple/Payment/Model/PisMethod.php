@@ -16,6 +16,41 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 	protected $_canUseForMultishipping = false;
 
 	protected $_canCancel = false;
+
+	/**
+	 * Retrieve payment method title
+	 *
+	 * @return string
+	 */
+	public function getTitle() {
+		return '';
+	}
+
+	public function getVerificationRegEx() {
+		return array_merge(parent::getVerificationRegEx(), array(
+			'UP' => '/^[0-9]{3}$/', // Union Pay CCV
+		));
+	}
+
+	public function OtherCcType($type) {
+		return in_array($type, array('OT', 'UP'));
+	}
+
+	public function validateNewCard($info) {
+		$ccNumber = $info->getCcNumber();
+		/* validate credit card number against Luhn algorithm */
+		if (!$this->validateCcNum($ccNumber)) {
+			Mage::throwException($this->_getHelper()->__('Invalid Credit Card Number'));
+		}
+
+		/* this is Union Pay regex pattern.
+			         * it's different for every cc type, so beware
+		*/
+		if ($info->getCcType() == 'UP' && !preg_match('/^(62|88)[0-9]{14,17}$/', $ccNumber)) {
+			Mage::throwException($this->_getHelper()->__('Credit card number mismatch with credit card type.'));
+		}
+	}
+
 	public function assignData($data) {
 		if (!($data instanceof Varien_Object)) {
 			$data = new Varien_Object($data);
@@ -37,6 +72,9 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		$terms = $info->getAdditionalInformation('terms');
 		$errorMsg = '';
 		$paymentMode = Mage::helper('pis_payment')->getPaymentMode();
+		if ($paymentMode == "embedded_payment") {
+			$this->validateNewCard($info);
+		}
 		if (empty($no) && $paymentMode == "embedded_payment") {
 			$errorMsg = $this->_getHelper()->__('Installments are required fields');
 		}
@@ -317,12 +355,15 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$i = 0;
 			$currencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
 			foreach ($cart->getAllVisibleItems() as $item) {
-				$product = Mage::getModel("catalog/product")->load($item->getProductId());
+				//$product = Mage::getModel("catalog/product")->load();
 				$itemsArr[$i]["Name"] = $item->getName();
 				$itemsArr[$i]["SKU"] = $item->getSku();
 				$itemsArr[$i]["Price"] = array("Value" => round($item->getPrice(), 2), "CurrencyCode" => $currencyCode);
 				$itemsArr[$i]["Quantity"] = $item->getQty();
-				$itemsArr[$i]["Description"] = strip_tags($product->getShortDescription());
+				$_resource = Mage::getSingleton('catalog/product')->getResource();
+				$optionValue = $_resource->getAttributeRawValue($item->getProductId(), ['short_description'], Mage::app()->getStore());
+
+				$itemsArr[$i]["Description"] = strip_tags($optionValue);
 				//echo $productPrice = $item->getProduct()->getPrice();
 				$i++;
 
@@ -380,9 +421,9 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			return $api;
 		}
 		// get magento version
-                $version=Mage::getVersion();
-                $edition=Mage::getEdition();
-                $touchPointVersion = "M".substr($edition, 0, 1).substr($version, 0, 3)."S2.2";
+		$version = Mage::getVersion();
+		$edition = Mage::getEdition();
+		$touchPointVersion = "M" . substr($edition, 0, 1) . substr($version, 0, 3) . "S2.2";
 
 		$result = $api->login(
 			$this->getApiUrl(),
@@ -465,14 +506,15 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		$response = array("status" => false, "data" => "");
 		$result = $api->updateRefOrderNumber($this->getApiUrl(), $params);
 		$decodedResult = Mage::helper('core')->jsonDecode($result);
+		$errorCount = count($decodedResult["ResponseHeader"]["Errors"]);
 		if (isset($decodedResult["ResponseHeader"]["Succeeded"]) && $decodedResult["ResponseHeader"]["Succeeded"] == 1) {
 			$response["status"] = true;
-		} else if (isset($decodedResult["ResponseHeader"]) && count($decodedResult["ResponseHeader"]["Errors"])) {
+		} else if (isset($decodedResult["ResponseHeader"]) && $errorCount) {
 			$errorMsg = "";
 			$i = 1;
 			foreach ($decodedResult["ResponseHeader"]["Errors"] as $key => $value) {
 				$errorMsg .= "Code : " . $value["ErrorCode"] . " - " . $value["Message"];
-				if ($i < count($decodedResult["ResponseHeader"]["Errors"])) {
+				if ($i < $errorCount) {
 					$errorMsg .= ", ";
 				}
 				$i++;
@@ -542,10 +584,17 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		try {
 			$response = array("status" => false, "data" => "");
 			// check if cunsumer dont filled data
-			$bags = $billAddress->getStreet();
+			/*$bags = $billAddress->getStreet();
 			if ($bags[0] == "" || $billAddress->getCity() == "" || $billAddress->getPostcode() == "" || $customerInfo["firstname"] == "" || $customerInfo["lastname"] == "" || $customerInfo["email"] == "" || $billAddress->getTelephone() == "") {
 				$response["emptyFields"] = true;
 				$response["data"] = "Please fill required fields.";
+				return $response;
+			}*/
+
+			$validateFields = $this->checkForBillingFieldsEmpty($billAddress, $customerInfo);
+			if (!$validateFields['status']) {
+				$response["emptyFields"] = true;
+				$response["data"] = $validateFields['errorMsg'];
 				return $response;
 			}
 
@@ -554,7 +603,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$result = Mage::getSingleton("pis_payment/api")->installmentplaninit($this->getApiUrl(), $params);
 			// check for approval URL from response
 			$decodedResult = Mage::helper('core')->jsonDecode($result);
-
+			$errorCount = count($decodedResult["ResponseHeader"]["Errors"]);
 			if (isset($decodedResult) && isset($decodedResult["ApprovalUrl"]) && $decodedResult["ApprovalUrl"] != "") {
 				$intallmentPlan = $decodedResult["InstallmentPlan"]["InstallmentPlanNumber"];
 				// set Installment plan number into session
@@ -582,12 +631,12 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 				}
 
 				//print_r($approvalUrlResponse);die("---approvalUrlResponse");
-			} else if (isset($decodedResult["ResponseHeader"]) && count($decodedResult["ResponseHeader"]["Errors"])) {
+			} else if (isset($decodedResult["ResponseHeader"]) && $errorCount) {
 				$errorMsg = "";
 				$i = 1;
 				foreach ($decodedResult["ResponseHeader"]["Errors"] as $key => $value) {
 					$errorMsg .= "Code : " . $value["ErrorCode"] . " - " . $value["Message"];
-					if ($i < count($decodedResult["ResponseHeader"]["Errors"])) {
+					if ($i < $errorCount) {
 						$errorMsg .= ", ";
 					}
 					$i++;
@@ -603,6 +652,32 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		}
 		return $response;
 		//return $result;
+	}
+
+	public function checkForBillingFieldsEmpty($billingAddress, $customerInfo) {
+
+		$response = ["errorMsg" => "", "successMsg" => "", "status" => false];
+		if ($billingAddress->getStreet()[0] == "" || $billingAddress->getCity() == "" || $billingAddress->getPostcode() == "" || $customerInfo["firstname"] == "" || $customerInfo["lastname"] == "" || $customerInfo["email"] == "" || $billingAddress->getTelephone() == "") {
+			$response["errorMsg"] = "Please fill required fields.";
+		} else if (strlen($billingAddress->getTelephone()) < 5 || strlen($billingAddress->getTelephone()) > 10) {
+
+			$response["errorMsg"] = __("Splitit does not accept phone number less than 5 digits or greater than 10 digits.");
+		} elseif (!$billingAddress->getCity()) {
+			$response["errorMsg"] = __("Splitit does not accept empty city field.");
+		} elseif (!$billingAddress->getCountry()) {
+			$response["errorMsg"] = ("Splitit does not accept empty country field.");
+		} elseif (!$billingAddress->getPostcode()) {
+			$response["errorMsg"] = ("Splitit does not accept empty postcode field.");
+		} elseif (!$customerInfo["firstname"]) {
+			$response["errorMsg"] = ("Splitit does not accept empty customer name field.");
+		} elseif (strlen($customerInfo["firstname"] . ' ' . $customerInfo['lastname']) < 3) {
+			$response["errorMsg"] = ("Splitit does not accept less than 3 characters customer name field.");
+		} elseif (!filter_var($customerInfo['email'], FILTER_VALIDATE_EMAIL)) {
+			$response["errorMsg"] = ("Splitit does not accept invalid customer email field.");
+		} else {
+			$response["status"] = true;
+		}
+		return $response;
 	}
 
 	public function installmentplaninitForHostedSolution() {
@@ -685,6 +760,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$result = Mage::getSingleton("pis_payment/api")->installmentplaninit($this->getApiUrl(), $params);
 			// check for checkout URL from response
 			$decodedResult = Mage::helper('core')->jsonDecode($result);
+			$errorCount = count($decodedResult["ResponseHeader"]["Errors"]);
 
 			if (isset($decodedResult) && isset($decodedResult["CheckoutUrl"]) && $decodedResult["CheckoutUrl"] != "") {
 
@@ -701,26 +777,38 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 					$customerData = Mage::getSingleton('customer/session')->getCustomer();
 					$customerId = $customerData->getId();
 				}
-				$db_write = Mage::getSingleton('core/resource')->getConnection('core_write');
-				$tablePrefix = (string) Mage::getConfig()->getTablePrefix();
+				/*$db_write = Mage::getSingleton('core/resource')->getConnection('core_write');
+				$tablePrefix = (string) Mage::getConfig()->getTablePrefix();*/
 				$cartItemCount = Mage::helper('checkout/cart')->getSummaryCount();
 				$grandTotal = Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal();
 				$passedData = json_encode($params);
-				$sql = 'INSERT INTO `' . $tablePrefix . 'splitit_hosted_solution` (`installment_plan_number`, `quote_id`, `quote_item_count`, `customer_id`, `base_grand_total`, `additional_data`) VALUES (:installmentPlan, :quote_id, :cartItemCount, :customerId, :grandTotal,:passedData)';
-                $bind = array(
-                    'installmentPlan'=>$installmentPlan,
-                    'quote_id'=>$quote_id,
-                    'cartItemCount'=>$cartItemCount,
-                    'customerId'=>$customerId,
-                    'grandTotal'=>$grandTotal,
-                    'passedData'=>$passedData);
-                $db_write->query($sql,$bind);
-			} else if (isset($decodedResult["ResponseHeader"]) && count($decodedResult["ResponseHeader"]["Errors"])) {
+				$paymentFormModel = Mage::getModel('pis_payment/pispayment');
+				/*$sql = 'INSERT INTO `' . $tablePrefix . 'splitit_hosted_solution` (`installment_plan_number`, `quote_id`, `quote_item_count`, `customer_id`, `base_grand_total`, `additional_data`) VALUES (:installmentPlan, :quote_id, :cartItemCount, :customerId, :grandTotal,:passedData)';
+					$bind = array(
+						'installmentPlan' => $installmentPlan,
+						'quote_id' => $quote_id,
+						'cartItemCount' => $cartItemCount,
+						'customerId' => $customerId,
+						'grandTotal' => $grandTotal,
+						'passedData' => $passedData
+					);
+				*/
+				$bind = array(
+					'installment_plan_number' => $installmentPlan,
+					'quote_id' => $quote_id,
+					'quote_item_count' => $cartItemCount,
+					'customer_id' => $customerId,
+					'base_grand_total' => $grandTotal,
+					'additional_data' => $passedData,
+				);
+				$paymentFormModel->setData($bind);
+				$paymentFormModel->save();
+			} else if (isset($decodedResult["ResponseHeader"]) && $errorCount) {
 				$errorMsg = "";
 				$i = 1;
 				foreach ($decodedResult["ResponseHeader"]["Errors"] as $key => $value) {
 					$errorMsg .= "Code : " . $value["ErrorCode"] . " - " . $value["Message"];
-					if ($i < count($decodedResult["ResponseHeader"]["Errors"])) {
+					if ($i < $errorCount) {
 						$errorMsg .= ", ";
 					}
 					$i++;
@@ -831,12 +919,16 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		$i = 0;
 		$currencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
 		foreach ($cart->getAllVisibleItems() as $item) {
-			$product = Mage::getModel("catalog/product")->load($item->getProductId());
+			//$product = Mage::getModel("catalog/product")->load($item->getProductId());
 			$itemsArr[$i]["Name"] = $item->getName();
 			$itemsArr[$i]["SKU"] = $item->getSku();
 			$itemsArr[$i]["Price"] = array("Value" => round($item->getPrice(), 2), "CurrencyCode" => $currencyCode);
 			$itemsArr[$i]["Quantity"] = $item->getQty();
-			$itemsArr[$i]["Description"] = strip_tags($product->getShortDescription());
+			$_resource = Mage::getSingleton('catalog/product')->getResource();
+			$optionValue = $_resource->getAttributeRawValue($item->getProductId(), ['short_description'], Mage::app()->getStore());
+
+			$itemsArr[$i]["Description"] = strip_tags($optionValue);
+			//$itemsArr[$i]["Description"] = strip_tags($product->getShortDescription());
 			//echo $productPrice = $item->getProduct()->getPrice();
 			$i++;
 
@@ -1085,6 +1177,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		$response = array("status" => false, "data" => "", "numberOfInstallments" => "", "cardBrand" => "", "cardNumber" => "", "cardExpMonth" => "", "cardExpYear" => "");
 		$result = $api->getInstallmentPlanDetails($this->getApiUrl(), $params);
 		$decodedResult = Mage::helper('core')->jsonDecode($result);
+		$errorCount = count($decodedResult["ResponseHeader"]["Errors"]);
 		if (isset($decodedResult["ResponseHeader"]["Succeeded"]) && $decodedResult["ResponseHeader"]["Succeeded"] == 1) {
 			$response["status"] = true;
 			$response["numberOfInstallments"] = $decodedResult["PlansList"][0]["NumberOfInstallments"];
@@ -1094,12 +1187,12 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$response["cardExpYear"] = $decodedResult["PlansList"][0]["ActiveCard"]["CardExpYear"];
 			$response["grandTotal"] = $decodedResult["PlansList"][0]["OriginalAmount"]["Value"];
 
-		} else if (isset($decodedResult["ResponseHeader"]) && count($decodedResult["ResponseHeader"]["Errors"])) {
+		} else if (isset($decodedResult["ResponseHeader"]) && $errorCount) {
 			$errorMsg = "";
 			$i = 1;
 			foreach ($decodedResult["ResponseHeader"]["Errors"] as $key => $value) {
 				$errorMsg .= "Code : " . $value["ErrorCode"] . " - " . $value["Message"];
-				if ($i < count($decodedResult["ResponseHeader"]["Errors"])) {
+				if ($i < $errorCount) {
 					$errorMsg .= ", ";
 				}
 				$i++;
@@ -1123,16 +1216,16 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		$response = array("status" => false, "data" => "");
 		$result = $api->cancelInstallmentPlan($this->getApiUrl(), $params);
 		$decodedResult = Mage::helper('core')->jsonDecode($result);
-
+		$errorCount = count($decodedResult["ResponseHeader"]["Errors"]);
 		if (isset($decodedResult["ResponseHeader"]["Succeeded"]) && $decodedResult["ResponseHeader"]["Succeeded"] == 1) {
 			$response["status"] = true;
 
-		} else if (isset($decodedResult["ResponseHeader"]) && count($decodedResult["ResponseHeader"]["Errors"])) {
+		} else if (isset($decodedResult["ResponseHeader"]) && $errorCount) {
 			$errorMsg = "";
 			$i = 1;
 			foreach ($decodedResult["ResponseHeader"]["Errors"] as $key => $value) {
 				$errorMsg .= "Code : " . $value["ErrorCode"] . " - " . $value["Message"];
-				if ($i < count($decodedResult["ResponseHeader"]["Errors"])) {
+				if ($i < $errorCount) {
 					$errorMsg .= ", ";
 				}
 				$i++;
@@ -1161,20 +1254,19 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			"InstallmentPlanNumber" => $installmentPlanNumber,
 			"Amount" => array("Value" => $amount),
 			"_RefundStrategy" => "FutureInstallmentsFirst",
-
 		);
 		$result = $api->refundInstallmentPlan($this->getApiUrl(), $params);
 		$decodedResult = Mage::helper('core')->jsonDecode($result);
-
+		$errorCount = count($decodedResult["ResponseHeader"]["Errors"]);
 		if (isset($decodedResult["ResponseHeader"]["Succeeded"]) && $decodedResult["ResponseHeader"]["Succeeded"] == 1) {
 			$response["status"] = true;
 
-		} else if (isset($decodedResult["ResponseHeader"]) && count($decodedResult["ResponseHeader"]["Errors"])) {
+		} else if (isset($decodedResult["ResponseHeader"]) && $errorCount) {
 			$errorMsg = "";
 			$i = 1;
 			foreach ($decodedResult["ResponseHeader"]["Errors"] as $key => $value) {
 				$errorMsg .= "Code : " . $value["ErrorCode"] . " - " . $value["Message"];
-				if ($i < count($decodedResult["ResponseHeader"]["Errors"])) {
+				if ($i < $errorCount) {
 					$errorMsg .= ", ";
 				}
 				$i++;

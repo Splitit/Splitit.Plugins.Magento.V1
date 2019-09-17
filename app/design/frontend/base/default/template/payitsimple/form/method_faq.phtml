@@ -1,5 +1,18 @@
 <?php if ($this->getPaymentInfoEnabled()):?>
-<a style="float: none;" href="<?php echo $this->getPaymentInfoUrl(); ?>" onclick="popWin(this.href, 'Tell me more', 'width=800,height=1075,left=0,top=0,location=no,status=no,resizable=no'); return false;"><?php //echo $this->getPaymentInfoTitle() ?>
+	<span class="pay-title">
+	<?php 
+
+	$logo = Mage::helper('pis_payment')->getSplitItLogo("pis_cc");
+	//echo $logo;
+	if($logo)
+	{
+		echo "<a href='".$this->getPaymentInfoUrl()."' style='width: 45px;    float: none;    display: inline-block;    vertical-align: middle;    margin: 0;' id='tell-me-more'><img style='width:42px' src='".$logo."' alt='SplitIt' /></a> 0% Interest Monthly Payments"; 
+	}else{
+		echo "SplitIt 0% Interest Monthly Payments";
+	}
+	?>
+</span>
+<a id="tell-me-more" style="float: none;" href="<?php echo $this->getPaymentInfoUrl(); ?>"><?php //echo $this->getPaymentInfoTitle() ?>
 <?php echo Mage::helper('pis_payment')->getPaymentInfoTitle("pis_cc"); ?>	
 </a>
 <?php endif; ?>

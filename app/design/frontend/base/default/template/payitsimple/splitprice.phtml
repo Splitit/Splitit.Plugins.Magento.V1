@@ -65,7 +65,10 @@
 			}
 			
 		}
-		echo "<span style='display: block;padding: 10px 0;' class='cart-installmentss' >".$currentCurrencyCode.$segment." x ".$divider." ".$text."</span>"; 	
+		$text = str_replace('{NOI}', $divider, $text);
+		$text = str_replace('{AMOUNT}', $currentCurrencyCode.$segment, $text);
+		echo $text;
+		/*echo "<span style='display: block;padding: 10px 0;' class='cart-installmentss' >".$currentCurrencyCode.$segment." x ".$divider." ".$text."</span>"; */	
 	} else {
 		if($current_page == "cart" || $current_page=="checkout"){
 			echo $this->getChildHtml('child');

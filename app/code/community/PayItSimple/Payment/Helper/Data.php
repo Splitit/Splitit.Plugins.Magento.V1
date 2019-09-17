@@ -16,23 +16,34 @@ class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract {
 		$storeId = Mage::app()->getStore()->getStoreId();
 		$storelang = Mage::getStoreConfig('general/locale/code', $storeId);
 		$defaultLang = $this->getDefaultLanguage();
+		//echo $defaultLang;
 		$translation = $this->getTranslation($code);
+		//echo '<pre>';
+		//print_r($translation);die;
 		$logoSrc = Mage::getStoreConfig('payment/' . $code . '/logo_src');
 		$logoLink = Mage::getStoreConfig('payment/' . $code . '/logo_background_href');
-		$text = "";
+		$text = "or {NOI} interest-free payments of {AMOUNT} with SPLITIT";
 		if (Mage::getStoreConfig('payment/' . $code . '/enable_installment_price') == 1 && Mage::getStoreConfig('payment/' . $code . '/active') == 1) {
 			if (!empty($translation) && isset($translation[$storelang]["ecomm_no_interest"]["translatedData"]) && $translation[$storelang]["ecomm_no_interest"]["translatedData"] != "") {
 				$text = $translation[$storelang]["ecomm_no_interest"]["translatedData"];
-			} else if (!empty($translation) && isset($translation[$defaultLang]["ecomm_no_interest"]["translatedData"])) {
-				$text = $translation[$defaultLang]["ecomm_no_interest"]["translatedData"];
+			} else if (!empty($translation) && isset($translation[$defaultLang]["ecomm_no_interest"]["engData"])) {
+				$text = $translation[$defaultLang]["ecomm_no_interest"]["engData"];
 
 			}
 		}
+		//echo $text;die;
 		if ($logoLink && $logoSrc) {
-			$replace = "<a href='" . $logoLink . "' target='_blank'><img class='logoWidthSrc' src='" . $logoSrc . "' alt='SPLITIT'/></a>";
+			$replace = "<a id='tell-me-more' href='" . $logoLink . "' target='_blank'><img class='logoWidthSrc' src='" . $logoSrc . "' alt='SPLITIT'/></a>";
 			$text = str_replace('SPLITIT', $replace, $text);
 		}
+
+		$text = '<span class="ins-text">' . $text . "<a id='tell-me-more' href='" . $logoLink . "' target='_blank'><img class='logoWidthSrc-helplog' src='" . Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_SKIN) . '/frontend/base/default/images/splitit/learn_more.svg' . "' alt='SPLITIT'/></a></span>";
 		return $text;
+	}
+
+	public function getSplitItLogo($code) {
+		return Mage::getStoreConfig('payment/' . $code . '/logo_src');
+
 	}
 
 	public function getPaymentInfoTitle($code) {

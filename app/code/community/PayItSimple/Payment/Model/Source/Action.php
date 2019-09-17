@@ -7,7 +7,7 @@ class PayItSimple_Payment_Model_Source_Action
         return array(
             array(
                 'value' => Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE_CAPTURE,
-                'label' => Mage::helper('pis_payment')->__('Charge my consumer at the time of the purchase')
+                'label' => Mage::helper('pis_payment')->__('Charge my consumer at time of the purchase')
             ),
             array(
                 'value' => Mage_Payment_Model_Method_Abstract::ACTION_AUTHORIZE,

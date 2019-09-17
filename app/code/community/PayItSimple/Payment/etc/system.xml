@@ -20,10 +20,11 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </active>
+                        <!-- General settings -->
                         <general_settings_label translate="label">
                             <label>General settings</label>
                             <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>5</sort_order>
+                            <sort_order>2</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -31,7 +32,7 @@
                         <api_terminal_key>
                             <label>Terminal API key</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>10</sort_order>
+                            <sort_order>3</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -39,7 +40,7 @@
                         <api_username>
                             <label>API Username</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>15</sort_order>
+                            <sort_order>4</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -47,7 +48,7 @@
                         <api_password>
                             <label>API Password</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>20</sort_order>
+                            <sort_order>5</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -56,7 +57,7 @@
                             <label>Sandbox Mode</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>35</sort_order>
+                            <sort_order>6</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                         </sandbox_flag>
@@ -64,31 +65,97 @@
                             <label>Debug Mode</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>40</sort_order>
+                            <sort_order>7</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                         </debug>
                         <check translate="label">
-                            <label>Check Credential API</label>
+                            <label>Verify API Credentials</label>
                             <frontend_type>button</frontend_type>
                             <frontend_model>pis_payment/adminhtml_system_config_form_button</frontend_model>
-                            <sort_order>45</sort_order>
+                            <sort_order>8</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </check>
-                        <shop_setup_label translate="label">
-                            <label>Shop Setup</label>
-                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>50</sort_order>
+                        <!-- Site Language -->
+                        <site_language_heading translate="label">
+                            <label>Site Language</label>
+                             <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>9</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </shop_setup_label>
+                        </site_language_heading>
+                        <select_language translate="label">
+                            <label>Site Language</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>pis_payment/source_languages</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </select_language>                        
+                        <splitit_fallback_language translate="label">
+                            <label>Splitit Fallback Language</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>pis_payment/source_getsplititsupportedcultures</source_model>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </splitit_fallback_language>
+                        <translate>
+                            <label>Language Translation</label>
+                            <frontend_model>pis_payment/adminhtml_translate</frontend_model>
+                            <!-- <backend_model>adminhtml/system_config_backend_serialized</backend_model> -->
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                        </translate>
+                        <sort_order translate="label">
+                            <label>Sort Order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>13</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <frontend_class>validate-number</frontend_class>
+                        </sort_order>
+                        <check_for_updates translate="label">
+                            <label>Check for Language Updates</label>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>pis_payment/adminhtml_system_config_form_checkforupdates</frontend_model>
+                            <sort_order>14</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </check_for_updates>
+                        <!-- Payment Setup -->
+                        <payment_setup_label translate="label">
+                            <label>Payment Setup</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>15</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </payment_setup_label>
+                        <cctypes translate="label">
+                            <label>Card Types</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>pis_payment/source_cctype</source_model>
+                            <sort_order>16</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                        </cctypes>
                         <allowspecific translate="label">
-                            <label>Payment from Applicable Countries</label>
+                            <label>Accepted Countries for Payment</label>
                             <frontend_type>allowspecific</frontend_type>
-                            <sort_order>55</sort_order>
+                            <sort_order>17</sort_order>
                             <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -97,60 +164,18 @@
                         <specificcountry translate="label">
                             <label>Payment from Specific Countries</label>
                             <frontend_type>multiselect</frontend_type>
-                            <sort_order>60</sort_order>
+                            <sort_order>18</sort_order>
                             <source_model>adminhtml/system_config_source_country</source_model>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                             <can_be_empty>1</can_be_empty>
                         </specificcountry>
-                        <title translate="label">
-                            <label>Title</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>65</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </title>
-                        <faq_link_enabled translate="label">
-                            <label>Help link enabled</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>70</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </faq_link_enabled>
-                        <faq_link_title translate="label">
-                            <label>Help link title</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>75</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </faq_link_title>
-                        <faq_link_title_url translate="label">
-                            <label>Help link URL</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>75</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </faq_link_title_url>
-                       
-                         <logo_background_href translate="label">
-                            <label>Split It background link</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>76</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </logo_background_href>
                         <payment_action translate="label">
                             <label>Payment Action</label>
                             <frontend_type>select</frontend_type>
                             <source_model>pis_payment/source_action</source_model>
-                            <sort_order>80</sort_order>
+                            <sort_order>19</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                         </payment_action>
@@ -158,92 +183,35 @@
                             <label>New order status</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_order_status</source_model>
-                            <sort_order>85</sort_order>
+                            <sort_order>20</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </order_status>
-                        <cctypes translate="label">
-                            <label>Credit Card Types</label>
-                            <frontend_type>multiselect</frontend_type>
-                            <source_model>pis_payment/source_cctype</source_model>
-                            <sort_order>90</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                            <can_be_empty>1</can_be_empty>
-                        </cctypes>
-                        <splitit_fees translate="label">
-                            <label>Add Splitit Fee on Total Amount</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>91</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </splitit_fees>
-                        <splitit_fees_method translate="label">
-                            <label>Fee Method</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>pis_payment/source_feemethod</source_model>
-                            <sort_order>92</sort_order>
-                            <depends><splitit_fees>1</splitit_fees></depends>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </splitit_fees_method>
-                        <splitit_fees_value translate="label">
-                            <label>Fees Amount/Percentage</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>93</sort_order>
-                            <depends><splitit_fees>1</splitit_fees></depends>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </splitit_fees_value>
+                        <!-- Installment Setup -->
                         <installment_setup_label translate="label">
                             <label>Installment Setup</label>
                             <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>95</sort_order>
+                            <sort_order>21</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </installment_setup_label>
-                        <first_payment translate="label">
-                            <label>First Payment</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>pis_payment/source_firstpayment</source_model>
-                            <sort_order>100</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                        </first_payment>
-                        <percentage_of_order translate="label">
-                            <label>Percentage of order %</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>105</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <depends>
-                                <first_payment>percentage</first_payment>
-                            </depends>
-                        </percentage_of_order>
-                
                         <select_installment_setup>
                             <label>Select installment setup</label>
                             <frontend_type>select</frontend_type>
                             <source_model>pis_payment/source_selectinstallmentsetup</source_model>
-                            <sort_order>108</sort_order>
+                            <sort_order>22</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </select_installment_setup>
                         <!-- for fixed_installment   -->
                         <available_installments>
-                            <label>Fixed</label>
+                            <label>Set Number of Installments</label>
                             <frontend_type>multiselect</frontend_type>
                             <source_model>pis_payment/source_installments</source_model>
-                            <sort_order>110</sort_order>
+                            <sort_order>23</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -252,7 +220,7 @@
                             <label>Depending on cart total</label>
                             <frontend_model>pis_payment/adminhtml_addresses</frontend_model>
                             <!-- <backend_model>adminhtml/system_config_backend_serialized</backend_model> -->
-                            <sort_order>112</sort_order>
+                            <sort_order>24</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -261,130 +229,63 @@
                         <depanding_on_cart_total_values translate="label">
                             <!-- <label>JSON for DOCTV</label> -->
                             <frontend_type>hidden</frontend_type>
-                            <sort_order>113</sort_order>
+                            <sort_order>25</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </depanding_on_cart_total_values>
-                        <translate_languages translate="label">
-                            <!-- <label>output</label>  -->
-                            <frontend_type>hidden</frontend_type>
-                            <sort_order>114</sort_order>
+                        <first_payment translate="label">
+                            <label>First Payment</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>pis_payment/source_firstpayment</source_model>
+                            <sort_order>26</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                        </first_payment>
+                        <percentage_of_order translate="label">
+                            <label>Percentage of order %</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>27</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </translate_languages>
-                        <installment_price_setup_label translate="label">
-                            <label>Installment price setup</label>
-                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>115</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </installment_price_setup_label>
-                        <enable_installment_price translate="label">
-                            <label>Enable Installment Price</label>
+                            <depends>
+                                <first_payment>percentage</first_payment>
+                            </depends>
+                        </percentage_of_order>
+                        <splitit_fees translate="label">
+                            <label>Enable Splitit Fees</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>120</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                        </enable_installment_price>
-                        <logo_src translate="label">
-                            <label>Splitit logo source</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>122</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </logo_src>
-                        <installment_price_on_pages>
-                            <label>Display Installment Price on pages</label>
-                            <frontend_type>multiselect</frontend_type>
-                            <source_model>pis_payment/source_frontendpages</source_model>
-                            <sort_order>125</sort_order>
+                            <sort_order>28</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </installment_price_on_pages>
-                        <installments_count translate="label">
-                            <label>Number of installments for display</label>
+                        </splitit_fees>
+                        <splitit_fees_method translate="label">
+                            <label>Fee Method</label>
                             <frontend_type>select</frontend_type>
-                            <source_model>pis_payment/source_installments</source_model>
-                            <sort_order>130</sort_order>
+                            <source_model>pis_payment/source_feemethod</source_model>
+                            <sort_order>29</sort_order>
+                            <depends><splitit_fees>1</splitit_fees></depends>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </installments_count>
-                        <!-- <installment_price_text translate="label">
-                            <label>Installment price text</label>
+                        </splitit_fees_method>
+                        <splitit_fees_value translate="label">
+                            <label>Fees Amount/Percentage</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>135</sort_order>
+                            <sort_order>30</sort_order>
+                            <depends><splitit_fees>1</splitit_fees></depends>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </installment_price_text> -->
-                        <site_language_heading translate="label">
-                            <label>Site Language</label>
-                             <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>140</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </site_language_heading>
-                        <check_for_updates translate="label">
-                            <label>Check Credential API</label>
-                            <frontend_type>button</frontend_type>
-                            <frontend_model>pis_payment/adminhtml_system_config_form_checkforupdates</frontend_model>
-                            <sort_order>145</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </check_for_updates>
-                        <select_language translate="label">
-                            <label>Site Language</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>pis_payment/source_languages</source_model>
-                            <sort_order>150</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </select_language>
-                    
-                        <translate>
-                            <label>Language Translation</label>
-                            <frontend_model>pis_payment/adminhtml_translate</frontend_model>
-                            <!-- <backend_model>adminhtml/system_config_backend_serialized</backend_model> -->
-                            <sort_order>155</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <can_be_empty>1</can_be_empty>
-                        </translate>
-
-                        
-                        <splitit_fallback_language translate="label">
-                            <label>Splitit Fallback Language</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>pis_payment/source_getsplititsupportedcultures</source_model>
-                            <sort_order>160</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </splitit_fallback_language>
-                        <sort_order translate="label">
-                            <label>Sort Order</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>165</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                            <frontend_class>validate-number</frontend_class>
-                        </sort_order>
+                        </splitit_fees_value>
+                        <!-- Enable Splitit Per Product -->
                         <per_product_heading translate="label">
                             <label>Per Product Enable</label>
                             <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>170</sort_order>
+                            <sort_order>31</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -393,7 +294,7 @@
                             <label>Enable Splitit per product</label>
                             <frontend_type>select</frontend_type>
                             <source_model>pis_payment/source_perproduct</source_model>
-                            <sort_order>171</sort_order>
+                            <sort_order>32</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -402,11 +303,134 @@
                             <label>List of product SKUs</label>
                             <frontend_type>text</frontend_type>
                             <!-- <source_model>pis_payment/source_productskus</source_model> -->
-                            <sort_order>172</sort_order>
+                            <sort_order>33</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </splitit_product_skus>
+                        <!-- Display Setup -->
+                        <display_setup_label translate="label">
+                            <label>Display Setup</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>34</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </display_setup_label>
+                        <enable_installment_price translate="label">
+                            <label>Advertise Splitit option throughout my store</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>35</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                        </enable_installment_price>
+                        <installments_count translate="label">
+                            <label>Number of Installments for Display</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>pis_payment/source_installments</source_model>
+                            <sort_order>36</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </installments_count>
+                        <installment_price_on_pages>
+                            <label>Display Installment Price on pages</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>pis_payment/source_frontendpages</source_model>
+                            <sort_order>37</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </installment_price_on_pages>
+                        <!-- Checkout -->
+                        <checkout_setup_label translate="label">
+                            <label>Checkout</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>38</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </checkout_setup_label>
+                        <logo_src translate="label">
+                            <label>Splitit logo source</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>39</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </logo_src>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>hidden</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </title>                        
+                        <faq_link_enabled translate="label">
+                            <label>Help link enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>41</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </faq_link_enabled>
+                        <faq_link_title translate="label">
+                            <label>Help link title</label>
+                            <frontend_type>hidden</frontend_type>
+                            <sort_order>42</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </faq_link_title>
+                        <faq_link_title_url translate="label">
+                            <label>Help link URL</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>43</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </faq_link_title_url>                       
+                         <logo_background_href translate="label">
+                            <label>Splitit background link</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>44</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </logo_background_href>
+                        
+                        <translate_languages translate="label">
+                            <!-- <label>output</label>  -->
+                            <frontend_type>hidden</frontend_type>
+                            <sort_order>45</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </translate_languages>
+                        <!-- <installment_price_setup_label translate="label">
+                            <label>Installment price setup</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>46</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </installment_price_setup_label> -->
+                        
+                        
+                        
+                        <!-- <installment_price_text translate="label">
+                            <label>Installment price text</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>135</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </installment_price_text> -->
+                        
+                        
                     </fields>
                 </pis_cc>
                 <pis_paymentform translate="label">
@@ -426,10 +450,11 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </active>
+                        <!-- General settings -->
                         <general_settings_label translate="label">
                             <label>General settings</label>
                             <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>5</sort_order>
+                            <sort_order>2</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -437,7 +462,7 @@
                         <api_terminal_key>
                             <label>Terminal API key</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>10</sort_order>
+                            <sort_order>3</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -445,7 +470,7 @@
                         <api_username>
                             <label>API Username</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>15</sort_order>
+                            <sort_order>4</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -453,7 +478,7 @@
                         <api_password>
                             <label>API Password</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>20</sort_order>
+                            <sort_order>5</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
@@ -462,7 +487,7 @@
                             <label>Sandbox Mode</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>35</sort_order>
+                            <sort_order>6</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                         </sandbox_flag>
@@ -470,31 +495,97 @@
                             <label>Debug Mode</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>40</sort_order>
+                            <sort_order>7</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                         </debug>
                         <check translate="label">
-                            <label>Check Credential API</label>
+                            <label>Verify API Credentials</label>
                             <frontend_type>button</frontend_type>
                             <frontend_model>pis_payment/adminhtml_system_config_form_buttonPaymentForm</frontend_model>
-                            <sort_order>45</sort_order>
+                            <sort_order>8</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </check>
-                        <shop_setup_label translate="label">
-                            <label>Shop Setup</label>
-                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>50</sort_order>
+                        <!-- Site Language -->
+                        <site_language_heading translate="label">
+                            <label>Site Language</label>
+                             <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>9</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </shop_setup_label>
+                        </site_language_heading>
+                        <select_language translate="label">
+                            <label>Site Language</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>pis_payment/source_languages</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </select_language>
+                        <splitit_fallback_language translate="label">
+                            <label>Splitit Fallback Language</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>pis_payment/source_getsplititsupportedcultures</source_model>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </splitit_fallback_language>                    
+                        <translate>
+                            <label>Language Translation</label>
+                            <frontend_model>pis_payment/adminhtml_paymentFormTranslate</frontend_model>
+                            <!-- <backend_model>adminhtml/system_config_backend_serialized</backend_model> -->
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                        </translate>
+                        <sort_order translate="label">
+                            <label>Sort Order</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>13</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <frontend_class>validate-number</frontend_class>
+                        </sort_order>
+                        <check_for_updates translate="label">
+                            <label>Check for Language Updates</label>
+                            <frontend_type>button</frontend_type>
+                            <frontend_model>pis_payment/adminhtml_system_config_form_checkforupdatesPaymentForm</frontend_model>
+                            <sort_order>14</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </check_for_updates>
+                        <!-- Payment Setup -->
+                        <payment_setup_label translate="label">
+                            <label>Payment Setup</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>15</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </payment_setup_label>
+                        <cctypes translate="label">
+                            <label>Card Types</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>pis_payment/source_cctype</source_model>
+                            <sort_order>16</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <can_be_empty>1</can_be_empty>
+                        </cctypes>
                         <allowspecific translate="label">
-                            <label>Payment from Applicable Countries</label>
+                            <label>Accepted Countries for Payment</label>
                             <frontend_type>allowspecific</frontend_type>
-                            <sort_order>55</sort_order>
+                            <sort_order>17</sort_order>
                             <source_model>adminhtml/system_config_source_payment_allspecificcountries</source_model>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
@@ -503,60 +594,18 @@
                         <specificcountry translate="label">
                             <label>Payment from Specific Countries</label>
                             <frontend_type>multiselect</frontend_type>
-                            <sort_order>60</sort_order>
+                            <sort_order>18</sort_order>
                             <source_model>adminhtml/system_config_source_country</source_model>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                             <can_be_empty>1</can_be_empty>
                         </specificcountry>
-                        <title translate="label">
-                            <label>Title</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>65</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </title>
-                        <faq_link_enabled translate="label">
-                            <label>Help link enabled</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>70</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </faq_link_enabled>
-                        <faq_link_title translate="label">
-                            <label>Help link title</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>75</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </faq_link_title>
-                        <faq_link_title_url translate="label">
-                            <label>Help link URL</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>75</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </faq_link_title_url>
-                      
-                         <logo_background_href translate="label">
-                            <label>Split It background link</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>76</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </logo_background_href>
                         <payment_action translate="label">
                             <label>Payment Action</label>
                             <frontend_type>select</frontend_type>
                             <source_model>pis_payment/source_action</source_model>
-                            <sort_order>80</sort_order>
+                            <sort_order>19</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                         </payment_action>
@@ -564,107 +613,35 @@
                             <label>New order status</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_order_status</source_model>
-                            <sort_order>85</sort_order>
+                            <sort_order>20</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </order_status>
-                        <attempt_3d_secure translate="label">
-                            <label>Attempt3DSecure</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>85.2</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                        </attempt_3d_secure>
-                        <attempt_3d_secure_min_amount translate="label">
-                            <label>Minimal amount for 3D attempt</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>85.3</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                        </attempt_3d_secure_min_amount>                        
-                        <cctypes translate="label">
-                            <label>Credit Card Types</label>
-                            <frontend_type>multiselect</frontend_type>
-                            <source_model>pis_payment/source_cctype</source_model>
-                            <sort_order>90</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                            <can_be_empty>1</can_be_empty>
-                        </cctypes>
-                        <splitit_fees translate="label">
-                            <label>Add Splitit Fee on Total Amount</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>91</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </splitit_fees>
-                        <splitit_fees_method translate="label">
-                            <label>Fee Method</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>pis_payment/source_feemethod</source_model>
-                            <sort_order>92</sort_order>
-                            <depends><splitit_fees>1</splitit_fees></depends>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </splitit_fees_method>
-                        <splitit_fees_value translate="label">
-                            <label>Fees Amount/Percentage</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>93</sort_order>
-                            <depends><splitit_fees>1</splitit_fees></depends>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </splitit_fees_value>
+                        <!-- Installment Setup -->
                         <installment_setup_label translate="label">
                             <label>Installment Setup</label>
                             <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>95</sort_order>
+                            <sort_order>21</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </installment_setup_label>
-                        <first_payment translate="label">
-                            <label>First Payment</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>pis_payment/source_firstpaymentpf</source_model>
-                            <sort_order>100</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                        </first_payment>
-                        <percentage_of_order translate="label">
-                            <label>Percentage of order %</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>105</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <depends>
-                                <first_payment>percentage</first_payment>
-                            </depends>
-                        </percentage_of_order>
-                
                         <select_installment_setup>
                             <label>Select installment setup</label>
                             <frontend_type>select</frontend_type>
                             <source_model>pis_payment/source_selectinstallmentsetup</source_model>
-                            <sort_order>108</sort_order>
+                            <sort_order>22</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </select_installment_setup>
                         <!-- for fixed_installment   -->
                         <available_installments>
-                            <label>Fixed</label>
+                            <label>Set Number of Installments</label>
                             <frontend_type>multiselect</frontend_type>
                             <source_model>pis_payment/source_installments</source_model>
-                            <sort_order>110</sort_order>
+                            <sort_order>23</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -673,7 +650,7 @@
                             <label>Depending on cart total</label>
                             <frontend_model>pis_payment/adminhtml_dependingOnCartTotalPaymentForm</frontend_model>
                             <!-- <backend_model>adminhtml/system_config_backend_serialized</backend_model> -->
-                            <sort_order>112</sort_order>
+                            <sort_order>24</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -682,130 +659,63 @@
                         <depanding_on_cart_total_values translate="label">
                             <!-- <label>JSON for DOCTV</label> -->
                             <frontend_type>hidden</frontend_type>
-                            <sort_order>113</sort_order>
+                            <sort_order>25</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </depanding_on_cart_total_values>
-                        <translate_languages translate="label">
-                            <!-- <label>output</label>  -->
-                            <frontend_type>hidden</frontend_type>
-                            <sort_order>114</sort_order>
+                        <first_payment translate="label">
+                            <label>First Payment</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>pis_payment/source_firstpaymentpf</source_model>
+                            <sort_order>26</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                        </first_payment>
+                        <percentage_of_order translate="label">
+                            <label>Percentage of order %</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>27</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </translate_languages>
-                        <installment_price_setup_label translate="label">
-                            <label>Installment price setup</label>
-                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>115</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </installment_price_setup_label>
-                        <enable_installment_price translate="label">
-                            <label>Enable Installment Price</label>
+                            <depends>
+                                <first_payment>percentage</first_payment>
+                            </depends>
+                        </percentage_of_order>
+                        <splitit_fees translate="label">
+                            <label>Enable Splitit Fees</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>120</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                        </enable_installment_price>
-                        <logo_src translate="label">
-                            <label>Splitit logo source</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>122</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </logo_src>
-                        <installment_price_on_pages>
-                            <label>Display Installment Price on pages</label>
-                            <frontend_type>multiselect</frontend_type>
-                            <source_model>pis_payment/source_frontendpages</source_model>
-                            <sort_order>125</sort_order>
+                            <sort_order>28</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </installment_price_on_pages>
-                        <installments_count translate="label">
-                            <label>Number of installments for display</label>
+                        </splitit_fees>
+                        <splitit_fees_method translate="label">
+                            <label>Fee Method</label>
                             <frontend_type>select</frontend_type>
-                            <source_model>pis_payment/source_installments</source_model>
-                            <sort_order>130</sort_order>
+                            <source_model>pis_payment/source_feemethod</source_model>
+                            <sort_order>29</sort_order>
+                            <depends><splitit_fees>1</splitit_fees></depends>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </installments_count>
-                        <!-- <installment_price_text translate="label">
-                            <label>Installment price text</label>
+                        </splitit_fees_method>
+                        <splitit_fees_value translate="label">
+                            <label>Fees Amount/Percentage</label>
                             <frontend_type>text</frontend_type>
-                            <sort_order>135</sort_order>
+                            <sort_order>30</sort_order>
+                            <depends><splitit_fees>1</splitit_fees></depends>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                        </installment_price_text> -->
-                        <site_language_heading translate="label">
-                            <label>Site Language</label>
-                             <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>140</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </site_language_heading>
-                        <check_for_updates translate="label">
-                            <label>Check Credential API</label>
-                            <frontend_type>button</frontend_type>
-                            <frontend_model>pis_payment/adminhtml_system_config_form_checkforupdatesPaymentForm</frontend_model>
-                            <sort_order>145</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </check_for_updates>
-                        <select_language translate="label">
-                            <label>Site Language</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>pis_payment/source_languages</source_model>
-                            <sort_order>150</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </select_language>
-                    
-                    <translate>
-                            <label>Language Translation</label>
-                            <frontend_model>pis_payment/adminhtml_paymentFormTranslate</frontend_model>
-                            <!-- <backend_model>adminhtml/system_config_backend_serialized</backend_model> -->
-                            <sort_order>155</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                            <can_be_empty>1</can_be_empty>
-                        </translate>
-
-                        
-                        <splitit_fallback_language translate="label">
-                            <label>Splitit Fallback Language</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>pis_payment/source_getsplititsupportedcultures</source_model>
-                            <sort_order>160</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </splitit_fallback_language>
-                        <sort_order translate="label">
-                            <label>Sort Order</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>165</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                            <frontend_class>validate-number</frontend_class>
-                        </sort_order>
+                        </splitit_fees_value>
+                        <!-- Enable Splitit Per Product -->
                         <per_product_heading translate="label">
-                            <label>Per Product Enable</label>
+                            <label>Enable Splitit Per Product</label>
                             <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
-                            <sort_order>170</sort_order>
+                            <sort_order>31</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -814,7 +724,7 @@
                             <label>Enable Splitit per product</label>
                             <frontend_type>select</frontend_type>
                             <source_model>pis_payment/source_perproduct</source_model>
-                            <sort_order>171</sort_order>
+                            <sort_order>32</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -823,11 +733,161 @@
                             <label>List of product SKUs</label>
                             <frontend_type>text</frontend_type>
                             <!-- <source_model>pis_payment/source_productskus</source_model> -->
-                            <sort_order>172</sort_order>
+                            <sort_order>33</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </splitit_product_skus>
+                        <!-- Display Setup -->
+                        <display_setup_heading translate="label">
+                            <label>Display Setup</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>34</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </display_setup_heading>
+                        <enable_installment_price translate="label">
+                            <label>Advertise Splitit option throughout my store</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>35</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                        </enable_installment_price>
+                        <installments_count translate="label">
+                            <label>Number of installments for display</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>pis_payment/source_installments</source_model>
+                            <sort_order>36</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </installments_count>
+                        <installment_price_on_pages>
+                            <label>Display Installment Price on pages</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>pis_payment/source_frontendpages</source_model>
+                            <sort_order>37</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </installment_price_on_pages>
+                        <!-- Checkout -->
+                        <checkout_heading translate="label">
+                            <label>Checkout</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>38</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </checkout_heading>
+                        <logo_src translate="label">
+                            <label>Splitit logo source</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>39</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </logo_src>
+                        <title translate="label">
+                            <label>Title</label>
+                            <frontend_type>hidden</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </title>
+                        <faq_link_enabled translate="label">
+                            <label>Help link enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>41</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </faq_link_enabled>
+                        <faq_link_title translate="label">
+                            <label>Help link title</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>42</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </faq_link_title>
+                        <faq_link_title_url translate="label">
+                            <label>Help link URL</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>43</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </faq_link_title_url>                      
+                         <logo_background_href translate="label">
+                            <label>Splitit background link</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>44</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </logo_background_href>
+                        <!-- 3D Secure -->
+                        <secure3d_heading translate="label">
+                            <label>3D Secure</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>45</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </secure3d_heading>                        
+                        <attempt_3d_secure translate="label">
+                            <label>Attempt3DSecure</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>46</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                        </attempt_3d_secure>
+                        <attempt_3d_secure_min_amount translate="label">
+                            <label>Minimal amount for 3D attempt</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>47</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                        </attempt_3d_secure_min_amount>
+
+
+                        <translate_languages translate="label">
+                            <!-- <label>output</label>  -->
+                            <frontend_type>hidden</frontend_type>
+                            <sort_order>114</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </translate_languages>
+                        <!-- <installment_price_setup_label translate="label">
+                            <label>Installment price setup</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>115</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </installment_price_setup_label> -->
+                        
+                        
+                        
+                        
+                        <!-- <installment_price_text translate="label">
+                            <label>Installment price text</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>135</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </installment_price_text> -->
+                        
+
+                        
                     </fields>
                 </pis_paymentform>
             </groups>

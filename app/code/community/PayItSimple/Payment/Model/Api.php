@@ -1,370 +1,422 @@
 <?php
 
-class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract
-{
-    const ERROR_HTTP_STATUS_CODE = -2;
-    const ERROR_HTTP_REQUEST = -4;
-    const ERROR_JSON_RESPONSE = -8;
-    const ERROR_UNKNOWN_GW_RESULT_CODE = -16;
-    const ERROR_UNKNOWN = -32;
+class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract {
+	const ERROR_HTTP_STATUS_CODE = -2;
+	const ERROR_HTTP_REQUEST = -4;
+	const ERROR_JSON_RESPONSE = -8;
+	const ERROR_UNKNOWN_GW_RESULT_CODE = -16;
+	const ERROR_UNKNOWN = -32;
 
-    protected $_error = array();
-    protected $_sessionId = null;
-    protected $_apiTerminalKey = null;
-    protected $_gwUrl = null;
+	protected $_error = array();
+	protected $_sessionId = null;
+	protected $_apiTerminalKey = null;
+	protected $_gwUrl = null;
 
+	/**
+	 * @param $gwUrl
+	 * @param $params
+	 *
+	 * @return bool|array
+	 */
+	public function login($gwUrl, $params) {
 
-    /**
-     * @param $gwUrl
-     * @param $params
-     *
-     * @return bool|array
-     */
-    public function login($gwUrl, $params){
-        
-        //$result = $this->makeRequest($gwUrl, ucfirst(__FUNCTION__), $params);
-        
-        $result =  $this->makePhpCurlRequest($gwUrl, ucfirst(__FUNCTION__), $params); 
-        $result = Mage::helper('core')->jsonDecode($result);
-        if ($result) {
-            $this->_sessionId = (isset($result['SessionId']) && $result['SessionId'] != '') ? $result['SessionId'] : null;
-            if (is_null($this->_sessionId)){
-                if(isset($result["serverError"])){
-                    $this->getError();
-                }else{
-                    $gatewayErrorCode = $result["ResponseHeader"]["Errors"][0]["ErrorCode"];
-                    $gatewayErrorMsg = $result["ResponseHeader"]["Errors"][0]["Message"];
+		//$result = $this->makeRequest($gwUrl, ucfirst(__FUNCTION__), $params);
 
-                    $this->setError($gatewayErrorCode, $gatewayErrorMsg);    
-                }
-                
-                return false;
-            }
-            $this->_gwUrl = $gwUrl;
-            $this->_apiTerminalKey = $params['ApiKey'];
-            // set Splitit session id into session
+		$result = $this->makePhpCurlRequest($gwUrl, ucfirst(__FUNCTION__), $params);
+		/*echo '<pre>';
+		print_r($result);die;*/
+		$result = Mage::helper('core')->jsonDecode($result);
+		if ($result) {
+			$this->_sessionId = (isset($result['SessionId']) && $result['SessionId'] != '') ? $result['SessionId'] : null;
+			//echo $this->_sessionId; die;
+			if (is_null($this->_sessionId)) {
+				if (isset($result["serverError"])) {
+					//$this->getError();
+					$this->setError('SER101',$result['serverError']);
+				} else {
+					$gatewayErrorCode = $result["ResponseHeader"]["Errors"][0]["ErrorCode"];
+					$gatewayErrorMsg = $result["ResponseHeader"]["Errors"][0]["Message"];
 
-            Mage::getSingleton('core/session')->setSplititSessionid($this->_sessionId);
-        }
-        return $result;
-    }
+					$this->setError($gatewayErrorCode, $gatewayErrorMsg);
+				}
 
-    /**
-     * @return bool
-     */
-    public function isLogin(){
-        return (!is_null($this->_sessionId));
-    }
+				return false;
+			}
+			$this->_gwUrl = $gwUrl;
+			$this->_apiTerminalKey = $params['ApiKey'];
+			// set Splitit session id into session
 
-    
-    public function createInstallmentPlan($url, array $params)
-    {
-        if (Mage::getSingleton('core/session')->getSplititSessionid() == "") {
-            $this->setError(self::ERROR_UNKNOWN, __FUNCTION__ . ' method required Login action first.');
-            return false;
-        }
+			Mage::getSingleton('core/session')->setSplititSessionid($this->_sessionId);
+		}
+		return $result;
+	}
 
-        return $this->makePhpCurlRequest($url, "InstallmentPlan/Create",$params);
-    }
+	/**
+	 * @return bool
+	 */
+	public function isLogin() {
+		return (!is_null($this->_sessionId));
+	}
 
-    public function startInstallment($url, array $params){
-        if (Mage::getSingleton('core/session')->getSplititSessionid() == "") {
-            $this->setError(self::ERROR_UNKNOWN, __FUNCTION__ . ' method required Login action first.');
-            return false;
-        }
-        
+	public function createInstallmentPlan($url, array $params) {
+		if (Mage::getSingleton('core/session')->getSplititSessionid() == "") {
+			$this->setError(self::ERROR_UNKNOWN, __FUNCTION__ . ' method required Login action first.');
+			return false;
+		}
 
-        return $this->makePhpCurlRequest($url, "InstallmentPlan/StartInstallments",$params);    
-    }
+		return $this->makePhpCurlRequest($url, "InstallmentPlan/Create", $params);
+	}
 
-    /**
-     * @param $params
-     *
-     * @return bool|array
-     */
-    public function notifyOrderShipped(array $params)
-    {
-        if (!$this->isLogin()) {
-            $this->setError(self::ERROR_UNKNOWN, __FUNCTION__ . ' method required Login action first.');
-            return false;
-        }
-        return $this->makeRequest($this->_gwUrl, ucfirst(__FUNCTION__), array_merge($params, array('ApiKey' => $this->_apiTerminalKey, 'SessionId' => $this->_sessionId)));
-    }
+	public function startInstallment($url, array $params) {
+		if (Mage::getSingleton('core/session')->getSplititSessionid() == "") {
+			$this->setError(self::ERROR_UNKNOWN, __FUNCTION__ . ' method required Login action first.');
+			return false;
+		}
 
-    /**
-     * @param array $params
-     *
-     * @return array|bool
-     */
-    public function updateInstallmentPlan(array $params)
-    {
-        if (!$this->isLogin()) {
-            $this->setError(self::ERROR_UNKNOWN, __FUNCTION__ . ' method required Login action first.');
-            return false;
-        }
-        return $this->makeRequest($this->_gwUrl, ucfirst(__FUNCTION__), array_merge($params, array('ApiKey' => $this->_apiTerminalKey, 'SessionId' => $this->_sessionId)));
-    }
+		return $this->makePhpCurlRequest($url, "InstallmentPlan/StartInstallments", $params);
+	}
 
-    public function updateRefOrderNumber($apiUrl, $params){
-        try{
-            return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Update" , $params);        
-        }catch(Exception $e){
-            $this->setError($e->getMessage());
-        } 
-    }
+	/**
+	 * @param $params
+	 *
+	 * @return bool|array
+	 */
+	public function notifyOrderShipped(array $params) {
+		if (!$this->isLogin()) {
+			$this->setError(self::ERROR_UNKNOWN, __FUNCTION__ . ' method required Login action first.');
+			return false;
+		}
+		return $this->makeRequest($this->_gwUrl, ucfirst(__FUNCTION__), array_merge($params, array('ApiKey' => $this->_apiTerminalKey, 'SessionId' => $this->_sessionId)));
+	}
 
-    public function getInstallmentPlanDetails($apiUrl, $params){
-        try{
-            return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Get" , $params);        
-        }catch(Exception $e){
-            $this->setError($e->getMessage());
-        } 
-    }
+	/**
+	 * @param array $params
+	 *
+	 * @return array|bool
+	 */
+	public function updateInstallmentPlan(array $params) {
+		if (!$this->isLogin()) {
+			$this->setError(self::ERROR_UNKNOWN, __FUNCTION__ . ' method required Login action first.');
+			return false;
+		}
+		return $this->makeRequest($this->_gwUrl, ucfirst(__FUNCTION__), array_merge($params, array('ApiKey' => $this->_apiTerminalKey, 'SessionId' => $this->_sessionId)));
+	}
 
-    public function cancelInstallmentPlan($apiUrl, $params){
-        try{
-            return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Cancel" , $params);        
-        }catch(Exception $e){
-            $this->setError($e->getMessage());
-        }    
-    }
+	public function updateRefOrderNumber($apiUrl, $params) {
+		try {
+			return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Update", $params);
+		} catch (Exception $e) {
+			$this->setError($e->getMessage());
+		}
+	}
 
-    public function refundInstallmentPlan($apiUrl, $params){
-        try{
-            return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Refund" , $params);        
-        }catch(Exception $e){
-            $this->setError($e->getMessage());
-        }    
-    }
+	public function getInstallmentPlanDetails($apiUrl, $params) {
+		try {
+			return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Get", $params);
+		} catch (Exception $e) {
+			$this->setError($e->getMessage());
+		}
+	}
 
-    /**
-     * @param $gwUrl string
-     * @param $method string
-     * @param $params array
-     *
-     * @return bool|array
-     */
-    protected function makeRequest($gwUrl, $method, $params)
-    {
-        $this->_error = array();
-        $result = false;
-        try {
-            $client = $this->getHttpClient($gwUrl, $method, $params);
-            $response = $client->request();
-            $this->setData('request', $this->secureFilter($client->getLastRequest()));
-            $this->setData('response', $response->getHeadersAsString() . $response->getBody());
-            if (!$response->isSuccessful()) {
-                throw new ErrorException('Response from gateway is not successful. HTTP Code: '. $response->getStatus(), self::ERROR_HTTP_STATUS_CODE);
-            }
-            $result = Zend_Json::decode($response->getBody());
-            if (!isset($result['Result'])) {
-                throw new ErrorException('Unknown result from gateway.', self::ERROR_UNKNOWN_GW_RESULT_CODE);
-            } elseif ($result['Result'] != 0) {
-                //throw new ErrorException($this->getGatewayError((int)$result['Result']) . $result['ResponseStatus'], (int)$result['Result']);
-                throw new ErrorException($result['ResponseStatus']['Message']."\n(".$result['ErrorAdditionalInfo'].")", (int)$result['Result']);
-            }
-        } catch (Zend_Http_Client_Exception $e) {
-            $this->setError(self::ERROR_HTTP_REQUEST, $e->getMessage());
-        } catch (Zend_Json_Exception $e) {
-            $this->setError(self::ERROR_JSON_RESPONSE, $e->getMessage());
-        } catch (ErrorException $e) {
-            $result = false;
-            $this->setError($e->getCode(), $e->getMessage());
-        }
+	public function cancelInstallmentPlan($apiUrl, $params) {
+		try {
+			return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Cancel", $params);
+		} catch (Exception $e) {
+			$this->setError($e->getMessage());
+		}
+	}
 
-        return $result;
-    }
+	public function refundInstallmentPlan($apiUrl, $params) {
+		try {
+			return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Refund", $params);
+		} catch (Exception $e) {
+			$this->setError($e->getMessage());
+		}
+	}
 
-    protected function secureFilter($str)
-    {
-        $patterns = array('/(CardNumber=\d{4})(\d+)/','/(CardCvv=)(\d+)/');
-        return preg_replace($patterns, '${1}***', $str);
-    }
+	/**
+	 * @param $gwUrl string
+	 * @param $method string
+	 * @param $params array
+	 *
+	 * @return bool|array
+	 */
+	protected function makeRequest($gwUrl, $method, $params) {
+		$this->_error = array();
+		$result = false;
+		try {
+			$client = $this->getHttpClient($gwUrl, $method, $params);
+			$response = $client->request();
+			$this->setData('request', $this->secureFilter($client->getLastRequest()));
+			$this->setData('response', $response->getHeadersAsString() . $response->getBody());
+			if (!$response->isSuccessful()) {
+				throw new ErrorException('Response from gateway is not successful. HTTP Code: ' . $response->getStatus(), self::ERROR_HTTP_STATUS_CODE);
+			}
+			$result = Zend_Json::decode($response->getBody());
+			if (!isset($result['Result'])) {
+				throw new ErrorException('Unknown result from gateway.', self::ERROR_UNKNOWN_GW_RESULT_CODE);
+			} elseif ($result['Result'] != 0) {
+				//throw new ErrorException($this->getGatewayError((int)$result['Result']) . $result['ResponseStatus'], (int)$result['Result']);
+				throw new ErrorException($result['ResponseStatus']['Message'] . "\n(" . $result['ErrorAdditionalInfo'] . ")", (int) $result['Result']);
+			}
+		} catch (Zend_Http_Client_Exception $e) {
+			$this->setError(self::ERROR_HTTP_REQUEST, $e->getMessage());
+		} catch (Zend_Json_Exception $e) {
+			$this->setError(self::ERROR_JSON_RESPONSE, $e->getMessage());
+		} catch (ErrorException $e) {
+			$result = false;
+			$this->setError($e->getCode(), $e->getMessage());
+		}
 
-    /**
-     * @param $url string
-     * @param $method string
-     * @param $params array
-     *
-     * @return Zend_Http_Client
-     * @throws Zend_Http_Client_Exception
-     */
-    protected function getHttpClient($url, $method, $params)
-    {
-        $client = new Zend_Http_Client(trim($url,'/') . '/api/' . $method . '?format=JSON');
-        $client->setConfig(array(
-            'maxredirects' => 0,
-            'timeout'      => 30,
-            'curloptions' => array(CURLOPT_SSL_VERIFYPEER => false)));
-        $client->setMethod(Zend_Http_Client::POST);
-        $client->setParameterPost($params);
-        return $client;
-    }
+		return $result;
+	}
 
-    /**
-     * @return array
-     */
-    public function getError()
-    {
-        return $this->_error;
-    }
+	protected function secureFilter($str) {
+		$patterns = array('/(CardNumber=\d{4})(\d+)/', '/(CardCvv=)(\d+)/');
+		return preg_replace($patterns, '${1}***', $str);
+	}
 
-    /**
-     * @param $errorCode int
-     * @param $errorMsg string
-     */
-    protected function setError($errorCode, $errorMsg)
-    {
-        $this->_error = array('code' => $errorCode, 'message' => $errorMsg);
-    }
+	/**
+	 * @param $url string
+	 * @param $method string
+	 * @param $params array
+	 *
+	 * @return Zend_Http_Client
+	 * @throws Zend_Http_Client_Exception
+	 */
+	protected function getHttpClient($url, $method, $params) {
+		$client = new Zend_Http_Client(trim($url, '/') . '/api/' . $method . '?format=JSON');
+		$client->setConfig(array(
+			'maxredirects' => 0,
+			'timeout' => 30,
+			'curloptions' => array(CURLOPT_SSL_VERIFYPEER => false)));
+		$client->setMethod(Zend_Http_Client::POST);
+		$client->setParameterPost($params);
+		return $client;
+	}
 
+	/**
+	 * @return array
+	 */
+	public function getError() {
+		return $this->_error;
+	}
 
-    public function getCcTypesAvailable()
-    {
-        return array(
-            'MC' => 1,
-            'VI' => 2,
-            /*'AE' => 3,
-            'DI' => 4,
-            'OT' => 5,*/
-        );
-    }
+	/**
+	 * @param $errorCode int
+	 * @param $errorMsg string
+	 */
+	protected function setError($errorCode, $errorMsg) {
+		$this->_error = array('code' => $errorCode, 'message' => $errorMsg);
+	}
 
+	public function getCcTypesAvailable() {
+		return array(
+			'MC' => 1,
+			'VI' => 2,
+			/*'AE' => 3,
+			'DI' => 4,*/
+			'UP' => 5,			
+		);
+	}
 
-    public function getValidNumberOfInstallments(){
-        if (!$this->isLogin()) {
-            $this->setError(self::ERROR_UNKNOWN, __FUNCTION__ . ' method required Login action first.');
-            return false;
-        }
-        $arr =  array("RequestHeader"=>array('ApiKey' => $this->_apiTerminalKey, 'SessionId' => trim($this->_sessionId)));
-        
-        //return $this->makeRequest($this->_gwUrl, "InstallmentPlan/GetValidNumberOfInstallments" , $arr);
-        return $this->makePhpCurlRequest($this->_gwUrl, "InstallmentPlan/GetValidNumberOfInstallments" , $arr);
+	public function getValidNumberOfInstallments() {
+		if (!$this->isLogin()) {
+			$this->setError(self::ERROR_UNKNOWN, __FUNCTION__ . ' method required Login action first.');
+			return false;
+		}
+		$arr = array("RequestHeader" => array('ApiKey' => $this->_apiTerminalKey, 'SessionId' => trim($this->_sessionId)));
 
-       
-    }
+		//return $this->makeRequest($this->_gwUrl, "InstallmentPlan/GetValidNumberOfInstallments" , $arr);
+		return $this->makePhpCurlRequest($this->_gwUrl, "InstallmentPlan/GetValidNumberOfInstallments", $arr);
 
-    public function installmentplaninit($apiUrl, $params){
-        try{
-            return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Initiate" , $params);        
-        }catch(Exception $e){
-            $this->setError($e->getMessage());
-        } 
-        
-    }
+	}
 
-    public function getApprovalUrlResponse($approvalUrl){
-        $url = $approvalUrl . '&format=json';
-        $ch = curl_init($url);
-        //$jsonData = json_encode($params);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");  
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        // curl_setopt($ch, CURLOPT_POST, 1);
-        //curl_setopt($ch, CURLOPT_POSTFIELDS,$jsonData);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); 
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/json'                                        
-            )                                                                       
-        );
-        $result = curl_exec($ch);
-        
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        // check for curl error eg: splitit server down.
-        if(curl_errno($ch)){
-            //echo 'Curl error: ' . curl_error($ch);
-            $result["serverError"] = $this->getServerDownMsg();
-            return $result = Mage::helper('core')->jsonEncode($result);
-        }
-        curl_close($ch);
-        return $result;
-    }   
+	public function installmentplaninit($apiUrl, $params) {
+		try {
+			return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Initiate", $params);
+		} catch (Exception $e) {
+			$this->setError($e->getMessage());
+		}
 
-    public function makePhpCurlRequest($gwUrl, $method, $params){
-        $url = trim($gwUrl,'/') . '/api/' . $method . '?format=JSON';
-        $ch = curl_init($url);
-        $jsonData = json_encode($params);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");  
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS,$jsonData);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); 
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/json',                                                                                
-            'Content-Length:' . strlen($jsonData))                                                                       
-        );
-        $result = curl_exec($ch);
-        
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        // check for curl error eg: splitit server down.
-        if(curl_errno($ch)){
-            //echo 'Curl error: ' . curl_error($ch);
-            $this->setError($code, $this->getServerDownMsg());
-            curl_close($ch);
-            $result["serverError"] = $this->getServerDownMsg();
-            return $result = Mage::helper('core')->jsonEncode($result);
-        }
-        curl_close($ch);
-        return $result;
-    }
+	}
 
-    public function getServerDownMsg(){
-        return "Failed to connect to splitit payment server. Please retry again later.";
-    }
+	/*public function getApprovalUrlResponse($approvalUrl) {
+		$url = $approvalUrl . '&format=json';
+		$ch = curl_init($url);
+		//$jsonData = json_encode($params);
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		// curl_setopt($ch, CURLOPT_POST, 1);
+		//curl_setopt($ch, CURLOPT_POSTFIELDS,$jsonData);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+			'Content-Type: application/json',
+		)
+		);
+		$result = curl_exec($ch);
 
-    public function getSplititSupportedCultures($approvalUrl){
-        $url = $approvalUrl . '?format=json';
-        $ch = curl_init($url);
-        //$jsonData = json_encode($params);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");  
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, 0);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); 
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        
-        $result = curl_exec($ch);
-        
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        // check for curl error eg: splitit server down.
-        if(curl_errno($ch)){
-            //echo 'Curl error: ' . curl_error($ch);
-            $result["serverError"] = $this->getServerDownMsg();
-            return $result = Mage::helper('core')->jsonEncode($result);
-        }
-        curl_close($ch);
-        return $result;
-    }
-    public function getResourcesFromSplitit($url, $params){
-        $url = $url.'?format=JSON';
-        $ch = curl_init($url);
-        $jsonData = json_encode($params);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");  
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS,$jsonData);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1); 
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/json',                                                                                
-            'Content-Length:' . strlen($jsonData))                                                                       
-        );
-        $result = curl_exec($ch);
-        
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        // check for curl error eg: splitit server down.
-        if(curl_errno($ch)){
-            //echo 'Curl error: ' . curl_error($ch);
-            $this->setError($code, $this->getServerDownMsg());
-            curl_close($ch);
-            $result["serverError"] = $this->getServerDownMsg();
-            return $result = Mage::helper('core')->jsonEncode($result);
-        }
-        curl_close($ch);
-        return $result;
-    }
+		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		// check for curl error eg: splitit server down.
+		if (curl_errno($ch)) {
+			//echo 'Curl error: ' . curl_error($ch);
+			$result["serverError"] = $this->getServerDownMsg();
+			return $result = Mage::helper('core')->jsonEncode($result);
+		}
+		curl_close($ch);
+		return $result;
+	}*/
+
+	public function getApprovalUrlResponse($approvalUrl) {
+		$url = $approvalUrl . '&format=json';
+		$curl = new Varien_Http_Adapter_Curl();
+		//$curl->setOptions($params);
+		$config = array('timeout' => 60,'verifypeer' => FALSE,'verifyhost' => FALSE);
+		$curl->setConfig($config);
+		$curl->write(Zend_Http_Client::GET, $url, Zend_Http_Client::HTTP_0);
+		$response = $curl->read();
+		$result = Zend_Http_Response::extractBody($response);
+
+		if ($curl->getErrno()) {
+			$result["serverError"] = $this->getServerDownMsg();
+			$curl->close();
+			return $result = Mage::helper('core')->jsonEncode($result);
+		}
+		$curl->close();
+		return $result;
+	}
+
+	public function makePhpCurlRequest($gwUrl, $method, $params) {
+		$url = trim($gwUrl, '/') . '/api/' . $method . '?format=JSON';
+		$jsonData = json_encode($params);
+		$curl = new Varien_Http_Adapter_Curl();
+		$config = array('timeout' => 60,'verifypeer' => FALSE,'verifyhost' => FALSE);
+		$curl->setConfig($config);
+		
+		$curl->write(Zend_Http_Client::POST, $url, Zend_Http_Client::HTTP_0, array('Content-Type:application/json', 'Content-Length:'.strlen($jsonData)), $jsonData);
+		$response = $curl->read();
+		$result = Zend_Http_Response::extractBody($response);
+		//var_dump($curl->getError());
+		//echo $curl->getErrno();
+		//echo '<pre>'; print_r($result); die;
+		if ($curl->getErrno()) {
+			$result["serverError"] = $this->getServerDownMsg();
+			$curl->close();
+			return $result = Mage::helper('core')->jsonEncode($result);
+		}
+		$curl->close();
+		$result = json_decode($result);
+		return json_encode($result);
+		/*$ch = curl_init($url);
+			$jsonData = json_encode($params);
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+				'Content-Type: application/json',
+				'Content-Length:' . strlen($jsonData))
+			);
+			$result = curl_exec($ch);
+
+			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			// check for curl error eg: splitit server down.
+			if (curl_errno($ch)) {
+				//echo 'Curl error: ' . curl_error($ch);
+				$this->setError($code, $this->getServerDownMsg());
+				curl_close($ch);
+				$result["serverError"] = $this->getServerDownMsg();
+				return $result = Mage::helper('core')->jsonEncode($result);
+			}
+		*/
+		return $result;
+	}
+
+	public function getServerDownMsg() {
+		return "Failed to connect to splitit payment server. Please retry again later.";
+	}
+
+	public function getSplititSupportedCultures($approvalUrl) {
+		$url = $approvalUrl . '?format=json';
+		$curl = new Varien_Http_Adapter_Curl();
+		//$curl->setOptions($params);
+		$curl->write(Zend_Http_Client::GET, $url, Zend_Http_Client::HTTP_0);
+		$response = $curl->read();
+		$result = Zend_Http_Response::extractBody($response);
+
+		if ($curl->getErrno()) {
+			$result["serverError"] = $this->getServerDownMsg();
+			$curl->close();
+			return $result = Mage::helper('core')->jsonEncode($result);
+		}
+		$curl->close();
+		return $result;
+		/*$ch = curl_init($url);
+			//$jsonData = json_encode($params);
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_POST, 0);
+			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+
+			$result = curl_exec($ch);
+
+			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			// check for curl error eg: splitit server down.
+			if (curl_errno($ch)) {
+				//echo 'Curl error: ' . curl_error($ch);
+				$result["serverError"] = $this->getServerDownMsg();
+				return $result = Mage::helper('core')->jsonEncode($result);
+			}
+		*/
+	}
+	public function getResourcesFromSplitit($url, $params) {
+		$url = $url . '?format=JSON';
+		$jsonData = json_encode($params);
+		$curl = new Varien_Http_Adapter_Curl();
+		$config = array('timeout' => 60,'verifypeer' => FALSE,'verifyhost' => FALSE);
+		$curl->setConfig($config);
+		$curl->write(Zend_Http_Client::POST, $url, Zend_Http_Client::HTTP_0, array('Content-Type: application/json', 'Content-Length:' . strlen($jsonData)), $jsonData);
+		$response = $curl->read();
+		$result = Zend_Http_Response::extractBody($response);
+
+		if ($curl->getErrno()) {
+			$result["serverError"] = $this->getServerDownMsg();
+			$curl->close();
+			return $result = Mage::helper('core')->jsonEncode($result);
+		}
+		$curl->close();
+		return $result;
+		/*$ch = curl_init($url);
+			$jsonData = json_encode($params);
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+				'Content-Type: application/json',
+				'Content-Length:' . strlen($jsonData))
+			);
+			$result = curl_exec($ch);
+
+			$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+			// check for curl error eg: splitit server down.
+			if (curl_errno($ch)) {
+				//echo 'Curl error: ' . curl_error($ch);
+				$this->setError($code, $this->getServerDownMsg());
+				curl_close($ch);
+				$result["serverError"] = $this->getServerDownMsg();
+				return $result = Mage::helper('core')->jsonEncode($result);
+			}
+		*/
+	}
 }

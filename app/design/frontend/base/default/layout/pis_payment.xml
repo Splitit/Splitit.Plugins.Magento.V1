@@ -53,6 +53,21 @@
         </reference>
     </payitsimple_payment_cancel>
     <!-- <checkout_onepage_index> -->
+    <checkout_onepage_index>
+        <reference name="head">
+            <block type="core/text" name="pis_payment.unionpay.validation">
+                <action method="setText">
+                    <text>
+                        <![CDATA[<script type="text/javascript">
+                            Validation.creditCartTypes.set('UP', [new RegExp('^(62|88)[0-9]{14,17}$'), new RegExp('^[0-9]{3}$'), true]);
+                        </script>]]>
+                    </text>
+                </action>
+            </block>
+        </reference>
+    </checkout_onepage_index>
+    <!-- </checkout_onepage_index> -->
+
     <default>
         <block type="core/template" name="payitsimple.terms" template="payitsimple/terms.phtml" />
         <reference name="head">
@@ -61,7 +76,6 @@
             <action method="addCss"><stylesheet>css/pis_checkout.css</stylesheet></action>
         </reference>
     </default>    
-    <!-- </checkout_onepage_index> -->
     <sales_order_view>
         <reference name="order_totals">
             <block type="pis_payment/sales_order_fee" name="fee" />

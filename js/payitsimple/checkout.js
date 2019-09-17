@@ -5,7 +5,19 @@ var curUrl      = window.location.href;
 var baseUrl = "";
 jQuery(document).ready(function(){
 
-	
+	//tell me more button
+    jQuery(document).on('click', '#tell-me-more', function(e){
+    	
+        e.preventDefault();
+        var left = (screen.width - 433)/2;
+ 		 var top = (screen.height/2)-(window.innerHeight/2);
+        var win= window.open(jQuery(this).attr('href'),"Tell me more","width=433,height=607,left="+left+",top="+top+",location=no,status=no,scrollbars=no,resizable=no");
+        win.document.writeln("<body style='margin:0px'><img width=100% src='"+jQuery(this).attr('href')+"' />");
+        win.document.writeln("</body>");
+        win.document.write('<title>Splitit Learn More</title>');
+        
+        return;
+    });
 	
 	var samePayment = "";
 	
@@ -81,6 +93,12 @@ jQuery(document).ready(function(){
 		
 		
     	
+    });
+
+    jQuery(document).on('change','#pis_cc_installments_no',function(){
+    	/*alert('sdsd');*/
+    	//jQuery('#one-step-checkout-review-terms-agreement-mc_osc_term').prop('checked', false);
+    	jQuery('#pis_cc_terms').prop('checked', false);
     });
 
 	// check if we have splitit payment form checkout url for hosted solution
