@@ -433,7 +433,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		Mage::log('======= get installmentplan details :  ======= ');
 		Mage::log($planDetails);
 
-		$quote = Mage::getModel('checkout/session')->getQuote();
+		$quote = Mage::getModel('sales/quote')->load($data["quote_id"]);
 		$quoteGrandTotal = number_format((float) $quote->getGrandTotal(), 2, '.', '');
 		//echo ;die;
 
