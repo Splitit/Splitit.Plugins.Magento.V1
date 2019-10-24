@@ -405,15 +405,14 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 	}
 
 	public function successAsyncAction() {
-		die('----------');
 		$params = $this->getRequest()->getParams();
 		// remove plan from session which were created when user click on radio button
 		//Mage::getSingleton('core/session')->setSplititInstallmentPlanNumber("");
 		Mage::getSingleton('core/session')->setInstallmentPlanNumber($params["InstallmentPlanNumber"]);
 		Mage::log('======= successAsyncAction :  =======InstallmentPlanNumber coming from splitit in url: ' . $params["InstallmentPlanNumber"]);
 
-		$tablePrefix = (string) Mage::getConfig()->getTablePrefix();
-		$db_read = Mage::getSingleton('core/resource')->getConnection('core_read');
+		// $tablePrefix = (string) Mage::getConfig()->getTablePrefix();
+		// $db_read = Mage::getSingleton('core/resource')->getConnection('core_read');
 		// check if order already created with the installment plan number coming from in parameters via async call(async run before response). Get data from SPLITIT_HOSTED_SOLUTION table
 		// $sql1 = 'SELECT * FROM `' . $tablePrefix . 'splitit_hosted_solution` where installment_plan_number = "' . $params["InstallmentPlanNumber"] . '" and order_created = 1';
 		// $data = $db_read->fetchRow($sql1);
@@ -422,33 +421,39 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		$data = $data->getData();
 		// check if order already created via Async etc.
 		if (count($data) && $data["order_id"] != 0 && $data["order_increment_id"] != null) {
-
 			return true;
 		}
 
+		//check grand total of quote and IPN
 		// get installmentplan details
 		$storeId = Mage::app()->getStore()->getStoreId();
-		$api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
+		$api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId = null);
 		$planDetails = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->getInstallmentPlanDetails($api);
 
 		Mage::log('======= get installmentplan details :  ======= ');
 		Mage::log($planDetails);
-		// get plan number info from database table SPLITIT_HOSTED_SOLUTION
-		// $sql = 'SELECT * FROM `' . $tablePrefix . 'splitit_hosted_solution` where installment_plan_number = "' . $params["InstallmentPlanNumber"] . '"';
-		$sqlLoad = Mage::getModel('pis_payment/pispayment')->load($params["InstallmentPlanNumber"], 'installment_plan_number');
-		//$data = $db_read->fetchAllRow($sql); // fetch All row in a table
-		// $data = $db_read->fetchRow($sql);
-		$data = $sqlLoad->getData();
 
-		$orderId = $data["order_id"];
-		$orderIncrementId = $data["order_increment_id"];
-		$orderObj = Mage::getModel('sales/order')->load($orderId);
-		$grandTotal = number_format((float) $orderObj->getGrandTotal(), 2, '.', '');
-		$planDetails["grandTotal"] = number_format((float) $planDetails["grandTotal"], 2, '.', '');
-		Mage::log('======= grandTotal(orderObj):' . $grandTotal . ', grandTotal(planDetails):' . $planDetails["grandTotal"] . '   ======= ');
+		$quote = Mage::getModel('checkout/session')->getQuote();
+		$quoteGrandTotal = number_format((float) $quote->getGrandTotal(), 2, '.', '');
+		//echo ;die;
 
-		if (count($data) && $grandTotal == $planDetails["grandTotal"] && ($planDetails["planStatus"] == "PendingMerchantShipmentNotice" || $planDetails["planStatus"] == "InProgress")) {
-
+		if (count($data) && $quote->getId() == $data["quote_id"] && $quoteGrandTotal == $planDetails["grandTotal"] && ($planDetails["planStatus"] == "PendingMerchantShipmentNotice" || $planDetails["planStatus"] == "InProgress")) {
+			//create order
+			$convertQuote = Mage::getModel('sales/quote')->load($quote->getId());
+			$convertQuote->collectTotals();
+			$service = Mage::getModel('sales/service_quote', $convertQuote);
+			$service->submitAll();
+			Mage::getSingleton('checkout/session')->setLastQuoteId($convertQuote->getId())
+				->setLastSuccessQuoteId($convertQuote->getId())
+				->clearHelperData();
+			$order = $service->getOrder();
+			if ($order) {
+				Mage::getSingleton('checkout/session')->setLastOrderId($order->getId())
+					->setLastRealOrderId($order->getIncrementId());
+			}
+			$quote->setIsActive(false)->save();
+			$orderObj = Mage::getModel('sales/order')->load($order->getId());
+			$grandTotal = number_format((float) $orderObj->getGrandTotal(), 2, '.', '');
 			$payment = $orderObj->getPayment();
 			$paymentAction = Mage::helper('pis_payment')->getPaymentAction();
 
@@ -476,11 +481,6 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 
 			if ($paymentAction == "authorize_capture") {
 
-				// comment start installment for autocapture true.
-				/* $sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
-	                  $params = array('InstallmentPlanNumber' => Mage::getSingleton('core/session')->getInstallmentPlanNumber());
-	                  $params = array_merge($params, array("RequestHeader"=> array('SessionId' => $sessionId)));
-*/
 				$payment->setShouldCloseParentTransaction(true);
 				$payment->setIsTransactionClosed(1);
 				$payment->registerCaptureNotification($grandTotal);
@@ -488,42 +488,31 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 					false, 'Payment NotifyOrderShipped was sent with number ID: ' . Mage::getSingleton('core/session')->getInstallmentPlanNumber(), false
 				);
 			}
-			$orderObj->queueNewOrderEmail();
+			//$orderObj->queueNewOrderEmail();
+			$orderObj->sendNewOrderEmail();
 			$orderObj->save();
 
 			// update order_created in splitit_hosted_solution
 			$db_write = Mage::getSingleton('core/resource')->getConnection('core_write');
-			// get order id and increment number from session to update in splitit_hosted_solution table
-
-			// $updateQue = 'UPDATE `' . $tablePrefix . 'splitit_hosted_solution` SET order_created = 1, order_id = "' . $orderId . '", order_increment_id = "' . $orderIncrementId . '" WHERE installment_plan_number = "' . $params["InstallmentPlanNumber"] . '"';
-			// $db_write->query($updateQue);
 			$updateQue = Mage::getModel('pis_payment/pispayment')->load($params["InstallmentPlanNumber"], 'installment_plan_number');
 			$updateQue->setOrderCreated(1);
 			$updateQue->setOrderId($orderId);
 			$updateQue->setOrderIncrementId($orderIncrementId);
-			$updateQue->save(); /*
-			$updateQue->setData(array('order_created' => 1, 'order_id' => $orderId, 'order_increment_id' => $orderIncrementId));
-			$updateQue->save();*/
+			$updateQue->save();
+			// $db_write->query($updateQue);
 			Mage::log('====== Order Id =====:' . $orderId . '==== Order Increment Id ======:' . $orderIncrementId);
-
+			/*Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "checkout/onepage/success")->sendResponse();*/
 			return true;
+
 		} else {
-
-			Mage::log('====== Order Grand total and Payment detail total coming from Api is not same. =====');
-			Mage::log('Grand Total : ' . $grandTotal);
-			Mage::log('Plan Details Total : ' . $planDetails["grandTotal"]);
-
-			/* Mage::log('====== Order cancel due to Grand total and Payment detail total coming from Api is not same. =====');
-				              $cancelResponse = Mage::getSingleton("pis_payment/pisMethod")->cancelInstallmentPlan($api, $params["InstallmentPlanNumber"]);
-				              if($cancelResponse["status"]){
-
-				              if ($orderObj->getId()) {
-				              $orderObj->cancel()->save();
-				              }
-
-				              //Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl()."payitsimple/payment/cancel")->sendResponse();
-			*/
+			Mage::log('====== Order cancel due to Grand total and Payment detail total coming from Api is not same. =====');
+			$cancelResponse = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->cancelInstallmentPlan($api, $params["InstallmentPlanNumber"]);
+			if ($cancelResponse["status"]) {
+				/*Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "payitsimple/payment/cancel")->sendResponse();*/
+				return true;
+			}
 		}
+		return false;
 	}
 
 	public function cancelAsyncAction() {
