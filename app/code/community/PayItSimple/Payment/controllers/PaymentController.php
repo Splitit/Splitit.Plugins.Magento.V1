@@ -419,6 +419,8 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		$paymentFormCollection = Mage::getModel('pis_payment/pispayment')->getCollection()->addFieldToFilter('installment_plan_number', $params["InstallmentPlanNumber"])->addFieldToFilter('order_created', 1);
 		$data = $paymentFormCollection->getFirstItem();
 		$data = $data->getData();
+		Mage::log('======= paymentFormData========= ');
+		Mage::log($data);
 		// check if order already created via Async etc.
 		if (count($data) && $data["order_id"] != 0 && $data["order_increment_id"] != null) {
 			return true;
@@ -428,12 +430,16 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		// get installmentplan details
 		$storeId = Mage::app()->getStore()->getStoreId();
 		$api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId = null);
+		Mage::log('======= apiData======');
+		Mage::log($api);
 		$planDetails = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->getInstallmentPlanDetails($api);
 
 		Mage::log('======= get installmentplan details :  ======= ');
 		Mage::log($planDetails);
 
 		$quote = Mage::getModel('sales/quote')->load($data["quote_id"]);
+		Mage::log('=====quoteData=====');
+		Mage::log($quote->getData());
 		$quoteGrandTotal = number_format((float) $quote->getGrandTotal(), 2, '.', '');
 		//echo ;die;
 
@@ -447,6 +453,8 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 				->setLastSuccessQuoteId($convertQuote->getId())
 				->clearHelperData();
 			$order = $service->getOrder();
+			Mage::log('======orderData======');
+			Mage::log($order->getData());
 			if ($order) {
 				Mage::getSingleton('checkout/session')->setLastOrderId($order->getId())
 					->setLastRealOrderId($order->getIncrementId());
@@ -466,7 +474,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 			$payment->setIsTransactionApproved(true);
 
 			$payment->registerAuthorizationNotification($grandTotal);
-
+			Mage::log('======update order status history======');
 			$orderObj->addStatusToHistory(
 				$orderObj->getStatus(), 'Payment InstallmentPlan was created with number ID: '
 				. Mage::getSingleton('core/session')->getInstallmentPlanNumber(), false
@@ -478,7 +486,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 					Mage::helper('payment')->__($updateStatus["data"])
 				);
 			}
-
+			Mage::log('======check authorize_capture======');
 			if ($paymentAction == "authorize_capture") {
 
 				$payment->setShouldCloseParentTransaction(true);
@@ -488,6 +496,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 					false, 'Payment NotifyOrderShipped was sent with number ID: ' . Mage::getSingleton('core/session')->getInstallmentPlanNumber(), false
 				);
 			}
+			Mage::log('======send order email======');
 			//$orderObj->queueNewOrderEmail();
 			$orderObj->sendNewOrderEmail();
 			$orderObj->save();
