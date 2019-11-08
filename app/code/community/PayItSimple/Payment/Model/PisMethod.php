@@ -600,7 +600,11 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 
 			Mage::log('=========splitit : InstallmentPlan Init Params for embedded =========');
 			Mage::log($params);
+			/*echo "request==\n";
+			print_r($params);*/
 			$result = Mage::getSingleton("pis_payment/api")->installmentplaninit($this->getApiUrl(), $params);
+			/*echo "response==\n";
+			print_r($result);*/
 			// check for approval URL from response
 			$decodedResult = Mage::helper('core')->jsonDecode($result);
 			$errorCount = count($decodedResult["ResponseHeader"]["Errors"]);
@@ -610,6 +614,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 				Mage::getSingleton('core/session')->setInstallmentPlanNumber($intallmentPlan);
 				Mage::log('=========splitit : InstallmentPlan Number : ' . $intallmentPlan . ' =========');
 				$approvalUrlResponse = Mage::getSingleton("pis_payment/api")->getApprovalUrlResponse($decodedResult["ApprovalUrl"]);
+				/*echo "approval-url-response==\n";
+				print_r($approvalUrlResponse);*/
 				$approvalUrlRes = Mage::helper('core')->jsonDecode($approvalUrlResponse);
 				if (isset($approvalUrlRes["Global"]["ResponseResult"]["Errors"]) && count($approvalUrlRes["Global"]["ResponseResult"]["Errors"])) {
 					$i = 1;
@@ -960,7 +966,15 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$planData = array_merge($params["PlanData"], $numberOfInstallments);
 			$params["PlanData"] = $planData;
 		}
-		//print_r($params);die("--fd");
+
+		/*forter token*/
+		$forterToken = Mage::getSingleton('core/session')->getSplititForterToken();
+		if($forterToken){
+			foreach ($forterToken as $fTkey => $fTvalue) {
+				$params["PlanData"]['ExtendedParams'][$fTkey] = $fTvalue;
+			}
+		}
+		// print_r($params);die("--fd");
 		return $params;
 	}
 
