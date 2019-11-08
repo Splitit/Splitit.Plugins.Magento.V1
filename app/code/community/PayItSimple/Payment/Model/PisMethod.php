@@ -398,6 +398,20 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			);
 		}
 
+		/*forter token*/
+		$forterToken = Mage::getSingleton('core/session')->getSplititForterToken();
+		if($forterToken){
+			if(!isset($params["PlanData"])){
+				$params["PlanData"] = array();
+			}
+			if(!isset($params["PlanData"]['ExtendedParams'])){
+				$params["PlanData"]['ExtendedParams'] = array();
+			}
+			foreach ($forterToken as $fTkey => $fTvalue) {
+				$params["PlanData"]['ExtendedParams'][$fTkey] = $fTvalue;
+			}
+		}
+
 		$result = $api->createInstallmentPlan($this->getApiUrl(), $params);
 		if (isset($result["ResponseHeader"]) && isset($result["ResponseHeader"]["Errors"]) && !empty($result["ResponseHeader"]["Errors"])) {
 			$e = $api->getError();
@@ -967,13 +981,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$params["PlanData"] = $planData;
 		}
 
-		/*forter token*/
-		$forterToken = Mage::getSingleton('core/session')->getSplititForterToken();
-		if($forterToken){
-			foreach ($forterToken as $fTkey => $fTvalue) {
-				$params["PlanData"]['ExtendedParams'][$fTkey] = $fTvalue;
-			}
-		}
 		// print_r($params);die("--fd");
 		return $params;
 	}
