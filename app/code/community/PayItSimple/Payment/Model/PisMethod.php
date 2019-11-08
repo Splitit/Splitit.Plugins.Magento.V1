@@ -398,6 +398,20 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			);
 		}
 
+		/*forter token*/
+		$forterToken = Mage::getSingleton('core/session')->getSplititForterToken();
+		if($forterToken){
+			if(!isset($params["PlanData"])){
+				$params["PlanData"] = array();
+			}
+			if(!isset($params["PlanData"]['ExtendedParams'])){
+				$params["PlanData"]['ExtendedParams'] = array();
+			}
+			foreach ($forterToken as $fTkey => $fTvalue) {
+				$params["PlanData"]['ExtendedParams'][$fTkey] = $fTvalue;
+			}
+		}
+
 		$result = $api->createInstallmentPlan($this->getApiUrl(), $params);
 		if (isset($result["ResponseHeader"]) && isset($result["ResponseHeader"]["Errors"]) && !empty($result["ResponseHeader"]["Errors"])) {
 			$e = $api->getError();
@@ -600,7 +614,11 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 
 			Mage::log('=========splitit : InstallmentPlan Init Params for embedded =========');
 			Mage::log($params);
+			/*echo "request==\n";
+			print_r($params);*/
 			$result = Mage::getSingleton("pis_payment/api")->installmentplaninit($this->getApiUrl(), $params);
+			/*echo "response==\n";
+			print_r($result);*/
 			// check for approval URL from response
 			$decodedResult = Mage::helper('core')->jsonDecode($result);
 			$errorCount = count($decodedResult["ResponseHeader"]["Errors"]);
@@ -610,6 +628,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 				Mage::getSingleton('core/session')->setInstallmentPlanNumber($intallmentPlan);
 				Mage::log('=========splitit : InstallmentPlan Number : ' . $intallmentPlan . ' =========');
 				$approvalUrlResponse = Mage::getSingleton("pis_payment/api")->getApprovalUrlResponse($decodedResult["ApprovalUrl"]);
+				/*echo "approval-url-response==\n";
+				print_r($approvalUrlResponse);*/
 				$approvalUrlRes = Mage::helper('core')->jsonDecode($approvalUrlResponse);
 				if (isset($approvalUrlRes["Global"]["ResponseResult"]["Errors"]) && count($approvalUrlRes["Global"]["ResponseResult"]["Errors"])) {
 					$i = 1;
@@ -659,9 +679,9 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		$response = ["errorMsg" => "", "successMsg" => "", "status" => false];
 		if ($billingAddress->getStreet()[0] == "" || $billingAddress->getCity() == "" || $billingAddress->getPostcode() == "" || $customerInfo["firstname"] == "" || $customerInfo["lastname"] == "" || $customerInfo["email"] == "" || $billingAddress->getTelephone() == "") {
 			$response["errorMsg"] = "Please fill required fields.";
-		} else if (strlen($billingAddress->getTelephone()) < 5 || strlen($billingAddress->getTelephone()) > 14) {
+		} else if (strlen($billingAddress->getTelephone()) < 5 || strlen($billingAddress->getTelephone()) > 10) {
 
-			$response["errorMsg"] = __("Splitit does not accept phone number less than 5 digits or greater than 14 digits.");
+			$response["errorMsg"] = __("Splitit does not accept phone number less than 5 digits or greater than 10 digits.");
 		} elseif (!$billingAddress->getCity()) {
 			$response["errorMsg"] = __("Splitit does not accept empty city field.");
 		} elseif (!$billingAddress->getCountry()) {
@@ -960,7 +980,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$planData = array_merge($params["PlanData"], $numberOfInstallments);
 			$params["PlanData"] = $planData;
 		}
-		//print_r($params);die("--fd");
+
+		// print_r($params);die("--fd");
 		return $params;
 	}
 
