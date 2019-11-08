@@ -28,64 +28,166 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 		return '';
 	}
 
-	public function getOrderPlaceRedirectUrl() {
+	public function checkForBillingFieldsEmpty($billingAddress, $customerInfo) {
 
-		$storeId = Mage::app()->getStore()->getStoreId();
-		$api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId = null);
+		$response = ["errorMsg" => "", "successMsg" => "", "status" => false];
+		if ($billingAddress->getStreet()[0] == "" || $billingAddress->getCity() == "" || $billingAddress->getPostcode() == "" || $customerInfo["firstname"] == "" || $customerInfo["lastname"] == "" || $customerInfo["email"] == "" || $billingAddress->getTelephone() == "") {
+			$response["errorMsg"] = "Please fill required fields.";
+		} else if (strlen($billingAddress->getTelephone()) < 5 || strlen($billingAddress->getTelephone()) > 14) {
 
-		$installmentsInDropdown = array();
-		$response = array(
-			"status" => false,
-			"error" => "",
-			"success" => "",
-			"data" => "",
-			"installmentNum" => "1",
-
-		);
-
-		if ($api->isLogin()) {
-			Mage::log('=========splitit logging start=========');
-			$ipnForLogs = Mage::getSingleton('core/session')->getSplititSessionid();
-			Mage::log('Splitit session Id : ' . $ipnForLogs);
+			$response["errorMsg"] = __("Splitit does not accept phone number less than 5 digits or greater than 14 digits.");
+		} elseif (!$billingAddress->getCity()) {
+			$response["errorMsg"] = __("Splitit does not accept empty city field.");
+		} elseif (!$billingAddress->getCountry()) {
+			$response["errorMsg"] = ("Splitit does not accept empty country field.");
+		} elseif (!$billingAddress->getPostcode()) {
+			$response["errorMsg"] = ("Splitit does not accept empty postcode field.");
+		} elseif (!$customerInfo["firstname"]) {
+			$response["errorMsg"] = ("Splitit does not accept empty customer name field.");
+		} elseif (strlen($customerInfo["firstname"] . ' ' . $customerInfo['lastname']) < 3) {
+			$response["errorMsg"] = ("Splitit does not accept less than 3 characters customer name field.");
+		} elseif (!filter_var($customerInfo['email'], FILTER_VALIDATE_EMAIL)) {
+			$response["errorMsg"] = ("Splitit does not accept invalid customer email field.");
+		} else {
 			$response["status"] = true;
+		}
+		return $response;
+	}
 
-			$initResponse = Mage::getModel("pis_payment/pisPaymentFormMethod")->installmentplaninitForHostedSolution();
+	public function getCheckoutRedirectUrl() {
 
-			$response["data"] = $initResponse["data"];
-			if ($initResponse["status"]) {
+		//validate the information
+		$checkout = Mage::getSingleton('checkout/session')->getQuote();
+		$billAddress = $checkout->getBillingAddress();
+		$BillingAddressArr = $billAddress->getData();
+		$customerInfo = Mage::getSingleton('customer/session')->getCustomer()->getData();
+		if (!isset($customerInfo["firstname"])) {
+			$customerInfo["firstname"] = $billAddress->getFirstname();
+			$customerInfo["lastname"] = $billAddress->getLastname();
+			$customerInfo["email"] = $billAddress->getEmail();
+		}
+
+		$validateFields = $this->checkForBillingFieldsEmpty($billAddress, $customerInfo);
+		if (!$validateFields['status']) {
+			Mage::throwException(
+				Mage::helper('payment')->__($validateFields['errorMsg'])
+			);
+		} else {
+			$storeId = Mage::app()->getStore()->getStoreId();
+			$api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId = null);
+
+			$installmentsInDropdown = array();
+			$response = array(
+				"status" => false,
+				"error" => "",
+				"success" => "",
+				"data" => "",
+				"installmentNum" => "1",
+
+			);
+
+			if ($api->isLogin()) {
+				Mage::log('=========splitit logging start=========');
+				$ipnForLogs = Mage::getSingleton('core/session')->getSplititSessionid();
+				Mage::log('Splitit session Id : ' . $ipnForLogs);
 				$response["status"] = true;
-			}
-			if (isset($initResponse["emptyFields"]) && $initResponse["emptyFields"]) {
-				$response["data"] = $result["data"];
-			}
-			if (isset($initResponse["checkoutUrl"]) && $initResponse["checkoutUrl"] != "") {
-				$response["checkoutUrl"] = $initResponse["checkoutUrl"];
-//                print_r($initResponse);
-				//                print_r($response);
-				//                die("--eeeeee");
-				$quote = Mage::getSingleton('checkout/session')->getQuote();
-				Mage::getSingleton('checkout/session')->setSplititQuoteId($quote->getId());
-				Mage::getSingleton('checkout/session')->setSplititCheckoutUrl($response["checkoutUrl"]);
-				Mage::getSingleton('checkout/session')->setSplititInstallmentPlanNumber($initResponse["installmentPlanNumber"]);
 
-				return Mage::getBaseUrl() . "payitsimple/payment/redirect";
+				$initResponse = Mage::getModel("pis_payment/pisPaymentFormMethod")->installmentplaninitForHostedSolution();
+
+				$response["data"] = $initResponse["data"];
+				if ($initResponse["status"]) {
+					$response["status"] = true;
+				}
+				if (isset($initResponse["emptyFields"]) && $initResponse["emptyFields"]) {
+					$response["data"] = $result["data"];
+				}
+				if (isset($initResponse["checkoutUrl"]) && $initResponse["checkoutUrl"] != "") {
+					$response["checkoutUrl"] = $initResponse["checkoutUrl"];
+//                print_r($initResponse);
+					//                print_r($response);
+					//                die("--eeeeee");
+					$quote = Mage::getSingleton('checkout/session')->getQuote();
+					Mage::getSingleton('checkout/session')->setSplititQuoteId($quote->getId());
+					Mage::getSingleton('checkout/session')->setSplititCheckoutUrl($response["checkoutUrl"]);
+					Mage::getSingleton('checkout/session')->setSplititInstallmentPlanNumber($initResponse["installmentPlanNumber"]);
+
+					return Mage::getBaseUrl() . "payitsimple/payment/redirect";
+				} else {
+					Mage::throwException(
+						Mage::helper('payment')->__($response['data'])
+					);
+				}
+
 			} else {
+				foreach ($api->getError() as $key => $value) {
+					$response["error"] .= $value . " ";
+				}
 				Mage::throwException(
-					Mage::helper('payment')->__($response['data'])
+					Mage::helper('payment')->__($response['error'])
 				);
 			}
-
-		} else {
-			foreach ($api->getError() as $key => $value) {
-				$response["error"] .= $value . " ";
-			}
-			Mage::throwException(
-				Mage::helper('payment')->__($response['error'])
-			);
 		}
 
 		return Mage::getUrl('checkout/cart', array('_secure' => true));
 	}
+	/*public function getOrderPlaceRedirectUrl() {
+
+				$storeId = Mage::app()->getStore()->getStoreId();
+				$api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId = null);
+
+				$installmentsInDropdown = array();
+				$response = array(
+					"status" => false,
+					"error" => "",
+					"success" => "",
+					"data" => "",
+					"installmentNum" => "1",
+
+				);
+
+				if ($api->isLogin()) {
+					Mage::log('=========splitit logging start=========');
+					$ipnForLogs = Mage::getSingleton('core/session')->getSplititSessionid();
+					Mage::log('Splitit session Id : ' . $ipnForLogs);
+					$response["status"] = true;
+
+					$initResponse = Mage::getModel("pis_payment/pisPaymentFormMethod")->installmentplaninitForHostedSolution();
+
+					$response["data"] = $initResponse["data"];
+					if ($initResponse["status"]) {
+						$response["status"] = true;
+					}
+					if (isset($initResponse["emptyFields"]) && $initResponse["emptyFields"]) {
+						$response["data"] = $result["data"];
+					}
+					if (isset($initResponse["checkoutUrl"]) && $initResponse["checkoutUrl"] != "") {
+						$response["checkoutUrl"] = $initResponse["checkoutUrl"];
+		//                print_r($initResponse);
+						//                print_r($response);
+						//                die("--eeeeee");
+						$quote = Mage::getSingleton('checkout/session')->getQuote();
+						Mage::getSingleton('checkout/session')->setSplititQuoteId($quote->getId());
+						Mage::getSingleton('checkout/session')->setSplititCheckoutUrl($response["checkoutUrl"]);
+						Mage::getSingleton('checkout/session')->setSplititInstallmentPlanNumber($initResponse["installmentPlanNumber"]);
+
+						return Mage::getBaseUrl() . "payitsimple/payment/redirect";
+					} else {
+						Mage::throwException(
+							Mage::helper('payment')->__($response['data'])
+						);
+					}
+
+				} else {
+					foreach ($api->getError() as $key => $value) {
+						$response["error"] .= $value . " ";
+					}
+					Mage::throwException(
+						Mage::helper('payment')->__($response['error'])
+					);
+				}
+
+				return Mage::getUrl('checkout/cart', array('_secure' => true));
+	*/
 
 	public function assignData($data) {
 		if (!($data instanceof Varien_Object)) {
@@ -578,52 +680,6 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 		Mage::log('======= installmentplaninitForHostedSolution : params passed to Initit Api ======= : ');
 		Mage::log($params);
 
-		/* $params = [
-			            "RequestHeader" => [
-			                "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
-			                "ApiKey"    => $this->getConfigData('api_terminal_key', $storeId),
-			            ],
-			            "PlanData"      => [
-			                "Amount"    => [
-			                    "Value" => round(Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal(), 2),
-			                    "CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
-			                ],
-			                //"NumberOfInstallments" => $selectedInstallment,
-			                "PurchaseMethod" => "ECommerce",
-			                //"RefOrderNumber" => $quote_id,
-			                "FirstInstallmentAmount" => [
-			                    "Value" => $firstInstallmentAmount,
-			                    "CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
-			                ],
-			                "AutoCapture" => "false",
-			                "ExtendedParams" => [
-			                    "CreateAck" => "NotReceived"
-			                ],
-			            ],
-			            "BillingAddress" => [
-			                "AddressLine" => $billAddress->getStreet()[0],
-			                "AddressLine2" => $billAddress->getStreet()[1],
-			                "City" => $billAddress->getCity(),
-			                "State" => $billAddress->getRegion(),
-			                //"Country" => Mage::app()->getLocale()->getCountryTranslation($billAddress->getCountry()),
-			                "Country" => $billAddress->getCountry(),
-			                "Zip" => $billAddress->getPostcode(),
-			            ],
-			            "ConsumerData" => [
-			                "FullName" => $customerInfo["firstname"]." ".$customerInfo["lastname"],
-			                "Email" => $customerInfo["email"],
-			                "PhoneNumber" => $billAddress->getTelephone(),
-			                "CultureName" => $cultureName
-			            ],
-			            "PaymentWizardData" => [
-			                "RequestedNumberOfInstallments" => implode(',', array_keys($numOfInstallments)) ,
-			                "SuccessAsyncURL" => Mage::getBaseUrl()."payitsimple/payment/successAsync",
-			                "SuccessExitURL" => Mage::getBaseUrl()."payitsimple/payment/successExit",
-			                "CancelExitURL" => Mage::getBaseUrl()."payitsimple/payment/cancelExit"
-
-			            ],
-		*/
-		//$api = Mage::getSingleton("pis_payment/pisMethod");
 		try {
 			$response = array("status" => false, "data" => "", "checkoutUrl" => "");
 			// check if cunsumer dont filled data

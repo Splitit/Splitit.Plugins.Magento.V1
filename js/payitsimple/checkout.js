@@ -117,6 +117,69 @@ jQuery(document).ready(function(){
 		}
     	
     });
+
+    /*forter code*/
+
+    var cookies = getTokenCookies();
+    /*var requestData = {
+        "PlanData":{}
+    };*/
+    var requestData = {};
+        if (cookies != null && cookies.length > 0) {
+            /*if (!requestData.PlanData["ExtendedParams"]) {
+                requestData.PlanData["ExtendedParams"] = {};
+            }*/
+            for (var i = 0; i < cookies.length; i++) {
+                var tempObj = cookies[i];
+                var objKeys = Object.keys(tempObj)
+                for (var j in objKeys) {
+                    var key = objKeys[j];
+                    /*requestData.PlanData.ExtendedParams[key] = tempObj[key];*/
+                    requestData[key] = tempObj[key];
+                }
+            }
+        }
+        console.log(requestData);
+
+    
+
+    // get external suppliers(fraud detectors) cookie array
+    function getTokenCookies() {
+        var externalTokens = {
+            'Forter': 'forterToken'
+        };
+        var cookies = [];
+        var keys = Object.keys(externalTokens);
+        for (var f of keys) {
+            var cookie = getCookie(externalTokens[f]);
+            if (cookie != -1) {
+                var obj = {};
+                obj[externalTokens[f]] = cookie;
+                cookies.push(obj);
+            }
+        }
+        return cookies;
+
+    }
+    // get cookie by name
+    function getCookie(name) {
+        var cookieKey = name + "=";
+        var baseCookies = decodeURIComponent(document.cookie);
+        var cookieArray = baseCookies.split(';');
+
+        for (var i = 0; i < cookieArray.length; i++) {
+            var cookie = cookieArray[i];
+            while (cookie.charAt(0) == ' ') {
+                cookie = cookie.substring(1);
+            }
+            if (cookie.indexOf(cookieKey) > -1) {
+                return cookie.substring(cookieKey.length, cookie.length); 
+            }
+        }
+        return -1;
+    }
+
+    /*forter code*/
     
     /*jQuery("#payment_form_pis_cc li").on("click",function(){
     	alert("sdfsfd");
@@ -131,7 +194,7 @@ jQuery(document).ready(function(){
 	        type : 'POST',
 	        async: true,
 	        dataType:'json',
-	        data:{},
+	        data:{'ForterToken':requestData},
 	        success : function(obj){	        	
 	        	
 	            if (obj.status == true) {
@@ -269,6 +332,7 @@ function installmentPlanInit(){
 	        	
 	            if (obj.status == true) {
 	            	jQuery("#approval-popup").remove();
+	            	console.log(obj.data);
 	            	jQuery('body').append(obj.data);
 
 	            }else {
