@@ -72,6 +72,7 @@
         <block type="core/template" name="payitsimple.terms" template="payitsimple/terms.phtml" />
         <reference name="head">
             <action method="addJs"><file>payitsimple/jquery-1.12.4.js</file></action>
+            <action method="addJs"><file>payitsimple/Forterloader.js</file><defer>defer id="4f4d4e1c2c91"</defer></action>
             <action method="addJs"><file>payitsimple/checkout.js</file></action>
             <action method="addCss"><stylesheet>css/pis_checkout.css</stylesheet></action>
         </reference>

@@ -45,6 +45,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 
 		$storeId = Mage::app()->getStore()->getStoreId();
 		$api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
+		$params = $this->getRequest()->getParams();
 
 		$installmentsInDropdown = array();
 		$response = array(
@@ -54,6 +55,11 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 			"data" => "",
 			"installmentNum" => "1",
 		);
+
+		$forterToken = Mage::getStoreConfig('payment/pis_cc/fortertoken');
+		if($forterToken){
+			Mage::getSingleton('core/session')->setSplititForterToken(isset($params['ForterToken'])?$params['ForterToken']:null);
+		}
 
 		if ($api->isLogin()) {
 			Mage::log('=========splitit logging start=========');
