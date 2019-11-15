@@ -538,7 +538,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		// get plan number info from database table SPLITIT_HOSTED_SOLUTION
 		$sqlLoad = Mage::getModel('pis_payment/pispayment')->load($params["InstallmentPlanNumber"], 'installment_plan_number');
 		$data = $sqlLoad->getData();
-		print_r($data);exit;
+		/*print_r($data);exit;*/
 
 		if (count($data) && $data["order_id"] == 0 && $data["order_increment_id"] == null) {
 			return json_encode(array('success' => false, 'error' => 'Order does not exist for this IPN.'));
@@ -548,7 +548,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		$storeId = Mage::app()->getStore()->getStoreId();
 		$api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
 		$planDetails = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->getInstallmentPlanDetails($api);
-		print_r($planDetails);exit;
+		/*print_r($planDetails);exit;*/
 		Mage::log('======= get installmentplan details :  ======= ');
 		Mage::log($planDetails);
 
