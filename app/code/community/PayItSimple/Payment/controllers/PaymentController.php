@@ -185,7 +185,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		$quoteGrandTotal = number_format((float) $quote->getGrandTotal(), 2, '.', '');
 		//echo ;die;
 
-		if (count($data) && $quote->getId() == $data["quote_id"] && $quoteGrandTotal == $planDetails["grandTotal"] && ($planDetails["planStatus"] == "PendingMerchantShipmentNotice" || $planDetails["planStatus"] == "InProgress")) {
+		if (count($data) && $quote->getId() == $data["quote_id"] && $quoteGrandTotal == $planDetails["grandTotal"] && (($planDetails["planStatus"] == "PendingMerchantShipmentNotice" || $planDetails["planStatus"] == "InProgress")||($planDetails["numberOfInstallments"]==1 && $planDetails["planStatus"] == "Cleared"))) {
 			//create order
 			$convertQuote = Mage::getModel('sales/quote')->load($quote->getId());
 			$convertQuote->collectTotals();
@@ -449,7 +449,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		$quoteGrandTotal = number_format((float) $quote->getGrandTotal(), 2, '.', '');
 		//echo ;die;
 
-		if (count($data) && $quote->getId() == $data["quote_id"] && $quoteGrandTotal == $planDetails["grandTotal"] && ($planDetails["planStatus"] == "PendingMerchantShipmentNotice" || $planDetails["planStatus"] == "InProgress")) {
+		if (count($data) && $quote->getId() == $data["quote_id"] && $quoteGrandTotal == $planDetails["grandTotal"] && (($planDetails["planStatus"] == "PendingMerchantShipmentNotice" || $planDetails["planStatus"] == "InProgress")||($planDetails["numberOfInstallments"]==1 && $planDetails["planStatus"] == "Cleared"))) {
 			//create order
 			$convertQuote = Mage::getModel('sales/quote')->load($quote->getId());
 			$convertQuote->collectTotals();
