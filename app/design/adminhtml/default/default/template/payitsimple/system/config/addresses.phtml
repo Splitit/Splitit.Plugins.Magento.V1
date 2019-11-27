@@ -89,12 +89,14 @@ function extractLast( term ) {
 
 function autoPopulateProds(prodList){
   var prodIds = jQuery(prodList).val();
+  alert(prodIds);
   jQuery.ajax({
-    url: baseUrl + "payitsimple/payment/prodlist",
+    url: '<?php echo $this->getAjaxProdListUrl(); ?>',
     data: {isAjax: 1, prodIds: prodIds},
     type: 'POST',
     dataType: 'json',
     success: function(result){
+      alert(result);
       console.log(result);
       result.forEach(function(ash){
         jQuery('<div class="search-item-box" title="'+ash.label+'" data-proid="'+ash.value+'">'
@@ -123,7 +125,7 @@ function autoCompleteWizard(prodList){
   .autocomplete({
     minLength: 3,
     source: function( request, response ) {
-      jQuery.getJSON( baseUrl + "payitsimple/payment/prodlist", {
+      jQuery.getJSON( '<?php echo $this->getAjaxProdListUrl(); ?>', {
         isAjax: 1, term: extractLast( request.term )
       }, response );
     },
@@ -189,7 +191,7 @@ function autoCompleteWizard(prodList){
 function autoPopulateProds1(prodList1){
   var prodIds1 = jQuery(prodList1).val();
   jQuery.ajax({
-    url: baseUrl + "payitsimple/payment/prodlist",
+    url: '<?php echo $this->getAjaxProdListUrl(); ?>',
     data: {isAjax: 1, prodIds: prodIds1},
     type: 'POST',
     dataType: 'json',
@@ -222,7 +224,7 @@ function autoCompleteWizard1(prodList1){
   .autocomplete({
     minLength: 3,
     source: function( request1, response1 ) {
-      jQuery.getJSON( baseUrl + "payitsimple/payment/prodlist", {
+      jQuery.getJSON( '<?php echo $this->getAjaxProdListUrl(); ?>', {
         isAjax: 1, term: extractLast( request1.term )
       }, response1 );
     },

@@ -287,13 +287,27 @@ public $_storeId = "";
 
    // code for translation
 
-   
-
-
-
-   
-
-
- 
+   /**
+     * Return ajax url for button
+     *
+     * @return string
+     */
+    public function getAjaxProdListUrl()
+    {
+        if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) // store level
+        {
+            $store_id = Mage::getModel('core/store')->load($code)->getId();
+        }
+        elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) // website level
+        {
+            $website_id = Mage::getModel('core/website')->load($code)->getId();
+            $store_id = Mage::app()->getWebsite($website_id)->getDefaultStore()->getId();
+        }
+        else // default level
+        {
+            $store_id = 0;
+        }
+        return Mage::helper('adminhtml')->getUrl('adminhtml/adminhtml_payitsimple/prodlist', array('store_id' => $store_id));
+    } 
    
 }

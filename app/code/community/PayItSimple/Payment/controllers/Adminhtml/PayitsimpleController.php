@@ -116,4 +116,17 @@ class PayItSimple_Payment_Adminhtml_PayitsimpleController extends Mage_Adminhtml
 		Mage::app()->getResponse()->setBody(Mage::helper('core')->jsonEncode($finalResult));
 		return true;
 	}
+
+	public function prodlistAction() {
+		$params = $this->getRequest()->getParams();
+		$result = array();
+		if (isset($params['isAjax']) && $params['isAjax']) {
+			$Productlist = Mage::getSingleton('pis_payment/source_productskus');
+			if ((isset($params['term']) && $params['term']) || (isset($params['prodIds']) && $params['prodIds'])) {
+				$result = $Productlist->toOptionArray($params);
+			}
+		}
+		Mage::app()->getResponse()->setBody(Mage::helper('core')->jsonEncode($result));
+		return true;
+	}
 }
