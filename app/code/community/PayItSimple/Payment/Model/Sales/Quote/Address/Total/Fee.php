@@ -30,7 +30,7 @@ class PayItSimple_Payment_Model_Sales_Quote_Address_Total_Fee extends Mage_Sales
         if ($feeModel->canApply($address)) {
             $exist_amount = $quote->getFeeAmount();
             $fee          = $feeModel->getFee($address);
-            $balance      = $fee - $exist_amount;
+            $balance      = floatval($fee) - floatval($exist_amount);
             $address->setFeeAmount($balance);
             $address->setBaseFeeAmount($balance);
             $quote->setFeeAmount($balance);

@@ -3,6 +3,13 @@ var isLogedIn = 0;
 var isLoging = 0;
 var curUrl      = window.location.href; 
 var baseUrl = "";
+function getBaseUrl(){
+	baseUrl = jQuery(".redirect-class").attr("data-baseurl");
+	if(typeof baseUrl === 'undefined'){
+		baseUrl = window.location.origin+'/';
+	}
+	return baseUrl;
+}
 jQuery(document).ready(function(){
 
 	//tell me more button
@@ -22,10 +29,7 @@ jQuery(document).ready(function(){
 	var samePayment = "";
 	
 	//baseUrl = jQuery("#payment-img").attr("data-baseurl");
-	baseUrl = jQuery(".redirect-class").attr("data-baseurl");
-	if(typeof baseUrl === 'undefined'){
-		baseUrl = window.location.origin+'/';
-	}
+	getBaseUrl();
 
 
 	jQuery(document).on("click", "#payment-schedule-link", function(){
@@ -190,7 +194,7 @@ jQuery(document).ready(function(){
 		jQuery("body").find("#dt_method_pis_cc .pis-login-loader").show();
 		jQuery("body").find(".terms-condition-loader").hide();
 		jQuery.ajax({
-	        url : baseUrl+"payitsimple/payment/apiLogin/",
+	        url : getBaseUrl()+"payitsimple/payment/apiLogin/",
 	        type : 'POST',
 	        async: true,
 	        dataType:'json',
@@ -324,7 +328,7 @@ function installmentPlanInit(){
 	jQuery('#pis_cc_terms').prop('checked', false);
 	if(isLogedIn){
 		jQuery.ajax({
-	        url : baseUrl+"payitsimple/payment/installmentplaninit/",
+	        url : getBaseUrl()+"payitsimple/payment/installmentplaninit/",
 	        type : 'POST',
 	        dataType:'json',
 	        data:{"selectedInstallment":selectedInstallment},

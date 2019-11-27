@@ -288,16 +288,27 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		$storeId = Mage::app()->getStore()->getStoreId();
 
 		$selectedInstallment = $payment->getInstallmentsNo();
+		$checkout = Mage::getSingleton('checkout/session')->getQuote();
+		$billAddress = $checkout->getBillingAddress();
+		
+		$customerInfo = Mage::getSingleton('customer/session')->getCustomer()->getData();
+		if (!isset($customerInfo["firstname"])) {
+			$customerInfo["firstname"] = $billAddress->getFirstname();
+			$customerInfo["lastname"] = $billAddress->getLastname();
+			$customerInfo["email"] = $billAddress->getEmail();
+		}
+
+		// Mage::throwException(print_r($billAddress->getData(),true));
+		$errorMsg = "";
+		$validateFields = $this->checkForBillingFieldsEmpty($billAddress, $customerInfo);
+		if (isset($validateFields['status']) && !$validateFields['status']) {
+			$errorMsg = $validateFields['errorMsg'];
+		}
+		if($errorMsg){
+			Mage::throwException($errorMsg);
+		}
 		if ($selectedInstallment == 1) {
 			$firstInstallmentAmount = $this->getFirstInstallmentAmount($selectedInstallment);
-			$checkout = Mage::getSingleton('checkout/session')->getQuote();
-			$billAddress = $checkout->getBillingAddress();
-			$customerInfo = Mage::getSingleton('customer/session')->getCustomer()->getData();
-			if (!isset($customerInfo["firstname"])) {
-				$customerInfo["firstname"] = $billAddress->getFirstname();
-				$customerInfo["lastname"] = $billAddress->getLastname();
-				$customerInfo["email"] = $billAddress->getEmail();
-			}
 			$autoCapture = false;
 			$paymentAction = Mage::getStoreConfig('payment/pis_cc/payment_action');
 			if ($paymentAction == "authorize_capture") {
@@ -391,6 +402,21 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 					"CardNumber" => $payment->getCcNumber(),
 					"CardExpYear" => $payment->getCcExpYear(),
 					"CardExpMonth" => $payment->getCcExpMonth(),
+				),
+				"BillingAddress" => array(
+					"AddressLine" => $billAddress->getStreet()[0],
+					"AddressLine2" => $billAddress->getStreet()[1],
+					"City" => $billAddress->getCity(),
+					"State" => $billAddress->getRegion(),
+					//"Country" => Mage::app()->getLocale()->getCountryTranslation($billAddress->getCountry()),
+					"Country" => $billAddress->getCountry(),
+					"Zip" => $billAddress->getPostcode(),
+				),
+				"ConsumerData" => array(
+					"FullName" => $customerInfo["firstname"] . " " . $customerInfo["lastname"],
+					"Email" => $customerInfo["email"],
+					"PhoneNumber" => $billAddress->getTelephone(),
+					"CultureName" => $cultureName,
 				),
 				"PlanApprovalEvidence" => array(
 					"AreTermsAndConditionsApproved" => "True",
@@ -556,45 +582,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		}
 		$cultureName = Mage::helper('pis_payment')->getCultureName();
 		$params = $this->installmentplaninitParams($firstInstallmentAmount, $billAddress, $customerInfo, $cultureName, null, $selectedInstallment);
-		/*$params = [
-			            "RequestHeader" => [
-			                "SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
-			                "ApiKey"    => $this->getConfigData('api_terminal_key', $storeId),
-			            ],
-			            "PlanData"      => [
-			                "Amount"    => [
-			                    "Value" => round(Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal(), 2),
-			                    "CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
-			                ],
-			                "NumberOfInstallments" => $selectedInstallment,
-			                "PurchaseMethod" => "ECommerce",
-			                //"RefOrderNumber" => $quote_id,
-			                "FirstInstallmentAmount" => [
-			                    "Value" => $firstInstallmentAmount,
-			                    "CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
-			                ],
-			                "AutoCapture" => "false",
-			                "ExtendedParams" => [
-			                    "CreateAck" => "NotReceived"
-			                ],
-			            ],
-			            "BillingAddress" => [
-			                "AddressLine" => $billAddress->getStreet()[0],
-			                "AddressLine2" => $billAddress->getStreet()[1],
-			                "City" => $billAddress->getCity(),
-			                "State" => $billAddress->getRegion(),
-			                //"Country" => Mage::app()->getLocale()->getCountryTranslation($billAddress->getCountry()),
-			                "Country" => $billAddress->getCountry(),
-			                "Zip" => $billAddress->getPostcode(),
-			            ],
-			            "ConsumerData" => [
-			                "FullName" => $customerInfo["firstname"]." ".$customerInfo["lastname"],
-			                "Email" => $customerInfo["email"],
-			                "PhoneNumber" => $billAddress->getTelephone(),
-			                "CultureName" => $cultureName
-			            ],
-		*/
-		//$api = Mage::getSingleton("pis_payment/pisMethod");
 		try {
 			$response = array("status" => false, "data" => "");
 			// check if cunsumer dont filled data
@@ -605,12 +592,12 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 				return $response;
 			}*/
 
-			$validateFields = $this->checkForBillingFieldsEmpty($billAddress, $customerInfo);
+			/*$validateFields = $this->checkForBillingFieldsEmpty($billAddress, $customerInfo);
 			if (!$validateFields['status']) {
 				$response["emptyFields"] = true;
 				$response["data"] = $validateFields['errorMsg'];
 				return $response;
-			}
+			}*/
 
 			Mage::log('=========splitit : InstallmentPlan Init Params for embedded =========');
 			Mage::log($params);
@@ -677,23 +664,29 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 	public function checkForBillingFieldsEmpty($billingAddress, $customerInfo) {
 
 		$response = ["errorMsg" => "", "successMsg" => "", "status" => false];
-		if ($billingAddress->getStreet()[0] == "" || $billingAddress->getCity() == "" || $billingAddress->getPostcode() == "" || $customerInfo["firstname"] == "" || $customerInfo["lastname"] == "" || $customerInfo["email"] == "" || $billingAddress->getTelephone() == "") {
-			$response["errorMsg"] = "Please fill required fields.";
-		} else if (strlen($billingAddress->getTelephone()) < 5 || strlen($billingAddress->getTelephone()) > 10) {
-
-			$response["errorMsg"] = __("Splitit does not accept phone number less than 5 digits or greater than 10 digits.");
+		// print_r($billingAddress->getData());exit;
+		if ($customerInfo["email"] == "") {
+			$response["errorMsg"] = __("Splitit does not accept empty email field.");
+		} elseif (!$customerInfo['firstname']) {
+			$response["errorMsg"] = __("Splitit does not accept empty firstname field.");
+		} elseif (!$customerInfo['lastname']) {
+			$response["errorMsg"] = __("Splitit does not accept empty lastname field.");
+		} elseif (!$billingAddress->getTelephone()) {
+			$response["errorMsg"] = __("Splitit does not accept empty phone field.");
+		} else if (strlen($billingAddress->getTelephone()) < 5 || strlen($billingAddress->getTelephone()) > 19) {
+			$response["errorMsg"] = __("Splitit does not accept phone number less than 5 digits or greater than 19 digits.");
+		} elseif (!$billingAddress->getStreet()) {
+			$response["errorMsg"] = __("Splitit does not accept empty street field.");
 		} elseif (!$billingAddress->getCity()) {
 			$response["errorMsg"] = __("Splitit does not accept empty city field.");
 		} elseif (!$billingAddress->getCountry()) {
-			$response["errorMsg"] = ("Splitit does not accept empty country field.");
+			$response["errorMsg"] = __("Splitit does not accept empty country field.");
 		} elseif (!$billingAddress->getPostcode()) {
-			$response["errorMsg"] = ("Splitit does not accept empty postcode field.");
-		} elseif (!$customerInfo["firstname"]) {
-			$response["errorMsg"] = ("Splitit does not accept empty customer name field.");
+			$response["errorMsg"] = __("Splitit does not accept empty postcode field.");;
 		} elseif (strlen($customerInfo["firstname"] . ' ' . $customerInfo['lastname']) < 3) {
-			$response["errorMsg"] = ("Splitit does not accept less than 3 characters customer name field.");
+			$response["errorMsg"] = __("Splitit does not accept less than 3 characters customer name field.");
 		} elseif (!filter_var($customerInfo['email'], FILTER_VALIDATE_EMAIL)) {
-			$response["errorMsg"] = ("Splitit does not accept invalid customer email field.");
+			$response["errorMsg"] = __("Splitit does not accept invalid customer email field.");
 		} else {
 			$response["status"] = true;
 		}
@@ -910,7 +903,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 					"CreateAck" => "NotReceived",
 				),
 			),
-			"BillingAddress" => array(
+			/*"BillingAddress" => array(
 				"AddressLine" => $getStreet[0],
 				"AddressLine2" => $getStreet[1],
 				"City" => $billAddress->getCity(),
@@ -924,7 +917,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 				"Email" => $customerInfo["email"],
 				"PhoneNumber" => $billAddress->getTelephone(),
 				"CultureName" => $cultureName,
-			),
+			),*/
 			/*"PaymentWizardData" => [
 				                "RequestedNumberOfInstallments" => implode(',', array_keys($numOfInstallments)) ,
 				                "SuccessAsyncURL" => Mage::getBaseUrl()."payitsimple/payment/successAsync",

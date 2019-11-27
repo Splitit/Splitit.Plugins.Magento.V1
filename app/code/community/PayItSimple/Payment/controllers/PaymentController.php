@@ -96,6 +96,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 
 	public function installmentplaninitAction() {
 		// Mage::getModel('pis_payment/pispayment')->sayhello();
+		$api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
 		Mage::log('=========splitit : InstallmentPlan Init for Embedded =========');
 		$params = $this->getRequest()->getParams();
 		$selectedInstallment = "";
