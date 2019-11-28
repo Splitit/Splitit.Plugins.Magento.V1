@@ -89,11 +89,10 @@ function extractLast( term ) {
 
 function autoPopulateProds(prodList){
   var prodIds = jQuery(prodList).val();
-  alert(prodIds);
   jQuery.ajax({
     url: '<?php echo $this->getAjaxProdListUrl(); ?>',
     data: {isAjax: 1, prodIds: prodIds},
-    type: 'POST',
+    type: 'GET',
     dataType: 'json',
     success: function(result){
       alert(result);
@@ -193,7 +192,7 @@ function autoPopulateProds1(prodList1){
   jQuery.ajax({
     url: '<?php echo $this->getAjaxProdListUrl(); ?>',
     data: {isAjax: 1, prodIds: prodIds1},
-    type: 'POST',
+    type: 'GET',
     dataType: 'json',
     success: function(result1){
       console.log(result1);
