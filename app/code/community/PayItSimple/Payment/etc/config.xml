@@ -42,15 +42,15 @@
                     </sip_payment_payment_method_is_active>
                 </observers>
             </payment_method_is_active>
-             <sales_model_service_quote_submit_before>
-        <observers>
-            <validateAddress_pispaymentmethod>
-                <type>singleton</type>
-                <class>pis_payment/observer</class>
-                <method>validateAddress</method>
-            </validateAddress_pispaymentmethod>
-        </observers>
-    </sales_model_service_quote_submit_before>
+            <!-- <sales_model_service_quote_submit_before>
+                <observers>
+                    <validateAddress_pispaymentmethod>
+                        <type>singleton</type>
+                        <class>pis_payment/observer</class>
+                        <method>validateAddress</method>
+                    </validateAddress_pispaymentmethod>
+                </observers>
+            </sales_model_service_quote_submit_before> -->
         </events>
     </frontend>
     <admin>

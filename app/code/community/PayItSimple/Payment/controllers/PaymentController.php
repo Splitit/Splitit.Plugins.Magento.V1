@@ -240,6 +240,8 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 			//$orderObj->queueNewOrderEmail();
 			$orderObj->sendNewOrderEmail();
 			$orderObj->save();
+			$orderId = $orderObj->getId();
+			$orderIncrementId = $orderObj->getIncrementId();
 
 			// update order_created in splitit_hosted_solution
 			$db_write = Mage::getSingleton('core/resource')->getConnection('core_write');

@@ -72,8 +72,10 @@
 	} else {
 		if($current_page == "cart" || $current_page=="checkout"){
 			echo $this->getChildHtml('child');
-		}else{
+		} elseif($this->getProduct()) {
 			echo $this->getChildHtml('child'.$this->getProduct()->getId());
+		} else {
+			echo $this->getChildHtml('child');
 		}
 	}
 ?>

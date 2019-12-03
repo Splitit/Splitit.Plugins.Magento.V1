@@ -95,7 +95,7 @@ function autoPopulateProds(prodList){
     type: 'GET',
     dataType: 'json',
     success: function(result){
-      alert(result);
+      // alert(result);
       console.log(result);
       result.forEach(function(ash){
         jQuery('<div class="search-item-box" title="'+ash.label+'" data-proid="'+ash.value+'">'
