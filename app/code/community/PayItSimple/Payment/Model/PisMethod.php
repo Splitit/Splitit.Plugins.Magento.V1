@@ -584,20 +584,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		$params = $this->installmentplaninitParams($firstInstallmentAmount, $billAddress, $customerInfo, $cultureName, null, $selectedInstallment);
 		try {
 			$response = array("status" => false, "data" => "");
-			// check if cunsumer dont filled data
-			/*$bags = $billAddress->getStreet();
-			if ($bags[0] == "" || $billAddress->getCity() == "" || $billAddress->getPostcode() == "" || $customerInfo["firstname"] == "" || $customerInfo["lastname"] == "" || $customerInfo["email"] == "" || $billAddress->getTelephone() == "") {
-				$response["emptyFields"] = true;
-				$response["data"] = "Please fill required fields.";
-				return $response;
-			}*/
-
-			/*$validateFields = $this->checkForBillingFieldsEmpty($billAddress, $customerInfo);
-			if (!$validateFields['status']) {
-				$response["emptyFields"] = true;
-				$response["data"] = $validateFields['errorMsg'];
-				return $response;
-			}*/
 
 			Mage::log('=========splitit : InstallmentPlan Init Params for embedded =========');
 			Mage::log($params);

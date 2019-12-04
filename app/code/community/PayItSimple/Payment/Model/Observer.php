@@ -17,7 +17,13 @@ class PayItSimple_Payment_Model_Observer {
 				$_block->setChild('child' . $_child->getProduct()->getId(), $_child);
 			}
 			if ($this->checkProductBasedAvailability("pis_cc") || $this->checkProductBasedAvailability("pis_paymentform")) {
-				$_block->setTemplate('payitsimple/splitprice.phtml');
+				if($_child->getProduct() && $_child->getProduct()->getId()){ 
+					if($this->isSplititTextVisibleOnProduct("pis_cc", $_child->getProduct()->getId()) || $this->isSplititTextVisibleOnProduct("pis_paymentform", $_child->getProduct()->getId())){
+						$_block->setTemplate('payitsimple/splitprice.phtml');
+					}
+				} else {
+					$_block->setTemplate('payitsimple/splitprice.phtml');
+				}
 			}
 		}
 	}
@@ -108,7 +114,7 @@ class PayItSimple_Payment_Model_Observer {
 		$check = TRUE;
 		if (Mage::getStoreConfig('payment/' . $paymentMethod . '/splitit_per_product')) {
 			$cart = Mage::getSingleton('checkout/session')->getQuote();
-// get array of all items what can be display directly
+			// get array of all items what can be display directly
 			$itemsVisible = $cart->getAllVisibleItems();
 			$allowedProducts = Mage::getStoreConfig('payment/' . $paymentMethod . '/splitit_product_skus');
 			$allowedProducts = explode(',', $allowedProducts);
@@ -131,8 +137,22 @@ class PayItSimple_Payment_Model_Observer {
 				}
 			}
 		}
-//        var_dump($check);
+		// var_dump($check);
 		return $check;
+	}
+
+	public function isSplititTextVisibleOnProduct($paymentMethod,$productId) {
+		$show = TRUE;
+		if (Mage::getStoreConfig('payment/' . $paymentMethod . '/splitit_per_product') != 0) {
+			$show = FALSE;
+			$allowedProducts = Mage::getStoreConfig('payment/' . $paymentMethod . '/splitit_product_skus');
+			$allowedProducts = explode(',', $allowedProducts);
+			if (in_array($productId, $allowedProducts)) {
+				$show = TRUE;
+			}
+		}
+		// var_dump($show);
+		return $show;
 	}
 
 	public function orderCancelAfter(Varien_Event_Observer $observer) {
