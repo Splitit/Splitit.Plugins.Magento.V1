@@ -86,6 +86,9 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 
 			);
 
+			if (!$api->isLogin()) {
+				$api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId = null);
+			}
 			if ($api->isLogin()) {
 				Mage::log('=========splitit logging start=========');
 				$ipnForLogs = Mage::getSingleton('core/session')->getSplititSessionid();

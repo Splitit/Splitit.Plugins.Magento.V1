@@ -115,8 +115,11 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 			//echo $jsonData = Mage::helper('core')->jsonEncode($response);
 			return;
 		}
-		$api = Mage::getSingleton("pis_payment/pisMethod");
 		$splititSessionId = Mage::getSingleton('core/session')->getSplititSessionid();
+		if ($splititSessionId == "") {
+			$api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
+		}
+		$api = Mage::getSingleton("pis_payment/pisMethod");
 
 		if ($splititSessionId != "") {
 			$result = Mage::getSingleton("pis_payment/pisMethod")->installmentplaninit($api, $selectedInstallment);
