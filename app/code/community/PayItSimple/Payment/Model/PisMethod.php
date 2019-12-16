@@ -885,9 +885,9 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 					"CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
 				),
 				"AutoCapture" => $autoCapture,
-				"ExtendedParams" => array(
+				/*"ExtendedParams" => array(
 					"CreateAck" => "NotReceived",
-				),
+				),*/
 			),
 			/*"BillingAddress" => array(
 				"AddressLine" => $getStreet[0],
@@ -912,6 +912,18 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 
 			*/
 		);
+
+		/*forter token*/
+		$forterToken = Mage::getSingleton('core/session')->getSplititForterToken();
+		if(!$forterToken){
+			if(!isset($params["PlanData"])){
+				$params["PlanData"] = array();
+			}
+			if(!isset($params["PlanData"]['ExtendedParams'])){
+				$params["PlanData"]['ExtendedParams'] = array();
+			}
+			$params["PlanData"]['ExtendedParams']['CreateAck'] = "NotReceived";
+		}
 
 		$cart = Mage::helper('checkout/cart')->getCart()->getQuote();
 		$itemsArr = array();
