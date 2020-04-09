@@ -186,11 +186,11 @@ class PayItSimple_Payment_Block_Adminhtml_Translate extends Mage_Adminhtml_Block
 			'visa' => 'Visa',
 			'mastercard' => 'MasterCard',
 			'tc_approval' => 'Approval',
-			'tc_clicktoapprovetermsandconditions' => 'Click To Approve Terms and Conditions',
+			'tc_clicktoapprovetermsandconditions' => 'Check Schedule',
 			'ecomm_no_interest' => 'or {NOI} interest-free payments of {AMOUNT} with SPLITIT',
 			'ecomm_tell_me_more' => 'Tell me more',
 			'common_pleaseselect' => 'Please Select',
-			'common_i_approve' => 'I Approve',
+			'common_i_approve' => 'Close',
 			'ecomm_redirect_to_payment_form' => 'You will redirect to secured payment form',
 
 		);

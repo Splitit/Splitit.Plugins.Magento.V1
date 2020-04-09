@@ -6,7 +6,7 @@ public $_storeId = "";
  public function __construct()
     {
          parent::_construct();
-        //$this->setTemplate('payitsimple/system/config/button.phtml');
+        /* $this->setTemplate('payitsimple/system/config/button.phtml'); */
          // get store id in admin
          if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) // store level
           {
@@ -169,7 +169,6 @@ public $_storeId = "";
                   '.$this->_getSelectedCurrency($value->doctv->currency).'
                 </select>  
                </td>';
-        //$rowHtml .= '<td>'.$this->_getBaseCurrency().'</td>';         
         $rowHtml .= '<td>
                 <button title="Delete Tier" type="button" class="scalable delete icon-btn delete-product-option" onclick="deleteRow(this);"><span><span><span>Delete</span></span></span></button>
                </td>

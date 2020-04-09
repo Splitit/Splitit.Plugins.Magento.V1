@@ -87,12 +87,16 @@
         </div>
     </li>
     <li style="margin-bottom: 0;<?php reset($availableInstallments); echo ($countAvailInstallment==1 && key($availableInstallments)==1)?'display: none;':''; ?>">
+        <span class="apr-tc" onclick="installmentPlanInit()" style="margin-bottom: 12px;margin-top: 12px;"><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('tc_clicktoapprovetermsandconditions'); ?></span>
+
         <label class="required" style="display: block; float: none;"><em>*</em><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('tc_approval'); ?></label>
-        <span class="apr-tc" onclick="installmentPlanInit()"><?php echo Mage::helper('pis_payment')->getCreditCardFormTranslation('tc_clicktoapprovetermsandconditions'); ?></span>
+
+        <span for="aprove" class="i_aprove" style="width: 100%; float:left; margin: 10px 0px 10px 0px;">
+        <input type="checkbox" name="terms" class="i_aprove required-entry" id="iaprove" style="margin-right: 6px;">I approve the <a target="_blank" href="https://www.splitit.com/legals/splitit-shopper-terms-conditions/">Terms & Conditions</a> and the <a href="https://www.splitit.com/legals/splitit-privacy-cookies-policy/" target="_blank">Privacy Policy</a></span>
         <span class="terms-condition-loader"><img src="<?php echo Mage::getBaseUrl('js').'payitsimple/payitsimplepament/opc-ajax-loader.gif' ?>" /></span>
     </li>
     <li class="terms-conditions">
-        <input style="<?php echo ($countAvailInstallment==1 && key($availableInstallments)==1)?'position: inline-block;':'visibility: hidden; position: absolute;'; ?> float: left; margin-right: 5px; margin-top: 2px;" type="checkbox" id="<?php echo $_code ?>_terms" name="" class="required-entry" value="1" />
+        <input style="<?php echo ($countAvailInstallment==1 && key($availableInstallments)==1)?'position: inline-block;':'visibility: hidden; position: absolute;'; ?> float: left; margin-right: 5px; margin-top: 2px;" type="checkbox" id="<?php echo $_code ?>_terms" name="" class="required-entry" value="1" checked />
         <label for="<?php echo $_code ?>_terms" class="required" style="height: 0; <?php echo ($countAvailInstallment==1 && key($availableInstallments)==1)?'':'display: none;'; ?>">
             <em>*</em><?php echo $this->__('I acknowledge that I have read and agree to the %s terms and conditions %s','<a href="#" style="float:none; margin-left:0px;" onclick="popWin(\'' . 'http://www.splitit.com/legal/customers-terms-and-conditions/' . "', 'terms and conditions', 'width=750,height=607,left=0,top=0,location=no,status=no,scrollbars=yes,resizable=no'); return false;\">",'</a>') ?>
         </label>

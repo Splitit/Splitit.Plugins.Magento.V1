@@ -290,6 +290,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		$selectedInstallment = $payment->getInstallmentsNo();
 		$checkout = Mage::getSingleton('checkout/session')->getQuote();
 		$billAddress = $checkout->getBillingAddress();
+
+		$splititTnCapproved = Mage::getSingleton('core/session')->getSplititTnCapproved();
 		
 		$customerInfo = Mage::getSingleton('customer/session')->getCustomer()->getData();
 		if (!isset($customerInfo["firstname"])) {
@@ -358,7 +360,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 					"CultureName" => $cultureName,
 				],
 				"PlanApprovalEvidence" => [
-					"AreTermsAndConditionsApproved" => "True",
+					"AreTermsAndConditionsApproved" => $splititTnCapproved?"True":"False",
 				],
 			];
 			$cart = Mage::helper('checkout/cart')->getCart()->getQuote();
@@ -419,7 +421,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 					"CultureName" => $cultureName,
 				),
 				"PlanApprovalEvidence" => array(
-					"AreTermsAndConditionsApproved" => "True",
+					"AreTermsAndConditionsApproved" => $splititTnCapproved?"True":"False",
 				),
 			);
 		}
@@ -437,6 +439,9 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 				$params["PlanData"]['ExtendedParams'][$fTkey] = $fTvalue;
 			}
 		}
+
+		Mage::log("====INSTALLMENT CREATE=======");
+		Mage::log(json_encode($params));
 
 		$result = $api->createInstallmentPlan($this->getApiUrl(), $params);
 		if (isset($result["ResponseHeader"]) && isset($result["ResponseHeader"]["Errors"]) && !empty($result["ResponseHeader"]["Errors"])) {
@@ -1155,7 +1160,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$html .= '<div>';
 			$html .= '<div class="important_note_sec" style="">' . $approvalUrlResponseArr["ImportantNotesSection"]["ImportantNotesHeader"]["Text"] . ':</div>';
 			$html .= '<div class="pnlEula" style="">' . $approvalUrlResponseArr["ImportantNotesSection"]["ImportantNotesBody"]["Text"] . '</div>';
-			$html .= '<div id="i_acknowledge_area"><input type="checkbox" id="i_acknowledge" class="i_acknowledge" name="i_acknowledge" value="" />';
+			$html .= '<div id="i_acknowledge_area" style="display:none;"><input type="checkbox" checked id="i_acknowledge" class="i_acknowledge" name="i_acknowledge" value="" />';
 			$html .= '<label for="i_acknowledge" class="i_acknowledge_lbl">';
 			// id="i_acknowledge_content_show" this is the id for Terms & Condition link It shows all the content in popup
 			$html .= $approvalUrlResponseArr["ImportantNotesSection"]["AcknowledgeText"]["Text"] . ' <a target="_blank" href="' . $approvalUrlResponseArr["ImportantNotesSection"]["AcknowledgeLink"]["Link"] . '"    > ' . $approvalUrlResponseArr["ImportantNotesSection"]["AcknowledgeLink"]["Text"] . ' </a> </label><div style="display:none" class="i_ack_err"> Please select I accept.</div></div>';

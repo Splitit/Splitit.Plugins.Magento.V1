@@ -109,6 +109,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		if (isset($params["selectedInstallment"])) {
 			$selectedInstallment = $params["selectedInstallment"];
 		}
+		Mage::getSingleton('core/session')->setSplititTnCapproved((isset($params["tnCapproved"])&&$params['tnCapproved']));
 		if ($selectedInstallment == "") {
 			$response["data"] = "Please select Number of Installments";
 			Mage::app()->getResponse()->setBody(Mage::helper('core')->jsonEncode($response));
