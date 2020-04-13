@@ -3,6 +3,8 @@ var isLogedIn = 0;
 var isLoging = 0;
 var curUrl = window.location.href;
 var baseUrl = "";
+var getNumOfInstallments;
+var continueButtonClickEvent;
 function getBaseUrl() {
     baseUrl = jQuery(".redirect-class").attr("data-baseurl");
     if (typeof baseUrl === 'undefined') {
@@ -11,6 +13,7 @@ function getBaseUrl() {
     return baseUrl;
 }
 jQuery(document).ready(function () {
+    continueButtonClickEvent = jQuery('#payment-buttons-container button').attr('onclick');
     setTimeout(function () {
         if (jQuery(document).find('#p_method_pis_cc:checked').val()) {
             jQuery(document).find("#checkout-review-submit").find('button').addClass("disabled");
@@ -118,13 +121,13 @@ jQuery(document).ready(function () {
 
     jQuery(document).on('click', '#checkout-payment-method-load input[type="radio"]', function (e) {
         if (jQuery(this).attr("id") == 'p_method_pis_cc') {
-            //jQuery("#payment-buttons-container button").attr("onclick","");
+            jQuery('#payment-buttons-container button').attr('onclick','if(!installmentPlanInit(true)){return false;}'+continueButtonClickEvent);
             getNumOfInstallments();
         } else {
             // check if hosted solution is selected as payment mode
             /*jQuery("#payment-buttons-container button").show();
              jQuery(document).find("#payment-buttons-container .splitit-checkout-url").remove();*/
-            //jQuery("#payment-buttons-container button").attr("onclick","payment.save();");
+            jQuery("#payment-buttons-container button").attr("onclick",continueButtonClickEvent);
         }
     })
     var isAlreadyClickInFormFields = 0;
@@ -139,8 +142,6 @@ jQuery(document).ready(function () {
 
 
     });
-
-    jQuery('#payment-buttons-container button').attr('onclick','if(!installmentPlanInit(true)){return false;}'+jQuery('#payment-buttons-container button').attr('onclick'));
 
     jQuery(document).on('change', '#pis_cc_installments_no', function () {
         /*alert('sdsd');*/
@@ -232,7 +233,7 @@ jQuery(document).ready(function () {
      alert("sdfsfd");
      });*/
 
-	function getNumOfInstallments() {
+	getNumOfInstallments = function () {
 	    var selectedInstallment = jQuery("#pis_cc_installments_no").val();
 	    jQuery("body").find("#dt_method_pis_cc .pis-login-loader").show();
 	    jQuery("body").find(".terms-condition-loader").hide();
@@ -286,47 +287,6 @@ jQuery(document).ready(function () {
 	    });
 	}
 });
-
-function validateFields(){
-    // validation for empty fields in splitit form
-    var selectedCc = jQuery("#pis_cc_cc_type").val();
-    if (selectedCc == "") {
-        jQuery("body").find(".terms-condition-loader").hide();
-        alert("Please select credit card type.");
-        return false;
-    }
-    var ccNum = jQuery("#pis_cc_cc_number").val();
-    if (ccNum == "") {
-        jQuery("body").find(".terms-condition-loader").hide();
-        alert("Please input Credit card number.");
-        return false;
-    }
-    var ccExp = jQuery("#pis_cc_expiration").val();
-    if (ccExp == "") {
-        jQuery("body").find(".terms-condition-loader").hide();
-        alert("Please select Month.");
-        return false;
-    }
-    var ccYear = jQuery("#pis_cc_expiration_yr").val();
-    if (ccYear == "") {
-        jQuery("body").find(".terms-condition-loader").hide();
-        alert("Please select Year.");
-        return false;
-    }
-    var ccCVV = jQuery("#pis_cc_cc_cid").val();
-    if (ccCVV == "") {
-        jQuery("body").find(".terms-condition-loader").hide();
-        alert("Please input card verification number.");
-        return false;
-    }
-    console.log('#iaprove.is:checked===');
-    console.log(jQuery('#iaprove').is(":checked"));
-    if(!jQuery('#iaprove').is(":checked")){
-    	alert("Please approve Terms and Conditions.");
-        return false;	
-    }
-    return true;
-}
 
 // close splitit popup when user check I agree
 function paymentSave() {

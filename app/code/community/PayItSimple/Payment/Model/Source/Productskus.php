@@ -19,9 +19,9 @@ class PayItSimple_Payment_Model_Source_Productskus {
         if(isset($params['prodIds'])&&$params['prodIds']){
             $collection->addAttributeToFilter('entity_id', array('in' => explode(',', $params['prodIds'])));
         }
-        // $collection->setPageSize(3);
+        /*$collection->setPageSize(3);*/
         $iterator = Mage::getSingleton('core/resource_iterator');
-        // echo $collection->getSelect();exit;
+        /*echo $collection->getSelect();exit;*/
         $iterator->walk($collection->getSelect(),array(array($this,'callBackProd')));
         return $this->skus;
     }
@@ -29,22 +29,5 @@ class PayItSimple_Payment_Model_Source_Productskus {
     public function callBackProd($args){
         $this->skus[]=array('value'=>$args['row']['entity_id'], 'label' => __($args['row']['name'].'-'.$args['row']['sku']));
     }
-
-    /*public function toOptionArray() {
-        $collection = Mage::getModel('catalog/product')->getCollection()->addAttributeToSelect('*');
-        $collection->addFieldToFilter('visibility', Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH);
-        $collection->addAttributeToFilter('status', array('eq' => Mage_Catalog_Model_Product_Status::STATUS_ENABLED));
-        $collection->addAttributeToSort('name');
-//        $collection->setPageSize(3);
-        $skus = array();
-        foreach ($collection as $product) {
-//            echo "<br/>";
-//            print_r($product->getData());
-            $skus[] = array('value' => $product->getId(), 'label' => __($product->getName() . ' - ' . $product->getSku()));
-        }
-//        exit;
-//        array_multisort($skus, SORT_ASC);
-        return $skus;
-    }*/
 
 }

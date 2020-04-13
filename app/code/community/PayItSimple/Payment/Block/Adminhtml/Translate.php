@@ -6,15 +6,15 @@ class PayItSimple_Payment_Block_Adminhtml_Translate extends Mage_Adminhtml_Block
 	public function __construct() {
 		parent::_construct();
 
-		// get store id in admin
-		if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) // store level
+		/*get store id in admin*/
+		if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) /* store level*/
 		{
 			$store_id = Mage::getModel('core/store')->load($code)->getId();
-		} elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) // website level
+		} elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) /* website level*/
 		{
 			$website_id = Mage::getModel('core/website')->load($code)->getId();
 			$store_id = Mage::app()->getWebsite($website_id)->getDefaultStore()->getId();
-		} else // default level
+		} else /* default level*/
 		{
 			$store_id = 0;
 		}
@@ -86,7 +86,7 @@ class PayItSimple_Payment_Block_Adminhtml_Translate extends Mage_Adminhtml_Block
                    <td><input type="text" name="key[]" id="key_' . $k . '_' . $i . '" value="' . $key . '" readonly/></td>
                    <td><input type="text" name="english[]" id="english_' . $k . '_' . $i . '"  value="' . $val . '" readonly/></td>';
 				if ($k == 'en_US') {
-// auto complete English text when load first time
+					/*auto complete English text when load first time*/
 					$html .= '<td><input type="text" name="translation[]" id="translation_' . $k . '_' . $i . '" value="' . $val . '" /><input type="hidden" name="edited[]" id="edited_' . $k . '_' . $i . '" value="0"/></td>';
 				} else {
 					$html .= '<td><input type="text" name="translation[]" id="translation_' . $k . '_' . $i . '" value="" /><input type="hidden" name="edited[]" id="edited_' . $k . '_' . $i . '" value="0"/></td>';
@@ -136,7 +136,7 @@ class PayItSimple_Payment_Block_Adminhtml_Translate extends Mage_Adminhtml_Block
 			$i = 0;
 			foreach ($translationData as $key => $val) {
 				if (isset($translatedJsonVal[$k][$key])) {
-					// check if value found in DB
+					/*check if value found in DB*/
 					$html .= '
                  <tr>
                  <td><input type="text" name="key[]" id="key_' . $k . '_' . $i . '" value="' . $key . '" readonly/></td>
@@ -145,13 +145,13 @@ class PayItSimple_Payment_Block_Adminhtml_Translate extends Mage_Adminhtml_Block
                  </tr>';
 
 				} else {
-					// it will run when developer add new key in translation and not found in DB
+					/*it will run when developer add new key in translation and not found in DB*/
 					$html .= '
                  <tr>
                  <td><input type="text" name="key[]" id="key_' . $k . '_' . $i . '" value="' . $key . '" readonly/></td>
                  <td><input type="text" name="english[]" id="english_' . $k . '_' . $i . '"  value="' . $val . '" readonly/></td>';
 					if ($k == 'en_US') {
-// auto complete English text when load first time for new added key
+						/*auto complete English text when load first time for new added key*/
 						$html .= '<td><input type="text" name="translation[]" id="translation_' . $k . '_' . $i . '" value="' . $val . '" /><input type="hidden" name="edited[]" id="edited_' . $k . '_' . $i . '" value="0"/></td>';
 					} else {
 						$html .= '<td><input type="text" name="translation[]" id="translation_' . $k . '_' . $i . '" value="" /><input type="hidden" name="edited[]" id="edited_' . $k . '_' . $i . '" value="0"/></td>';

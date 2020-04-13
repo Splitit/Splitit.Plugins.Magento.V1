@@ -28,7 +28,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 
 	public function getVerificationRegEx() {
 		return array_merge(parent::getVerificationRegEx(), array(
-			'UP' => '/^[0-9]{3}$/', // Union Pay CCV
+			'UP' => '/^[0-9]{3}$/', /*Union Pay CCV*/
 		));
 	}
 
@@ -106,14 +106,14 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 				Mage::helper('payment')->__('Authorize action is not available.')
 			);
 		}
-		//$api = $this->_initApi($this->getStore());
+		/*$api = $this->_initApi($this->getStore());*/
 		Mage::log('=========splitit : Authorize for Embedded =========');
 		Mage::log('=========splitit : create installment plan for Embedded =========');
 
 		$api = $this->getApi();
 		$result = $this->createInstallmentPlan($api, $payment, $amount);
 		$result = Mage::helper('core')->jsonDecode($result);
-		// show error if there is any error from spliti it when click on place order
+		/*show error if there is any error from spliti it when click on place order*/
 		if (!$result["ResponseHeader"]["Succeeded"]) {
 			$errorMsg = "";
 			if (isset($result["serverError"])) {
@@ -151,8 +151,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			unset($result[$param]);
 
 		}
-		//$st = $api->getInstallmentPlanStatusList();
-		//$result['InstallmentPlanStatus'] = $st[$result['InstallmentPlan']['InstallmentPlanStatus']['Id']];
+		/*$st = $api->getInstallmentPlanStatusList();
+		$result['InstallmentPlanStatus'] = $st[$result['InstallmentPlan']['InstallmentPlanStatus']['Id']];*/
 
 		$payment->setTransactionAdditionalInfo(
 			Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS,
@@ -165,7 +165,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			. Mage::getSingleton('core/session')->getInstallmentPlanNumber(),
 			false
 		);
-		// call InstallmentPlan-UpdatePlan-Params for update "RefOrderNumber" after order creation
+		/*call InstallmentPlan-UpdatePlan-Params for update "RefOrderNumber" after order creation*/
 		Mage::getSingleton('core/session')->setOrderIncrementId($order->getIncrementId());
 		Mage::getSingleton('core/session')->setOrderId($order->getId());
 
@@ -175,14 +175,14 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 				Mage::helper('payment')->__($updateStatus["data"])
 			);
 		}
-		//$order->save();
+		/*$order->save();*/
 
 		return $this;
 	}
 
 	public function splititCapture($payment, $sessionId, $transactionId) {
 		$api = $this->getApi();
-		//$authNumber = $payment->getAuthorizationTransaction()->getTxnId();
+		/*$authNumber = $payment->getAuthorizationTransaction()->getTxnId();*/
 		$params = array(
 			"RequestHeader" => array("SessionId" => $sessionId),
 			"InstallmentPlanNumber" => $transactionId,
@@ -236,7 +236,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$api = $this->_initApi($this->getStore());
 			$sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
 
-			// call start Installments Api only from admin capture
+			/*call start Installments Api only from admin capture*/
 			$params = array_merge($params, array("RequestHeader" => array('SessionId' => $sessionId)));
 			Mage::log('=========splitit : Auto Capture at time of shipment. calling startInstallment api for Embedded =========');
 			$result = $api->startInstallment($this->getApiUrl(), $params);
@@ -300,7 +300,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$customerInfo["email"] = $billAddress->getEmail();
 		}
 
-		// Mage::throwException(print_r($billAddress->getData(),true));
 		$errorMsg = "";
 		$validateFields = $this->checkForBillingFieldsEmpty($billAddress, $customerInfo);
 		if (isset($validateFields['status']) && !$validateFields['status']) {
@@ -328,7 +327,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 					],
 					"NumberOfInstallments" => $selectedInstallment,
 					"PurchaseMethod" => "ECommerce",
-					//"RefOrderNumber" => $quote_id,
+					/*"RefOrderNumber" => $quote_id,*/
 					"FirstInstallmentAmount" => [
 						"Value" => $firstInstallmentAmount,
 						"CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
@@ -349,7 +348,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 					"AddressLine2" => $billAddress->getStreet()[1],
 					"City" => $billAddress->getCity(),
 					"State" => $billAddress->getRegion(),
-					//"Country" => Mage::app()->getLocale()->getCountryTranslation($billAddress->getCountry()),
+					/*"Country" => Mage::app()->getLocale()->getCountryTranslation($billAddress->getCountry()),*/
 					"Country" => $billAddress->getCountry(),
 					"Zip" => $billAddress->getPostcode(),
 				],
@@ -368,7 +367,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$i = 0;
 			$currencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
 			foreach ($cart->getAllVisibleItems() as $item) {
-				//$product = Mage::getModel("catalog/product")->load();
 				$itemsArr[$i]["Name"] = $item->getName();
 				$itemsArr[$i]["SKU"] = $item->getSku();
 				$itemsArr[$i]["Price"] = array("Value" => round($item->getPrice(), 2), "CurrencyCode" => $currencyCode);
@@ -377,7 +375,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 				$optionValue = $_resource->getAttributeRawValue($item->getProductId(), ['short_description'], Mage::app()->getStore());
 
 				$itemsArr[$i]["Description"] = strip_tags($optionValue);
-				//echo $productPrice = $item->getProduct()->getPrice();
 				$i++;
 
 			}
@@ -410,7 +407,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 					"AddressLine2" => $billAddress->getStreet()[1],
 					"City" => $billAddress->getCity(),
 					"State" => $billAddress->getRegion(),
-					//"Country" => Mage::app()->getLocale()->getCountryTranslation($billAddress->getCountry()),
+					/*"Country" => Mage::app()->getLocale()->getCountryTranslation($billAddress->getCountry()),*/
 					"Country" => $billAddress->getCountry(),
 					"Zip" => $billAddress->getPostcode(),
 				),
@@ -465,7 +462,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		if ($api->isLogin()) {
 			return $api;
 		}
-		// get magento version
+		/*get magento version*/
 		$version = Mage::getVersion();
 		$edition = Mage::getEdition();
 		$touchPointVersion = "M" . substr($edition, 0, 1) . substr($version, 0, 3) . "S2.2";
@@ -484,7 +481,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		$api["error"] = "";
 		if (!$result || !$api->isLogin()) {
 			$e = $api->getError();
-			// check for request from admin create invoice
+			/*check for request from admin create invoice*/
 			if (Mage::app()->getRequest()->getControllerName() == "sales_order_invoice") {
 				Mage::throwException($e['code'] . ' ' . $e['message']);
 			}
@@ -512,7 +509,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 	public function deleteUrls($path) {
 		$read = Mage::getSingleton('core/resource')->getConnection('core_read');
 		$write = Mage::getSingleton('core/resource')->getConnection('core_write');
-		//$result = $read->query("SELECT * FROM `core_config_data` WHERE path='payment/pis_cc/api_url_sandbox'");
 		$prefix = Mage::getConfig()->getTablePrefix();
 
 		$result = $read->query("SELECT * FROM `" . $prefix . "core_config_data` WHERE path='" . $path . "'");
@@ -592,22 +588,17 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 
 			Mage::log('=========splitit : InstallmentPlan Init Params for embedded =========');
 			Mage::log($params);
-			/*echo "request==\n";
-			print_r($params);*/
+			
 			$result = Mage::getSingleton("pis_payment/api")->installmentplaninit($this->getApiUrl(), $params);
-			/*echo "response==\n";
-			print_r($result);*/
-			// check for approval URL from response
+			/*check for approval URL from response*/
 			$decodedResult = Mage::helper('core')->jsonDecode($result);
 			$errorCount = count($decodedResult["ResponseHeader"]["Errors"]);
 			if (isset($decodedResult) && isset($decodedResult["ApprovalUrl"]) && $decodedResult["ApprovalUrl"] != "") {
 				$intallmentPlan = $decodedResult["InstallmentPlan"]["InstallmentPlanNumber"];
-				// set Installment plan number into session
+				/*set Installment plan number into session*/
 				Mage::getSingleton('core/session')->setInstallmentPlanNumber($intallmentPlan);
 				Mage::log('=========splitit : InstallmentPlan Number : ' . $intallmentPlan . ' =========');
 				$approvalUrlResponse = Mage::getSingleton("pis_payment/api")->getApprovalUrlResponse($decodedResult["ApprovalUrl"]);
-				/*echo "approval-url-response==\n";
-				print_r($approvalUrlResponse);*/
 				$approvalUrlRes = Mage::helper('core')->jsonDecode($approvalUrlResponse);
 				if (isset($approvalUrlRes["Global"]["ResponseResult"]["Errors"]) && count($approvalUrlRes["Global"]["ResponseResult"]["Errors"])) {
 					$i = 1;
@@ -628,7 +619,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 					$response["data"] = $popupHtml;
 				}
 
-				//print_r($approvalUrlResponse);die("---approvalUrlResponse");
 			} else if (isset($decodedResult["ResponseHeader"]) && $errorCount) {
 				$errorMsg = "";
 				$i = 1;
@@ -649,13 +639,11 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$response["data"] = $e->getMessage();
 		}
 		return $response;
-		//return $result;
 	}
 
 	public function checkForBillingFieldsEmpty($billingAddress, $customerInfo) {
 
 		$response = ["errorMsg" => "", "successMsg" => "", "status" => false];
-		// print_r($billingAddress->getData());exit;
 		if ($customerInfo["email"] == "") {
 			$response["errorMsg"] = __("Splitit does not accept empty email field.");
 		} elseif (!$customerInfo['firstname']) {
@@ -688,7 +676,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		$storeId = Mage::app()->getStore()->getId();
 		$session = Mage::getSingleton('checkout/session');
 		$quote_id = $session->getQuoteId();
-		$firstInstallmentAmount = 0; //$this->getFirstInstallmentAmount($selectedInstallment);
+		$firstInstallmentAmount = 0; /*$this->getFirstInstallmentAmount($selectedInstallment);*/
 		$checkout = Mage::getSingleton('checkout/session')->getQuote();
 		$billAddress = $checkout->getBillingAddress();
 		$BillingAddressArr = $billAddress->getData();
@@ -750,10 +738,10 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 
 			            ],
 		*/
-		//$api = Mage::getSingleton("pis_payment/pisMethod");
+		/*$api = Mage::getSingleton("pis_payment/pisMethod");*/
 		try {
 			$response = array("status" => false, "data" => "", "checkoutUrl" => "");
-			// check if cunsumer dont filled data
+			/*check if cunsumer dont filled data*/
 			$bags = $billAddress->getStreet();
 			if ($bags[0] == "" || $billAddress->getCity() == "" || $billAddress->getPostcode() == "" || $customerInfo["firstname"] == "" || $customerInfo["lastname"] == "" || $customerInfo["email"] == "" || $billAddress->getTelephone() == "") {
 				$response["emptyFields"] = true;
@@ -762,7 +750,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			}
 
 			$result = Mage::getSingleton("pis_payment/api")->installmentplaninit($this->getApiUrl(), $params);
-			// check for checkout URL from response
+			/*check for checkout URL from response*/
 			$decodedResult = Mage::helper('core')->jsonDecode($result);
 			$errorCount = count($decodedResult["ResponseHeader"]["Errors"]);
 
@@ -771,11 +759,11 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 				$response["status"] = true;
 				$response["checkoutUrl"] = $decodedResult["CheckoutUrl"];
 				$installmentPlan = $decodedResult["InstallmentPlan"]["InstallmentPlanNumber"];
-				// store installment plan number in session, so that will not call init again & again if customer clicks on radio button
-				//Mage::getSingleton('core/session')->setSplititInstallmentPlanNumber($installmentPlan);
+				/*store installment plan number in session, so that will not call init again & again if customer clicks on radio button
+				Mage::getSingleton('core/session')->setSplititInstallmentPlanNumber($installmentPlan);*/
 				Mage::log('======= installmentplaninit : response from splitit =======InstallmentPlanNumber : ' . $installmentPlan);
 				Mage::log($decodedResult);
-				// store information in splitit_hosted_solution for successExit and Async
+				/*store information in splitit_hosted_solution for successExit and Async*/
 				$customerId = 0;
 				if (Mage::getSingleton('customer/session')->isLoggedIn()) {
 					$customerData = Mage::getSingleton('customer/session')->getCustomer();
@@ -827,7 +815,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$response["data"] = $e->getMessage();
 		}
 		return $response;
-		//return $result;
 	}
 
 	public function installmentplaninitParams($firstInstallmentAmount, $billAddress, $customerInfo, $cultureName, $numOfInstallments = null, $selectedInstallment) {
@@ -840,38 +827,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		$getStreet = $billAddress->getStreet();
 		$quote = Mage::getSingleton('checkout/session')->getQuote();
 		$grandTotal = round(floatval($quote->getGrandTotal()), 2);
-		/*Re-calculate fee for init call if not in quote*/
-		// var_dump(($quote->getShippingAddress()->getFeeAmount()));
-		// echo "==shipping \n";
-		// var_dump(($quote->getBillingAddress()->getFeeAmount()));
-		// echo "==billing \n";
-		// var_dump(($quote->getFeeAmount()));
-		// echo "==quote \n";
-		// die('======');
-		// if(!floatval($quote->getFeeAmount())){
-		if (!floatval($quote->getShippingAddress()->getFeeAmount())) {
-			// $feeModel = Mage::getModel('pis_payment/fee');
-			// $address = $quote->getBillingAddress();
-			if (Mage::getStoreConfig('payment/pis_cc/splitit_fees')) {
-				$fee = Mage::getStoreConfig('payment/pis_cc/splitit_fees_value');
-				$feeType = Mage::getStoreConfig('payment/pis_cc/splitit_fees_method');
-				if ($feeType == PayItSimple_Payment_Model_Source_Feemethod::PERCENTAGE_FROM_TOTAL_AMOUNT) {
-					$totals = $quote->getTotals();
-					$sum = 0;
-					foreach ($totals as $total) {
-						// echo "TOTAL_CODE==".$total->getCode()."\n";
-						// echo "TOTAL_Value==".$total->getValue()."\n";
-						if (($total->getCode() != PayItSimple_Payment_Model_Fee::TOTAL_CODE) && ($total->getCode() != 'grand_total')) {
-							$sum += (float) $total->getValue();
-						}
-					}
 
-					$fee = ($sum * ($fee / 100));
-				}
-				$grandTotal += $fee;
-			}
-		}
-		// echo "grandTotal==$grandTotal";die('----');
 		$params = array(
 			"RequestHeader" => array(
 				"SessionId" => Mage::getSingleton('core/session')->getSplititSessionid(),
@@ -882,9 +838,9 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 					"Value" => round($grandTotal, 2),
 					"CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
 				),
-				//"NumberOfInstallments" => $selectedInstallment,
+				/*"NumberOfInstallments" => $selectedInstallment,*/
 				"PurchaseMethod" => "ECommerce",
-				//"RefOrderNumber" => $quote_id,
+				/*"RefOrderNumber" => $quote_id,*/
 				"FirstInstallmentAmount" => array(
 					"Value" => $firstInstallmentAmount,
 					"CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
@@ -935,7 +891,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		$i = 0;
 		$currencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
 		foreach ($cart->getAllVisibleItems() as $item) {
-			//$product = Mage::getModel("catalog/product")->load($item->getProductId());
 			$itemsArr[$i]["Name"] = $item->getName();
 			$itemsArr[$i]["SKU"] = $item->getSku();
 			$itemsArr[$i]["Price"] = array("Value" => round($item->getPrice(), 2), "CurrencyCode" => $currencyCode);
@@ -944,8 +899,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$optionValue = $_resource->getAttributeRawValue($item->getProductId(), ['short_description'], Mage::app()->getStore());
 
 			$itemsArr[$i]["Description"] = strip_tags($optionValue);
-			//$itemsArr[$i]["Description"] = strip_tags($product->getShortDescription());
-			//echo $productPrice = $item->getProduct()->getPrice();
 			$i++;
 
 		}
@@ -977,7 +930,6 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$params["PlanData"] = $planData;
 		}
 
-		// print_r($params);die("--fd");
 		return $params;
 	}
 
@@ -1036,25 +988,25 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$html .= '<div class="_popup_overlay"></div>';
 			$html .= '<!-- Start small inner popup -->';
 
-			// Start Term and Condition Popup
+			/*Start Term and Condition Popup*/
 			$html .= '<div id="termAndConditionpopup" style=" ">
                     <div class="popup-block">';
 
 			$html .= '<div class="popup-content" style="">';
-			// start close button on terms-condition popup
+			/*start close button on terms-condition popup*/
 			$html .= '<div class="popup-footer" style="">';
 			$html .= '<div id="payment-schedule-close-btn" class="popup-btn"  style="">';
 			$html .= '<div class="popup-btn-area-terms" style=""><span id="termAndConditionpopupCloseBtn" class="popup-btn-icon-terms" style=""><img style="width:25px;" src="' . Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB, true) . 'js/payitsimple/payitsimplepament/approval-popup-close.png"></span></div>';
 			$html .= '</div>';
 			$html .= '</div>';
-			// end close button on terms-condition popup
+			/*end close button on terms-condition popup*/
 			$html .= $this->getTermnConditionText() . '
 
                     </div>';
 
 			$html .= '</div>';
 			$html .= '</div>';
-			// Close Term and Condition Popup
+			/*Close Term and Condition Popup*/
 			$html .= '<div id="payment-schedule" style=" ">';
 			$html .= '<div class="popup-block">';
 			$html .= '<div class="popup-content" style="">';
@@ -1068,7 +1020,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$html .= '</tr>';
 			$html .= '</thead>';
 			$html .= '<tbody>';
-			$schedulePayment = ""; //echo $value["DateOfCharge"];//substr($value["DateOfCharge"], 0, strpos($value["DateOfCharge"], "To"));
+			$schedulePayment = "";
+			/*echo $value["DateOfCharge"];//substr($value["DateOfCharge"], 0, strpos($value["DateOfCharge"], "To"));*/
 			if (isset($approvalUrlResponseArr["ScheduledPaymentSection"]["ScheduleItems"])) {
 
 				foreach ($approvalUrlResponseArr["ScheduledPaymentSection"]["ScheduleItems"] as $key => $value) {
@@ -1162,7 +1115,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			$html .= '<div class="pnlEula" style="">' . $approvalUrlResponseArr["ImportantNotesSection"]["ImportantNotesBody"]["Text"] . '</div>';
 			$html .= '<div id="i_acknowledge_area" style="display:none;"><input type="checkbox" checked id="i_acknowledge" class="i_acknowledge" name="i_acknowledge" value="" />';
 			$html .= '<label for="i_acknowledge" class="i_acknowledge_lbl">';
-			// id="i_acknowledge_content_show" this is the id for Terms & Condition link It shows all the content in popup
+			/*id="i_acknowledge_content_show" this is the id for Terms & Condition link It shows all the content in popup*/
 			$html .= $approvalUrlResponseArr["ImportantNotesSection"]["AcknowledgeText"]["Text"] . ' <a target="_blank" href="' . $approvalUrlResponseArr["ImportantNotesSection"]["AcknowledgeLink"]["Link"] . '"    > ' . $approvalUrlResponseArr["ImportantNotesSection"]["AcknowledgeLink"]["Text"] . ' </a> </label><div style="display:none" class="i_ack_err"> Please select I accept.</div></div>';
 
 			$html .= '</div>';

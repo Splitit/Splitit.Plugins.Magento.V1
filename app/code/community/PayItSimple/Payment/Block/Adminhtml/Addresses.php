@@ -7,11 +7,11 @@ public $_storeId = "";
     {
          parent::_construct();
          /*get store id in admin*/
-         if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) // store level
+         if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) /* store level*/
           {
               $store_id = Mage::getModel('core/store')->load($code)->getId();
           }
-          elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) // website level
+          elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) /* website level*/
           {
               $website_id = Mage::getModel('core/website')->load($code)->getId();
               $store_id = Mage::app()->getWebsite($website_id)->getDefaultStore()->getId();
@@ -175,11 +175,11 @@ public $_storeId = "";
       return $html;
    }
 
-   // get active currencies in the store and show dropdown in table
+   /*get active currencies in the store and show dropdown in table*/
    protected function _getCurrencies() 
    {
       $currencies = array();
-      // get allowed currencies from all websites/store ( core_config_data )
+      /*get allowed currencies from all websites/store ( core_config_data )*/
       $codes = $this->_getAllAllowedCurrencies();
       /* $codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);//print_r($codes);die; */
       $currenyOptions = "";
@@ -198,13 +198,13 @@ public $_storeId = "";
   
    }
   
-  // get active currencies and make them selected in dropdown in table
+  /*get active currencies and make them selected in dropdown in table*/
     protected function _getSelectedCurrency($currency)
    {
       $currencies = array();
-      // get allowed currencies from all websites/store ( core_config_data )
+      /*get allowed currencies from all websites/store ( core_config_data )*/
       $codes = $this->_getAllAllowedCurrencies();
-      //$codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);//print_r($codes);die;
+      /*$codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);//print_r($codes);die;*/
       $currenyOptions = "";
       if (is_array($codes) && count($codes) > 0) {
           $rates = Mage::getModel('directory/currency')->getCurrencyRates(Mage::app()->getStore()->getBaseCurrency(), $codes);
@@ -231,7 +231,7 @@ public $_storeId = "";
                       ->getCollection()
                       ->addFieldToFilter('path','currency/options/allow')
                       ->getData();
-      // get unique currency
+      /*get unique currency*/
       foreach ($currencyCode as $key => $value) {
         foreach(explode(",", $value["value"]) as $k =>$v){
           $codes[] = $v;    
@@ -270,7 +270,7 @@ public $_storeId = "";
       return $firstCurrencySymbol;
    }
 
-   // code for translation
+   /*code for translation*/
 
    /**
      * Return ajax url for button
@@ -279,16 +279,16 @@ public $_storeId = "";
      */
     public function getAjaxProdListUrl()
     {
-        if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) // store level
+        if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) /* store level*/
         {
             $store_id = Mage::getModel('core/store')->load($code)->getId();
         }
-        elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) // website level
+        elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) /* website level*/
         {
             $website_id = Mage::getModel('core/website')->load($code)->getId();
             $store_id = Mage::app()->getWebsite($website_id)->getDefaultStore()->getId();
         }
-        else // default level
+        else /* default level*/
         {
             $store_id = 0;
         }
