@@ -30,7 +30,7 @@ class PayItSimple_Payment_Model_Observer {
 
 	public function paymentMethodIsActive(Varien_Event_Observer $observer) {
 
-		$event = $observer->getEvent(); //print_r($event->getData());die("---sdf");
+		$event = $observer->getEvent();
 		$method = $event->getMethodInstance();
 		$result = $event->getResult();
 		$currencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
@@ -51,21 +51,23 @@ class PayItSimple_Payment_Model_Observer {
 		$options = Mage::getModel('pis_payment/source_installments')->toOptionArray();
 
 		$depandOnCart = 0;
-		// check if splitit extension is disable from admin
+		$installmentsText = "";
+		$perMonthText = "";
+		/*check if splitit extension is disable from admin*/
 		$isDisabled = Mage::getStoreConfig('payment/' . $paymentMethod . '/active');
 		if (!$isDisabled) {
 			return false;
 		}
 
-		// $selectInstallmentSetup == "" for checking when merchant first time upgrade extension that time $selectInstallmentSetup will be empty
+		/*for checking when merchant first time upgrade extension that time $selectInstallmentSetup will be empty*/
 		if ($selectInstallmentSetup == "" || $selectInstallmentSetup == "fixed") {
-			// Select Fixed installment setup
+			/*Select Fixed installment setup*/
 
 			$fixedInstallments = Mage::getStoreConfig('payment/' . $paymentMethod . '/available_installments');
 			$installmentsCount = $this->countForInstallment($fixedInstallments, $options, $installmentsText, $totalAmount, $perMonthText);
 
 		} else {
-			// Select Depanding on cart installment setup
+			/*Select Depanding on cart installment setup*/
 			$depandOnCart = 1;
 			$dataAsPerCurrency = $this->getdepandingOnCartInstallments($paymentMethod);
 			$currentCurrencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
@@ -114,7 +116,7 @@ class PayItSimple_Payment_Model_Observer {
 		$check = TRUE;
 		if (Mage::getStoreConfig('payment/' . $paymentMethod . '/splitit_per_product')) {
 			$cart = Mage::getSingleton('checkout/session')->getQuote();
-			// get array of all items what can be display directly
+			/*get array of all items what can be display directly*/
 			$itemsVisible = $cart->getAllVisibleItems();
 			$allowedProducts = Mage::getStoreConfig('payment/' . $paymentMethod . '/splitit_product_skus');
 			$allowedProducts = explode(',', $allowedProducts);
@@ -137,7 +139,7 @@ class PayItSimple_Payment_Model_Observer {
 				}
 			}
 		}
-		// var_dump($check);
+
 		return $check;
 	}
 
@@ -151,7 +153,7 @@ class PayItSimple_Payment_Model_Observer {
 				$show = TRUE;
 			}
 		}
-		// var_dump($show);
+		
 		return $show;
 	}
 

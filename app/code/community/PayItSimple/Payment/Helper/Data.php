@@ -16,10 +16,9 @@ class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract {
 		$storeId = Mage::app()->getStore()->getStoreId();
 		$storelang = Mage::getStoreConfig('general/locale/code', $storeId);
 		$defaultLang = $this->getDefaultLanguage();
-		//echo $defaultLang;
+
 		$translation = $this->getTranslation($code);
-		//echo '<pre>';
-		//print_r($translation);die;
+
 		$logoSrc = Mage::getStoreConfig('payment/' . $code . '/logo_src');
 		$logoLink = Mage::getStoreConfig('payment/' . $code . '/logo_background_href');
 		$text = "or {NOI} interest-free payments of {AMOUNT} with SPLITIT";
@@ -31,7 +30,7 @@ class PayItSimple_Payment_Helper_Data extends Mage_Core_Helper_Abstract {
 
 			}
 		}
-		//echo $text;die;
+		
 		if ($logoLink && $logoSrc) {
 			$replace = "<a id='tell-me-more' href='" . $logoLink . "' target='_blank'><img class='logoWidthSrc' src='" . $logoSrc . "' alt='SPLITIT'/></a>";
 			$text = str_replace('SPLITIT', $replace, $text);

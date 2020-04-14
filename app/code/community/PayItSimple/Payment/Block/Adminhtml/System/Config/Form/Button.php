@@ -29,16 +29,16 @@ class PayItSimple_Payment_Block_Adminhtml_System_Config_Form_Button extends Mage
      */
     public function getAjaxCheckUrl()
     {
-        if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) // store level
+        if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) /* store level*/
         {
             $store_id = Mage::getModel('core/store')->load($code)->getId();
         }
-        elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) // website level
+        elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) /* website level*/
         {
             $website_id = Mage::getModel('core/website')->load($code)->getId();
             $store_id = Mage::app()->getWebsite($website_id)->getDefaultStore()->getId();
         }
-        else // default level
+        else /* default level*/
         {
             $store_id = 0;
         }
