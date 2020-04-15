@@ -327,7 +327,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 					],
 					"NumberOfInstallments" => $selectedInstallment,
 					"PurchaseMethod" => "ECommerce",
-					/*"RefOrderNumber" => $quote_id,*/
+					"RefOrderNumber" => Mage::getSingleton('checkout/session')->getQuote()->getId(),
 					"FirstInstallmentAmount" => [
 						"Value" => $firstInstallmentAmount,
 						"CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
@@ -840,7 +840,7 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 				),
 				/*"NumberOfInstallments" => $selectedInstallment,*/
 				"PurchaseMethod" => "ECommerce",
-				/*"RefOrderNumber" => $quote_id,*/
+				"RefOrderNumber" => $quote->getId(),
 				"FirstInstallmentAmount" => array(
 					"Value" => $firstInstallmentAmount,
 					"CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
