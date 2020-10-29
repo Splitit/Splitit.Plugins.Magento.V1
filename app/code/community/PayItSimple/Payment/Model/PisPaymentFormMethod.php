@@ -754,10 +754,12 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 		$i = 0;
 		$currencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
 		foreach ($cart->getAllVisibleItems() as $item) {
-			$product = Mage::getModel("catalog/product")->load($item->getProductId());
 			$itemsArr[$i]["Name"] = $item->getName();
 			$itemsArr[$i]["SKU"] = $item->getSku();
-			$itemsArr[$i]["Price"] = array("Value" => round($item->getPrice(), 2), "CurrencyCode" => $currencyCode);
+            $itemPrice = $item->getWeeeTaxAppliedAmount() ?
+                $item->getCalculationPrice() + $item->getWeeeTaxAppliedAmount() + $item->getWeeeTaxDisposition() :
+                $item->getPrice();
+            $itemsArr[$i]["Price"] = array("Value" => round($itemPrice, 2), "CurrencyCode" => $currencyCode);
 			$itemsArr[$i]["Quantity"] = $item->getQty();
 			$_resource = Mage::getSingleton('catalog/product')->getResource();
 			$optionValue = $_resource->getAttributeRawValue($item->getProductId(), ['short_description'], Mage::app()->getStore());
