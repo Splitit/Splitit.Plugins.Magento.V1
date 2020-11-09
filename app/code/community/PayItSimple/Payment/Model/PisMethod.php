@@ -369,7 +369,10 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 			foreach ($cart->getAllVisibleItems() as $item) {
 				$itemsArr[$i]["Name"] = $item->getName();
 				$itemsArr[$i]["SKU"] = $item->getSku();
-				$itemsArr[$i]["Price"] = array("Value" => round($item->getPrice(), 2), "CurrencyCode" => $currencyCode);
+                $itemPrice = $item->getWeeeTaxAppliedAmount() ?
+                    $item->getCalculationPrice() + $item->getWeeeTaxAppliedAmount() + $item->getWeeeTaxDisposition() :
+                    $item->getPrice();
+                $itemsArr[$i]["Price"] = array("Value" => round($itemPrice, 2), "CurrencyCode" => $currencyCode);
 				$itemsArr[$i]["Quantity"] = $item->getQty();
 				$_resource = Mage::getSingleton('catalog/product')->getResource();
 				$optionValue = $_resource->getAttributeRawValue($item->getProductId(), ['short_description'], Mage::app()->getStore());
@@ -893,7 +896,10 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		foreach ($cart->getAllVisibleItems() as $item) {
 			$itemsArr[$i]["Name"] = $item->getName();
 			$itemsArr[$i]["SKU"] = $item->getSku();
-			$itemsArr[$i]["Price"] = array("Value" => round($item->getPrice(), 2), "CurrencyCode" => $currencyCode);
+            $itemPrice = $item->getWeeeTaxAppliedAmount() ?
+                $item->getCalculationPrice() + $item->getWeeeTaxAppliedAmount() + $item->getWeeeTaxDisposition() :
+                $item->getPrice();
+            $itemsArr[$i]["Price"] = array("Value" => round($itemPrice, 2), "CurrencyCode" => $currencyCode);
 			$itemsArr[$i]["Quantity"] = $item->getQty();
 			$_resource = Mage::getSingleton('catalog/product')->getResource();
 			$optionValue = $_resource->getAttributeRawValue($item->getProductId(), ['short_description'], Mage::app()->getStore());
