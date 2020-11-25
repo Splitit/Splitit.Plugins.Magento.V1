@@ -29,5 +29,4 @@ class PayItSimple_Payment_Model_Source_Productskus {
     public function callBackProd($args){
         $this->skus[]=array('value'=>$args['row']['entity_id'], 'label' => __($args['row']['name'].'-'.$args['row']['sku']));
     }
-
 }

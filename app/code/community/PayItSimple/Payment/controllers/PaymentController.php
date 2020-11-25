@@ -43,11 +43,9 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 
 	public function apiLoginAction() {
 
-		$storeId = Mage::app()->getStore()->getStoreId();
-		$api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
+		$api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId = null);
 		$params = $this->getRequest()->getParams();
 
-		$installmentsInDropdown = array();
 		$response = array(
 			"status" => false,
 			"error" => "",
@@ -66,24 +64,6 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 			$ipnForLogs = Mage::getSingleton('core/session')->getSplititSessionid();
 			Mage::log('Splitit session Id : ' . $ipnForLogs);
 			$response["status"] = true;
-			/*$paymentMode = Mage::helper('pis_payment')->getPaymentMode();*/
-			/*get plan number from session if already created*/
-			/*$planFromSession = Mage::getSingleton('core/session')->getSplititInstallmentPlanNumber();*/
-
-			/*if ($paymentMode == "hosted_solution") {
-
-				                $initResponse = Mage::getModel("pis_payment/pisMethod")->installmentplaninitForHostedSolution();
-				                $response["data"] = $initResponse["data"];
-				                if ($initResponse["status"]) {
-				                    $response["status"] = true;
-				                }
-				                if (isset($initResponse["emptyFields"]) && $initResponse["emptyFields"]) {
-				                    $response["data"] = $result["data"];
-				                }
-				                if (isset($initResponse["checkoutUrl"]) && $initResponse["checkoutUrl"] != "") {
-				                    $response["checkoutUrl"] = $initResponse["checkoutUrl"];
-				                }
-			*/
 		} else {
 			foreach ($api->getError() as $key => $value) {
 				$response["error"] .= $value . " ";
@@ -94,33 +74,18 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 	}
 
 	public function installmentplaninitAction() {
-		$api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
+	    $storeId = Mage::app()->getStore()->getId();
+        $api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId);
 		Mage::log('=========splitit : InstallmentPlan Init for Embedded =========');
-		$params = $this->getRequest()->getParams();
-		$selectedInstallment = "";
 		$response = array(
 			"status" => false,
 			"error" => "",
 			"success" => "",
 			"data" => "",
 		);
-		if (isset($params["selectedInstallment"])) {
-			$selectedInstallment = $params["selectedInstallment"];
-		}
-		Mage::getSingleton('core/session')->setSplititTnCapproved((isset($params["tnCapproved"])&&$params['tnCapproved']));
-		if ($selectedInstallment == "") {
-			$response["data"] = "Please select Number of Installments";
-			Mage::app()->getResponse()->setBody(Mage::helper('core')->jsonEncode($response));
-			return;
-		}
 		$splititSessionId = Mage::getSingleton('core/session')->getSplititSessionid();
-		if ($splititSessionId == "") {
-			$api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
-		}
-		$api = Mage::getSingleton("pis_payment/pisMethod");
-
 		if ($splititSessionId != "") {
-			$result = Mage::getSingleton("pis_payment/pisMethod")->installmentplaninit($api, $selectedInstallment);
+			$result = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->installmentplaninitForHostedSolution();
 			$response["data"] = $result["data"];
 			if ($result["status"]) {
 				$response["status"] = true;
@@ -413,7 +378,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 
 		/*get installmentplan details*/
 		$storeId = Mage::app()->getStore()->getStoreId();
-		$api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
+		$api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId = null);
 		$planDetails = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->getInstallmentPlanDetails($api);
 		/*print_r($planDetails);exit;*/
 		Mage::log('======= get installmentplan details :  ======= ');
@@ -533,17 +498,15 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 			$data = $sqlLoad->getData();
 			/*check if order already created via Async etc.*/
 			if (count($data) && $data["order_id"] == 0 && $data["order_increment_id"] == null) {
-				$orderId = Mage::getSingleton('checkout/session')->getLastOrderId();
-				$orderIncrementId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
-				/*$db_write = Mage::getSingleton('core/resource')->getConnection('core_write');
-					// get order id and increment number from session to update in splitit_hosted_solution table
-
-					$updateQue = 'UPDATE `' . $tablePrefix . 'splitit_hosted_solution` SET order_id = "' . $orderId . '", order_increment_id = "' . $orderIncrementId . '" WHERE installment_plan_number = "' . $splititInstallmentPlanNumber . '"';
-				*/
-				$updateQue = Mage::getModel('pis_payment/pispayment')->load($splititInstallmentPlanNumber, 'installment_plan_number');
-				$updateQue->setOrderId($orderId);
-				$updateQue->setOrderIncrementId($orderIncrementId);
-				$updateQue->save();
+                $orderId = Mage::getSingleton('checkout/session')->getLastOrderId();
+                $lastRecordByOrder = Mage::getModel('pis_payment/pispayment')->load($orderId, 'order_id');
+                $orderIncrementId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
+                if (!$lastRecordByOrder->getId() || !$lastRecordByOrder->getOrderCreated() ) {
+                    $updateQue = Mage::getModel('pis_payment/pispayment')->load($splititInstallmentPlanNumber, 'installment_plan_number');
+                    $updateQue->setOrderId($orderId);
+                    $updateQue->setOrderIncrementId($orderIncrementId);
+                    $updateQue->save();
+                }
 				/*$updateQue->setData(array('order_id' => $orderId, 'order_increment_id' => $orderIncrementId));
 				$updateQue->save();*/
 				Mage::app()->getFrontController()->getResponse()->setRedirect($splititCheckoutUrl)->sendResponse();

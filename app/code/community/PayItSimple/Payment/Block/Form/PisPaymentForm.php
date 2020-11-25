@@ -49,7 +49,7 @@ class PayItSimple_Payment_Block_Form_PisPaymentForm extends Mage_Payment_Block_F
 		if (count($installments) == 0) {
 			$installments[] = "Installments are not available.";
 		}
-		/*set how much installments to be show in checkout page dropdown*/
+		// set how much installments to be show in checkout page dropdown
 		Mage::getSingleton('core/session')->setInstallmentsInDropdownForPaymentForm($installmentsCount['installmentsInDropdown']);
 
 		return $installments;

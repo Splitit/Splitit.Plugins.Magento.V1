@@ -2,7 +2,7 @@
 <config>
     <modules>
         <PayItSimple_Payment>
-            <version>2.1.0</version>
+            <version>2.1.1</version>
         </PayItSimple_Payment>
     </modules>
     <frontend>
@@ -150,30 +150,6 @@
     </global>
     <default>
         <payment>
-            <pis_cc>
-                <active>0</active>
-                <model>pis_payment/pisMethod</model>
-                <order_status>processing</order_status>
-                <payment_action>authorize</payment_action>
-                <title>SPLITIT 0% Interest Monthly Payments</title>
-                <faq_link_enabled>1</faq_link_enabled>
-                <faq_link_title>Tell me more</faq_link_title>
-                <faq_link_title_url>https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png</faq_link_title_url>
-                <logo_src>https://s3.amazonaws.com/splitit-logos/Offical Splitit Logo.png</logo_src>
-                <logo_background_href>https://s3.amazonaws.com/splitit-images-prod/learnmore/en-us/V1-USD.png</logo_background_href>
-                <api_url>https://web-api.splitit.com/</api_url>
-                <api_url_sandbox>https://web-api-sandbox.splitit.com/</api_url_sandbox>
-                <sandbox_flag>0</sandbox_flag>
-                <debug>0</debug>
-                <cctypes>MC,VI,UP</cctypes>
-                <installments_count>6</installments_count>
-                <allowspecific>0</allowspecific>
-                <specificcountry>US</specificcountry>
-                <centinel>0</centinel>
-                <useccv>1</useccv>
-                <centinel_is_mode_strict>0</centinel_is_mode_strict>
-                <installment_price_text>No interest</installment_price_text>
-            </pis_cc>
             <pis_paymentform>
                 <active>0</active>
                 <model>pis_payment/pisPaymentFormMethod</model>

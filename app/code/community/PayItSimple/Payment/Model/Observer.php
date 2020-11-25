@@ -16,14 +16,14 @@ class PayItSimple_Payment_Model_Observer {
 			} else {
 				$_block->setChild('child' . $_child->getProduct()->getId(), $_child);
 			}
-			if ($this->checkProductBasedAvailability("pis_cc") || $this->checkProductBasedAvailability("pis_paymentform")) {
-				if($_child->getProduct() && $_child->getProduct()->getId()){ 
-					if($this->isSplititTextVisibleOnProduct("pis_cc", $_child->getProduct()->getId()) || $this->isSplititTextVisibleOnProduct("pis_paymentform", $_child->getProduct()->getId())){
-						$_block->setTemplate('payitsimple/splitprice.phtml');
-					}
-				} else {
-					$_block->setTemplate('payitsimple/splitprice.phtml');
-				}
+			if ($this->checkProductBasedAvailability()) {
+                if ($_child->getProduct() && $_child->getProduct()->getId()) {
+                    if ($this->isSplititTextVisibleOnProduct($_child->getProduct()->getId())) {
+                        $_block->setTemplate('payitsimple/splitprice.phtml');
+                    }
+                } else {
+                    $_block->setTemplate('payitsimple/splitprice.phtml');
+                }
 			}
 		}
 	}
@@ -33,28 +33,22 @@ class PayItSimple_Payment_Model_Observer {
 		$event = $observer->getEvent();
 		$method = $event->getMethodInstance();
 		$result = $event->getResult();
-		$currencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
 
-		if ($method->getCode() == "pis_cc") {
-			$result->isAvailable = $this->checkAvailableInstallments("pis_cc") && $this->checkProductBasedAvailability("pis_cc");
-		} else if ($method->getCode() == "pis_paymentform") {
-			$result->isAvailable = $this->checkAvailableInstallments("pis_paymentform") && $this->checkProductBasedAvailability("pis_paymentform");
+		if ($method->getCode() == "pis_paymentform") {
+			$result->isAvailable = $this->checkAvailableInstallments() && $this->checkProductBasedAvailability();
 		}
 
 	}
 
-	private function checkAvailableInstallments($paymentMethod) {
-		$installments = array();
+	private function checkAvailableInstallments() {
 		$totalAmount = Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal();
-		$selectInstallmentSetup = Mage::getStoreConfig('payment/' . $paymentMethod . '/select_installment_setup');
-		$installmentsInDropdown = array();
+		$selectInstallmentSetup = Mage::getStoreConfig('payment/pis_paymentform/select_installment_setup');
 		$options = Mage::getModel('pis_payment/source_installments')->toOptionArray();
 
-		$depandOnCart = 0;
-		$installmentsText = "";
-		$perMonthText = "";
-		/*check if splitit extension is disable from admin*/
-		$isDisabled = Mage::getStoreConfig('payment/' . $paymentMethod . '/active');
+        $installmentsText = "";
+        $perMonthText = "";
+		// check if splitit extension is disable from admin
+		$isDisabled = Mage::getStoreConfig('payment/pis_paymentform/active');
 		if (!$isDisabled) {
 			return false;
 		}
@@ -63,13 +57,12 @@ class PayItSimple_Payment_Model_Observer {
 		if ($selectInstallmentSetup == "" || $selectInstallmentSetup == "fixed") {
 			/*Select Fixed installment setup*/
 
-			$fixedInstallments = Mage::getStoreConfig('payment/' . $paymentMethod . '/available_installments');
+			$fixedInstallments = Mage::getStoreConfig('payment/pis_paymentform/available_installments');
 			$installmentsCount = $this->countForInstallment($fixedInstallments, $options, $installmentsText, $totalAmount, $perMonthText);
 
 		} else {
 			/*Select Depanding on cart installment setup*/
-			$depandOnCart = 1;
-			$dataAsPerCurrency = $this->getdepandingOnCartInstallments($paymentMethod);
+			$dataAsPerCurrency = $this->getdepandingOnCartInstallments();
 			$currentCurrencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
 			if (count($dataAsPerCurrency) && isset($dataAsPerCurrency[$currentCurrencyCode])) {
 
@@ -102,8 +95,8 @@ class PayItSimple_Payment_Model_Observer {
 		return array('installments' => $installments, 'installmentsInDropdown' => $installmentsInDropdown);
 	}
 
-	public function getdepandingOnCartInstallments($method = 'pis_cc') {
-		$depandingOnCartInstallments = Mage::getStoreConfig('payment/' . $method . '/depanding_on_cart_total_values');
+	public function getdepandingOnCartInstallments() {
+		$depandingOnCartInstallments = Mage::getStoreConfig('payment/pis_paymentform/depanding_on_cart_total_values');
 		$depandingOnCartInstallmentsArr = json_decode($depandingOnCartInstallments);
 		$dataAsPerCurrency = array();
 		foreach ($depandingOnCartInstallmentsArr as $data) {
@@ -112,15 +105,15 @@ class PayItSimple_Payment_Model_Observer {
 		return $dataAsPerCurrency;
 	}
 
-	public function checkProductBasedAvailability($paymentMethod) {
+	public function checkProductBasedAvailability() {
 		$check = TRUE;
-		if (Mage::getStoreConfig('payment/' . $paymentMethod . '/splitit_per_product')) {
+		if (Mage::getStoreConfig('payment/pis_paymentform/splitit_per_product')) {
 			$cart = Mage::getSingleton('checkout/session')->getQuote();
 			/*get array of all items what can be display directly*/
 			$itemsVisible = $cart->getAllVisibleItems();
-			$allowedProducts = Mage::getStoreConfig('payment/' . $paymentMethod . '/splitit_product_skus');
+			$allowedProducts = Mage::getStoreConfig('payment/pis_paymentform/splitit_product_skus');
 			$allowedProducts = explode(',', $allowedProducts);
-			if (Mage::getStoreConfig('payment/' . $paymentMethod . '/splitit_per_product') == 1) {
+			if (Mage::getStoreConfig('payment/pis_paymentform/splitit_per_product') == 1) {
 				$check = TRUE;
 				foreach ($itemsVisible as $item) {
 					if (!in_array($item->getProductId(), $allowedProducts)) {
@@ -129,7 +122,7 @@ class PayItSimple_Payment_Model_Observer {
 					}
 				}
 			}
-			if (Mage::getStoreConfig('payment/' . $paymentMethod . '/splitit_per_product') == 2) {
+			if (Mage::getStoreConfig('payment/pis_paymentform/splitit_per_product') == 2) {
 				$check = FALSE;
 				foreach ($itemsVisible as $item) {
 					if (in_array($item->getProductId(), $allowedProducts)) {
@@ -143,54 +136,34 @@ class PayItSimple_Payment_Model_Observer {
 		return $check;
 	}
 
-	public function isSplititTextVisibleOnProduct($paymentMethod,$productId) {
-		$show = TRUE;
-		if (Mage::getStoreConfig('payment/' . $paymentMethod . '/splitit_per_product') != 0) {
-			$show = FALSE;
-			$allowedProducts = Mage::getStoreConfig('payment/' . $paymentMethod . '/splitit_product_skus');
-			$allowedProducts = explode(',', $allowedProducts);
-			if (in_array($productId, $allowedProducts)) {
-				$show = TRUE;
-			}
-		}
-		
-		return $show;
-	}
+    public function isSplititTextVisibleOnProduct($productId) {
+        $show = TRUE;
+        if (Mage::getStoreConfig('payment/pis_paymentform/splitit_per_product') != 0) {
+            $show = FALSE;
+            $allowedProducts = Mage::getStoreConfig('payment/pis_paymentform/splitit_product_skus');
+            $allowedProducts = explode(',', $allowedProducts);
+            if (in_array($productId, $allowedProducts)) {
+                $show = TRUE;
+            }
+        }
+
+        return $show;
+    }
 
 	public function orderCancelAfter(Varien_Event_Observer $observer) {
-		$event = $observer->getEvent();
-
 		$order = $observer->getEvent()->getOrder();
 
 		$payment = $order->getPayment();
-		if ($payment->getLastTransId() != "") {
-			if ($payment->getMethod() == "pis_cc") {
-				$storeId = Mage::app()->getStore()->getStoreId();
-				$api = Mage::getSingleton("pis_payment/pisMethod")->_initApi($storeId = null);
-				$sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
-				$installmentPlanNumber = $payment->getLastTransId();
-				$cancelResponse = Mage::getModel("pis_payment/pisMethod")->cancelInstallmentPlan($api, $installmentPlanNumber);
-				if (!$cancelResponse["status"]) {
-					Mage::throwException(
-						Mage::helper('payment')->__($cancelResponse["data"])
-					);
-				}
-
-			}
-
-			if ($payment->getMethod() == "pis_paymentform") {
-				$storeId = Mage::app()->getStore()->getStoreId();
-				$api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId = null);
-				$sessionId = Mage::getSingleton('core/session')->getSplititSessionid();
-				$installmentPlanNumber = $payment->getLastTransId();
-				$cancelResponse = Mage::getModel("pis_payment/pisPaymentFormMethod")->cancelInstallmentPlan($api, $installmentPlanNumber);
-				if (!$cancelResponse["status"]) {
-					Mage::throwException(
-						Mage::helper('payment')->__($cancelResponse["data"])
-					);
-				}
-
-			}
+		if ($payment->getLastTransId() != "" && $payment->getMethod() == "pis_paymentform") {
+            $storeId = Mage::app()->getStore()->getStoreId();
+            $api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId);
+            $installmentPlanNumber = $payment->getLastTransId();
+            $cancelResponse = Mage::getModel("pis_payment/pisPaymentFormMethod")->cancelInstallmentPlan($api, $installmentPlanNumber);
+            if (!$cancelResponse["status"]) {
+                Mage::throwException(
+                    Mage::helper('payment')->__($cancelResponse["data"])
+                );
+            }
 		}
 	}
 

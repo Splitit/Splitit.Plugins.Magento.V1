@@ -4,8 +4,6 @@ class PayItSimple_Payment_Model_Source_Languages
 {
     public function toOptionArray()
     {
-         
-     $Stores=array();
      $storeCollection = Mage::getModel('core/store')->getCollection();
 
      $allLanguages = Mage::app()->getLocale()->getOptionLocales();
