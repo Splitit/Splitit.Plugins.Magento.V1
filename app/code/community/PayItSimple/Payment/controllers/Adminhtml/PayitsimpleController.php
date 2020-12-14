@@ -11,7 +11,7 @@ class PayItSimple_Payment_Adminhtml_PayitsimpleController extends Mage_Adminhtml
 	 */
 	public function checkAction() {
 		$storeId = $this->getRequest()->getParam('store_id', 0);
-		$paymentMethod = Mage::getModel('pis_payment/pisMethod');
+		$paymentMethod = Mage::getModel('pis_payment/pisPaymentFormMethod');
 
 		if (!$paymentMethod->getConfigData('api_terminal_key', $storeId) || !$paymentMethod->getConfigData('api_username') || !$paymentMethod->getConfigData('api_password')) {
 			$message = 'Please enter the credentials and save configuration';
@@ -40,7 +40,7 @@ class PayItSimple_Payment_Adminhtml_PayitsimpleController extends Mage_Adminhtml
 
 	public function checkforupdatesAction() {
 		$language = $this->getRequest()->getParam('language');
-		$paymentMethod = Mage::getModel('pis_payment/pisMethod');
+		$paymentMethod = Mage::getModel('pis_payment/pisPaymentFormMethod');
 		$api = $paymentMethod->getApi();
 		$params = array(
 			"SystemTextCategories" => array("Common", "PaymentDetails", "CardBrand", "TermsAndConditions", "EComm"),

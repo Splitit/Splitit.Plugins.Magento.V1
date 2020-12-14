@@ -14,48 +14,6 @@ function getBaseUrl() {
 }
 jQuery(document).ready(function () {
     continueButtonClickEvent = jQuery('#payment-buttons-container button').attr('onclick');
-    setTimeout(function () {
-        if (jQuery(document).find('#p_method_pis_cc:checked').val()) {
-            jQuery(document).find("#checkout-review-submit").find('button').addClass("disabled");
-        }
-        ;
-    }, 3000);
-
-    jQuery(document).find("#checkout-review-submit").find('button').click(function () {
-        if (jQuery('#iaprove').is(':checked')) {
-            jQuery('#i_acknowledge').prop('checked', true);
-            jQuery('#pis_cc_terms').prop('checked', true);
-            jQuery('#one-step-checkout-review-terms-agreement-mc_osc_term').prop('checked', true);
-        }
-    });
-    jQuery('body').click(function (e) {
-        if (e.srcElement === undefined) {
-            return true;
-        }
-        if ('#' + e.srcElement.id == '#p_method_pis_cc') {
-            jQuery(document).find("#checkout-review-submit").find('button').addClass("disabled");
-        }
-
-        if ('#' + e.srcElement.id == '#iaprove') {
-            if (jQuery('#iaprove').is(':checked')) {
-                var res = installmentPlanInit(true);
-                if (res) {
-                    jQuery(document).find("#checkout-review-submit").find('button').removeClass("disabled");
-                    jQuery('#i_acknowledge').prop('checked', true);
-                    jQuery('#pis_cc_terms').prop('checked', true);
-                    jQuery('#one-step-checkout-review-terms-agreement-mc_osc_term').prop('checked', true);
-                } else {
-                    jQuery('#iaprove').prop('checked', false);
-                }
-            } else {
-                if (!jQuery(document).find("#checkout-review-submit").find('button').hasClass("disabled")) {
-                    jQuery(document).find("#checkout-review-submit").find('button').addClass("disabled");
-                }
-            }
-        }
-
-    });
-
 
     //tell me more button
     jQuery(document).on('click', '#tell-me-more', function (e) {
@@ -71,83 +29,13 @@ jQuery(document).ready(function () {
         return;
     });
 
-    var samePayment = "";
-
     //baseUrl = jQuery("#payment-img").attr("data-baseurl");
     getBaseUrl();
 
-
-    jQuery(document).on("click", "#payment-schedule-link", function () {
-        jQuery("#approval-popup").addClass("overflowHidden");
-        jQuery('#payment-schedule, ._popup_overlay').show();
-    });
-    jQuery(document).on("click", "#complete-payment-schedule-close", function () {
-        jQuery("#approval-popup").removeClass("overflowHidden");
-        jQuery('#payment-schedule, ._popup_overlay').hide();
-    });
-
-    jQuery(document).on("click", "#i_acknowledge_content_show", function () {
-        jQuery("#approval-popup").addClass("overflowHidden");
-        jQuery('#termAndConditionpopup, ._popup_overlay').show();
-    });
-
-    jQuery(document).on("click", "#termAndConditionpopupCloseBtn", function () {
-        jQuery("#approval-popup").removeClass("overflowHidden");
-        jQuery('#termAndConditionpopup, ._popup_overlay').hide();
-    });
-
-
-    // get number of installment when splitit payment gateway already selected
-    if (jQuery('dt#dt_method_pis_cc input#p_method_pis_cc').is(':checked')) {
-        getNumOfInstallments();
-    }
-
-    // hide I acknowdge
-    jQuery(document).on("click", "#i_acknowledge", function () {
-        if (jQuery('#i_acknowledge').is(":checked")) {
-            jQuery(".i_ack_err").hide();
-        } else {
-            jQuery(".i_ack_err").show();
-        }
-    });
-
-
-    // get number of installment on click of splitit payment gateway	
-    /*jQuery(document).on("click","dt#dt_method_pis_cc input#p_method_pis_cc", function() {
-     alert("sdfsfdf");
-     getNumOfInstallments();
-     
-     });*/
-
     jQuery(document).on('click', '#checkout-payment-method-load input[type="radio"]', function (e) {
-        if (jQuery(this).attr("id") == 'p_method_pis_cc') {
-            jQuery('#payment-buttons-container button').attr('onclick','if(!installmentPlanInit(true)){return false;}'+continueButtonClickEvent);
-            getNumOfInstallments();
-        } else {
-            // check if hosted solution is selected as payment mode
-            /*jQuery("#payment-buttons-container button").show();
-             jQuery(document).find("#payment-buttons-container .splitit-checkout-url").remove();*/
-            jQuery("#payment-buttons-container button").attr("onclick",continueButtonClickEvent);
-        }
-    })
+        jQuery("#payment-buttons-container button").attr("onclick",continueButtonClickEvent);
+    });
     var isAlreadyClickInFormFields = 0;
-    jQuery(document).on("click", "#payment_form_pis_cc li", function () {
-
-
-        if (isAlreadyClickInFormFields == 0) {
-            //jQuery("#payment-buttons-container button").attr("onclick","");
-            getNumOfInstallments();
-        }
-
-
-
-    });
-
-    jQuery(document).on('change', '#pis_cc_installments_no', function () {
-        /*alert('sdsd');*/
-        //jQuery('#one-step-checkout-review-terms-agreement-mc_osc_term').prop('checked', false);
-        // jQuery('#pis_cc_terms').prop('checked', false);
-    });
 
     // check if we have splitit payment form checkout url for hosted solution
     var isCheckoutUrl = 0;
@@ -159,7 +47,6 @@ jQuery(document).ready(function () {
             var splititCheckoutUrl = jQuery(document).find(".splitit-redirect").attr("data-splititUrl");
             window.location.href = splititCheckoutUrl;
         } else {
-            jQuery(document).find("#p_method_pis_cc").prop('checked', true);
             checkIfFoundUrlElse = 1;
             getNumOfInstallments();
         }
@@ -188,8 +75,6 @@ jQuery(document).ready(function () {
         }
     }
     console.log(requestData);
-
-
 
     // get external suppliers(fraud detectors) cookie array
     function getTokenCookies() {
@@ -229,13 +114,7 @@ jQuery(document).ready(function () {
 
     /*forter code*/
 
-    /*jQuery("#payment_form_pis_cc li").on("click",function(){
-     alert("sdfsfd");
-     });*/
-
 	getNumOfInstallments = function () {
-	    var selectedInstallment = jQuery("#pis_cc_installments_no").val();
-	    jQuery("body").find("#dt_method_pis_cc .pis-login-loader").show();
 	    jQuery("body").find(".terms-condition-loader").hide();
 	    jQuery.ajax({
 	        url: getBaseUrl() + "payitsimple/payment/apiLogin/",
@@ -244,18 +123,8 @@ jQuery(document).ready(function () {
 	        dataType: 'json',
 	        data: {'ForterToken': requestData},
 	        success: function (obj) {
-
 	            if (obj.status == true) {
-	                /*var html = '<option value="" class="number-of-installments">--Please Select--</option>';
-	                 jQuery.each( obj.data, function( index, value ){
-	                 html +=  '<option value="'+index+'">'+value+'</option>';
-	                 });
-	                 jQuery("#pis_cc_installments_no").html(html);*/
-	                /*if(obj.installmentNum == 0){
-	                 jQuery("#pis_cc_installments_no option:nth-child(2)").attr("value", "");
-	                 }*/
 	                if ('checkoutUrl' in obj) {
-
 	                    jQuery(document).find(".splitit-redirect").attr('data-splititUrl', obj.checkoutUrl);
 	                    isCheckoutUrl = 1;
 	                    if (checkIfFoundUrlElse) {
@@ -263,12 +132,6 @@ jQuery(document).ready(function () {
 	                        var splititCheckoutUrl = jQuery(document).find(".splitit-redirect").attr("data-splititUrl");
 	                        window.location.href = obj.checkoutUrl;
 	                    }
-
-	                    /*jQuery("#payment-buttons-container button").hide();
-	                     jQuery(document).find(".splitit-checkout-url").remove();
-	                     jQuery(document).find("#payment-buttons-container .back-link").before("<a class='splitit-checkout-url' href='"+obj.checkoutUrl+"' >continue</a>");
-	                     */
-	                    //jQuery("#payment-buttons-container .back-ling").after("<a href='"+obj.checkoutUrl+"' >redirect</a>");
 	                }
 	                numOfInstallmentsResponse = 1;
 	                isAlreadyClickInFormFields = 1;

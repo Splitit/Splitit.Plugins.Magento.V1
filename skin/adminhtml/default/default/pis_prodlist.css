@@ -1,12 +1,3 @@
-#row_payment_pis_cc_title {
-    display: none;
-}
-#row_payment_pis_cc_faq_link_enabled {
-    display: none;
-}
-#row_payment_pis_cc_faq_link_title {
-    display: none;
-}
 #row_payment_pis_paymentform_title {
     display: none;
 }
@@ -16,13 +7,7 @@
 #row_payment_pis_paymentform_faq_link_title {
     display: none;
 }
-#row_payment_pis_cc_splitit_fees {
-    display: none;
-}
 #row_payment_pis_paymentform_splitit_fees {
-    display: none;
-}
-#row_payment_pis_cc_fortertoken {
     display: none;
 }
 .ui-widget-prod-list,.ui-widget-prod-list1{
