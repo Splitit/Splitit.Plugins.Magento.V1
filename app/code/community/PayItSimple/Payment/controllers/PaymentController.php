@@ -185,6 +185,21 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		$quoteGrandTotal = number_format((float) $quote->getGrandTotal(), 2, '.', '');
 		//echo ;die;
 
+        $api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->getApiUrl();
+        $verifyResult = Mage::getSingleton("pis_payment/api")->verifyPayment($api, $params["InstallmentPlanNumber"]);
+        Mage::log('======= verify result :  ======= ');
+        Mage::log($verifyResult);
+
+        $verifyResult['errorMsg'] = 'error msg';
+
+        if(isset($verifyResult['errorMsg']) ||
+            !isset($verifyResult['IsPaid']) ||
+            !isset($verifyResult['OriginalAmountPaid']) && $verifyResult['OriginalAmountPaid'] != $quoteGrandTotal) {
+            Mage::getSingleton('checkout/session')->addError(Mage::helper('checkout')->__('Something went wrong during the payment. Please try again.'));
+            Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "checkout/cart")->sendResponse();
+            return;
+        }
+
 		if (count($data) && $quote->getId() == $data["quote_id"] && $quoteGrandTotal == $planDetails["grandTotal"] && ($planDetails["planStatus"] == "PendingMerchantShipmentNotice" || $planDetails["planStatus"] == "InProgress")) {
 			//create order
 			$convertQuote = Mage::getModel('sales/quote')->load($quote->getId());
@@ -448,6 +463,17 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		Mage::log($quote->getData());
 		$quoteGrandTotal = number_format((float) $quote->getGrandTotal(), 2, '.', '');
 		//echo ;die;
+
+        $api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->getApiUrl();
+        $verifyResult = Mage::getSingleton("pis_payment/api")->verifyPayment($api, $params["InstallmentPlanNumber"]);
+        Mage::log('======= verify result :  ======= ');
+        Mage::log($verifyResult);
+
+        if(isset($verifyResult['errorMsg']) ||
+            !isset($verifyResult['IsPaid']) ||
+            !isset($verifyResult['OriginalAmountPaid']) && $verifyResult['OriginalAmountPaid'] != $quoteGrandTotal) {
+            return false;
+        }
 
 		if (count($data) && $quote->getId() == $data["quote_id"] && $quoteGrandTotal == $planDetails["grandTotal"] && ($planDetails["planStatus"] == "PendingMerchantShipmentNotice" || $planDetails["planStatus"] == "InProgress")) {
 			//create order
