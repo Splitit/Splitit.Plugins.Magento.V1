@@ -124,30 +124,35 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract {
             'RequestHeader' => ['SessionId' => Mage::getSingleton('core/session')->getSplititSessionid()],
             'InstallmentPlanNumber' => $ipn
         ];
-        $decodedResult = json_decode($this->makePhpCurlRequest($apiUrl, 'InstallmentPlan/Get/VerifyPayment', $params), true);
 
-        $result = [];
+        try {
+            $decodedResult = json_decode($this->makePhpCurlRequest($apiUrl, 'InstallmentPlan/Get/VerifyPayment', $params), true);
+            $result = [];
 
-        if (isset($decodedResult['errorMsg'])) {
-            $result['errorMsg'] = $decodedResult['errorMsg'];
-        } elseif (isset($decodedResult["ResponseHeader"]) && isset($decodedResult["ResponseHeader"]["Errors"]) && !empty($decodedResult["ResponseHeader"]["Errors"])) {
-            $errorMsg = "";
+            if (isset($decodedResult['errorMsg'])) {
+                $result['errorMsg'] = $decodedResult['errorMsg'];
+            } elseif (isset($decodedResult["ResponseHeader"]) && isset($decodedResult["ResponseHeader"]["Errors"]) && !empty($decodedResult["ResponseHeader"]["Errors"])) {
+                $errorMsg = "";
 
-            $errorCode = 503;
-            $isErrorCode503Found = 0;
-            foreach ($decodedResult["ResponseHeader"]["Errors"] as $key => $value) {
-                $errorMsg .= $value["ErrorCode"] . " : " . $value["Message"];
-                if ($value["ErrorCode"] == $errorCode) {
-                    $isErrorCode503Found = 1;
-                    break;
+                $errorCode = 503;
+                $isErrorCode503Found = 0;
+                foreach ($decodedResult["ResponseHeader"]["Errors"] as $key => $value) {
+                    $errorMsg .= $value["ErrorCode"] . " : " . $value["Message"];
+                    if ($value["ErrorCode"] == $errorCode) {
+                        $isErrorCode503Found = 1;
+                        break;
+                    }
                 }
-            }
 
-            if ($isErrorCode503Found) {
-                $result['errorMsg'] = $errorMsg;
+                if ($isErrorCode503Found) {
+                    $result['errorMsg'] = $errorMsg;
+                }
+            } else {
+                $result = $decodedResult;
             }
-        } else {
-            $result = $decodedResult;
+        } catch (Exception $e) {
+            $this->setError($e->getMessage());
+            $result['errorMsg'] = $e->getMessage();
         }
 
         return $result;
