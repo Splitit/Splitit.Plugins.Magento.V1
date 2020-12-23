@@ -390,7 +390,7 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract {
 		$result = Zend_Http_Response::extractBody($response);
 
 		if ($curl->getErrno()) {
-			$result["serverError"] = $this->getServerDownMsg();
+			$result['serverError'] = $this->getServerDownMsg();
 			$curl->close();
 			return $result = Mage::helper('core')->jsonEncode($result);
 		}

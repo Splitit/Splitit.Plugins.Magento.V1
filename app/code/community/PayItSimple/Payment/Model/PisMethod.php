@@ -485,8 +485,8 @@ class PayItSimple_Payment_Model_PisMethod extends Mage_Payment_Model_Method_Cc {
 		$prefix = Mage::getConfig()->getTablePrefix();
 
 		$result = $read->query("SELECT * FROM `" . $prefix . "core_config_data` WHERE path='" . $path . "'");
-		$row = $result->fetch();
-		if (count($result)) {
+		$row = $result->fetchAll();
+		if (count($row)) {
 			$transaction = Mage::getSingleton('core/resource')->getConnection('core_write');
 			try {
 				$transaction->beginTransaction();

@@ -185,12 +185,10 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		$quoteGrandTotal = number_format((float) $quote->getGrandTotal(), 2, '.', '');
 		//echo ;die;
 
-        $api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->getApiUrl();
-        $verifyResult = Mage::getSingleton("pis_payment/api")->verifyPayment($api, $params["InstallmentPlanNumber"]);
+        $apiURL = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->getApiUrl();
+        $verifyResult = Mage::getSingleton("pis_payment/api")->verifyPayment($apiURL, $params["InstallmentPlanNumber"]);
         Mage::log('======= verify result :  ======= ');
         Mage::log($verifyResult);
-
-        $verifyResult['errorMsg'] = 'error msg';
 
         if(isset($verifyResult['errorMsg']) ||
             !isset($verifyResult['IsPaid']) ||
@@ -270,7 +268,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 			Mage::log('====== Order cancel due to Grand total and Payment detail total coming from Api is not same. =====');
 			$cancelResponse = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->cancelInstallmentPlan($api, $params["InstallmentPlanNumber"]);
 			if ($cancelResponse["status"]) {
-				Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "payitsimple/payment/cancel")->sendResponse();
+				Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "payitsimple/payment/cancelExit")->sendResponse();
 			}
 		}
 
@@ -403,7 +401,7 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 			Mage::log('====== Order cancel due to Grand total and Payment detail total coming from Api is not same. =====');
 			$cancelResponse = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->cancelInstallmentPlan($api, $params["InstallmentPlanNumber"]);
 			if ($cancelResponse["status"]) {
-				Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "payitsimple/payment/cancel")->sendResponse();
+				Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "payitsimple/payment/cancelExit")->sendResponse();
 			}
 		}
 	}
@@ -464,8 +462,8 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		$quoteGrandTotal = number_format((float) $quote->getGrandTotal(), 2, '.', '');
 		//echo ;die;
 
-        $api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->getApiUrl();
-        $verifyResult = Mage::getSingleton("pis_payment/api")->verifyPayment($api, $params["InstallmentPlanNumber"]);
+        $apiURL = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->getApiUrl();
+        $verifyResult = Mage::getSingleton("pis_payment/api")->verifyPayment($apiURL, $params["InstallmentPlanNumber"]);
         Mage::log('======= verify result :  ======= ');
         Mage::log($verifyResult);
 
