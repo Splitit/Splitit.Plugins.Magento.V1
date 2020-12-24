@@ -668,7 +668,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 		$billAddress = $checkout->getBillingAddress();
 		$BillingAddressArr = $billAddress->getData();
 		$customerInfo = Mage::getSingleton('customer/session')->getCustomer()->getData();
-		$numOfInstallments = Mage::getSingleton('core/session')->getInstallmentsInDropdownForPaymentForm();
+		$numOfInstallments = Mage::getSingleton('core/session')->getInstallmentsInDropdown();
 
 		if (!isset($customerInfo["firstname"])) {
 			$customerInfo["firstname"] = $billAddress->getFirstname();

@@ -257,11 +257,11 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 			$db_write = Mage::getSingleton('core/resource')->getConnection('core_write');
 			$updateQue = Mage::getModel('pis_payment/pispayment')->load($params["InstallmentPlanNumber"], 'installment_plan_number');
 			$updateQue->setOrderCreated(1);
-			$updateQue->setOrderId($orderId);
-			$updateQue->setOrderIncrementId($orderIncrementId);
+			$updateQue->setOrderId($orderObj->getId());
+			$updateQue->setOrderIncrementId($orderObj->getIncrementId());
 			$updateQue->save();
 			// $db_write->query($updateQue);
-			Mage::log('====== Order Id =====:' . $orderId . '==== Order Increment Id ======:' . $orderIncrementId);
+			Mage::log('====== Order Id =====:' . $orderObj->getId() . '==== Order Increment Id ======:' . $orderObj->getIncrementId());
 			Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "checkout/onepage/success")->sendResponse();
 
 		} else {
@@ -695,21 +695,16 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 			$data = $sqlLoad->getData();
 			// check if order already created via Async etc.
 			if (count($data) && $data["order_id"] == 0 && $data["order_increment_id"] == null) {
-				$orderId = Mage::getSingleton('checkout/session')->getLastOrderId();
-				$orderIncrementId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
-				/*$db_write = Mage::getSingleton('core/resource')->getConnection('core_write');
-					// get order id and increment number from session to update in splitit_hosted_solution table
-
-					$updateQue = 'UPDATE `' . $tablePrefix . 'splitit_hosted_solution` SET order_id = "' . $orderId . '", order_increment_id = "' . $orderIncrementId . '" WHERE installment_plan_number = "' . $splititInstallmentPlanNumber . '"';
-				*/
-				$updateQue = Mage::getModel('pis_payment/pispayment')->load($splititInstallmentPlanNumber, 'installment_plan_number');
-				$updateQue->setOrderId($orderId);
-				$updateQue->setOrderIncrementId($orderIncrementId);
-				$updateQue->save();
-				/*$updateQue->setData(array('order_id' => $orderId, 'order_increment_id' => $orderIncrementId));
-				$updateQue->save();*/
+                $orderId = Mage::getSingleton('checkout/session')->getLastOrderId();
+                $lastRecordByOrder = Mage::getModel('pis_payment/pispayment')->load($orderId, 'order_id');
+                $orderIncrementId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
+                if (!$lastRecordByOrder->getId() || !$lastRecordByOrder->getOrderCreated() ) {
+                    $updateQue = Mage::getModel('pis_payment/pispayment')->load($splititInstallmentPlanNumber, 'installment_plan_number');
+                    $updateQue->setOrderId($orderId);
+                    $updateQue->setOrderIncrementId($orderIncrementId);
+                    $updateQue->save();
+                }
 				Mage::app()->getFrontController()->getResponse()->setRedirect($splititCheckoutUrl)->sendResponse();
-				//return true;
 			}
 		}
 	}
