@@ -698,7 +698,10 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
                 $orderId = Mage::getSingleton('checkout/session')->getLastOrderId();
                 $lastRecordByOrder = Mage::getModel('pis_payment/pispayment')->load($orderId, 'order_id');
                 $orderIncrementId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
-                if (!$lastRecordByOrder->getId() || !$lastRecordByOrder->getOrderCreated() ) {
+                if (!($orderId && !$lastRecordByOrder->getId()) &&      // if there's no such order for splitit payment
+                    !$lastRecordByOrder->getId() ||
+                    ($lastRecordByOrder->getId() && !$lastRecordByOrder->getOrderCreated())
+                ) {
                     $updateQue = Mage::getModel('pis_payment/pispayment')->load($splititInstallmentPlanNumber, 'installment_plan_number');
                     $updateQue->setOrderId($orderId);
                     $updateQue->setOrderIncrementId($orderIncrementId);
