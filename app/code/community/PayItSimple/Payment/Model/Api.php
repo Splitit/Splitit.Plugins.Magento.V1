@@ -118,6 +118,46 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract {
 		}
 	}
 
+    public function verifyPayment($apiUrl, $ipn)
+    {
+        $params = [
+            'RequestHeader' => ['SessionId' => Mage::getSingleton('core/session')->getSplititSessionid()],
+            'InstallmentPlanNumber' => $ipn
+        ];
+
+        try {
+            $decodedResult = json_decode($this->makePhpCurlRequest($apiUrl, 'InstallmentPlan/Get/VerifyPayment', $params), true);
+            $result = [];
+
+            if (isset($decodedResult['errorMsg'])) {
+                $result['errorMsg'] = $decodedResult['errorMsg'];
+            } elseif (isset($decodedResult["ResponseHeader"]) && isset($decodedResult["ResponseHeader"]["Errors"]) && !empty($decodedResult["ResponseHeader"]["Errors"])) {
+                $errorMsg = "";
+
+                $errorCode = 503;
+                $isErrorCode503Found = 0;
+                foreach ($decodedResult["ResponseHeader"]["Errors"] as $key => $value) {
+                    $errorMsg .= $value["ErrorCode"] . " : " . $value["Message"];
+                    if ($value["ErrorCode"] == $errorCode) {
+                        $isErrorCode503Found = 1;
+                        break;
+                    }
+                }
+
+                if ($isErrorCode503Found) {
+                    $result['errorMsg'] = $errorMsg;
+                }
+            } else {
+                $result = $decodedResult;
+            }
+        } catch (Exception $e) {
+            $this->setError($e->getMessage());
+            $result['errorMsg'] = $e->getMessage();
+        }
+
+        return $result;
+    }
+
 	public function cancelInstallmentPlan($apiUrl, $params) {
 		try {
 			return $this->makePhpCurlRequest($apiUrl, "InstallmentPlan/Cancel", $params);
@@ -350,7 +390,7 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract {
 		$result = Zend_Http_Response::extractBody($response);
 
 		if ($curl->getErrno()) {
-			$result["serverError"] = $this->getServerDownMsg();
+			$result['serverError'] = $this->getServerDownMsg();
 			$curl->close();
 			return $result = Mage::helper('core')->jsonEncode($result);
 		}

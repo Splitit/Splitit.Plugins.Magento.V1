@@ -484,8 +484,8 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 		$prefix = Mage::getConfig()->getTablePrefix();
 
 		$result = $read->query("SELECT * FROM `" . $prefix . "core_config_data` WHERE path='" . $path . "'");
-		$row = $result->fetch();
-		if (count($result)) {
+		$row = $result->fetchAll();
+		if (count($row)) {
 			$transaction = Mage::getSingleton('core/resource')->getConnection('core_write');
 			try {
 				$transaction->beginTransaction();
@@ -668,7 +668,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 		$billAddress = $checkout->getBillingAddress();
 		$BillingAddressArr = $billAddress->getData();
 		$customerInfo = Mage::getSingleton('customer/session')->getCustomer()->getData();
-		$numOfInstallments = Mage::getSingleton('core/session')->getInstallmentsInDropdownForPaymentForm();
+		$numOfInstallments = Mage::getSingleton('core/session')->getInstallmentsInDropdown();
 
 		if (!isset($customerInfo["firstname"])) {
 			$customerInfo["firstname"] = $billAddress->getFirstname();
@@ -777,7 +777,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			),
 			"BillingAddress" => array(
 				"AddressLine" => $getStreet[0],
-				"AddressLine2" => $getStreet[1],
+				"AddressLine2" => isset($getStreet[1])?$getStreet[1]:'',
 				"City" => $billAddress->getCity(),
 				"State" => $billAddress->getRegion(),
 				//"Country" => Mage::app()->getLocale()->getCountryTranslation($billAddress->getCountry()),
@@ -851,7 +851,6 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 
 		$paymentWizardData = array(
 			"PaymentWizardData" => array(
-				"RequestedNumberOfInstallments" => implode(',', array_keys($numOfInstallments)),
 				"SuccessAsyncURL" => Mage::getBaseUrl() . "payitsimple/payment/successAsync",
 				"SuccessExitURL" => Mage::getBaseUrl() . "payitsimple/payment/successExit",
 				"CancelExitURL" => Mage::getBaseUrl() . "payitsimple/payment/cancelExit",
@@ -859,6 +858,9 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 
 			),
 		);
+		if($numOfInstallments){
+			$paymentWizardData['PaymentWizardData']['RequestedNumberOfInstallments'] = implode(',', array_keys($numOfInstallments));
+		}
 		$params = array_merge($params, $paymentWizardData);
 
 		//print_r($params);die("--fd");
