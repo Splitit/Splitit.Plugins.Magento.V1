@@ -1,34 +1,22 @@
 <?php
 
-class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_Action {
+class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_Action
+{
 
-	public function helpAction() {
+	public function helpAction()
+	{
 		$this->loadLayout();
 		$this->renderLayout();
 	}
 
-	public function termsAction() {
+	public function termsAction()
+	{
 		$this->loadLayout();
 		$this->renderLayout();
 	}
 
-	/*public function testingAction() {
-		$url = 'https://web-api-sandbox.splitit.com/api/Infrastructure/GetResources?format=JSON'; //the API
-
-		$curl = new Varien_Http_Adapter_Curl();
-		//	$curl->setOptions($params);
-		$curl->write(Zend_Http_Client::GET, $url, Zend_Http_Client::HTTP_0, array('Content-Type: application/json'));
-		$response = $curl->read();
-		$responseBody = Zend_Http_Response::extractBody($response);
-		//echo $curl->getErrno();
-		//var_dump($curl->getInfo());
-		echo $responseBody;
-		$curl->close();
-		echo '<pre>';
-		print_r(json_decode($responseBody));die;
-	}*/
-
-	public function prodlistAction() {
+	public function prodlistAction()
+	{
 		$params = $this->getRequest()->getParams();
 		$result = array();
 		if (isset($params['isAjax']) && $params['isAjax']) {
@@ -41,7 +29,8 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		return true;
 	}
 
-	public function apiLoginAction() {
+	public function apiLoginAction()
+	{
 
 		$api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId = null);
 		$params = $this->getRequest()->getParams();
@@ -55,8 +44,8 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		);
 
 		$forterToken = Mage::getStoreConfig('payment/pis_cc/fortertoken');
-		if($forterToken){
-			Mage::getSingleton('core/session')->setSplititForterToken(isset($params['ForterToken'])?$params['ForterToken']:null);
+		if ($forterToken) {
+			Mage::getSingleton('core/session')->setSplititForterToken(isset($params['ForterToken']) ? $params['ForterToken'] : null);
 		}
 
 		if ($api->isLogin()) {
@@ -103,11 +92,12 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		return true;
 	}
 
-	public function testAction() {
+	public function testAction()
+	{
 		$params = "53342166015563671044";
 		$paymentFormCollection = Mage::getModel('pis_payment/pispayment')->getCollection()->addFieldToFilter('installment_plan_number', $params)->addFieldToFilter('order_created', 1);
 		$paymentFormData = $paymentFormCollection->getFirstItem();
-		
+
 		return $paymentFormData->getData();
 		/*$tablePrefix = (string) Mage::getConfig()->getTablePrefix();
 			$db_read = Mage::getSingleton('core/resource')->getConnection('core_read');
@@ -115,7 +105,8 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		*/
 	}
 
-	public function successExitAction() {
+	public function successExitAction()
+	{
 		$params = $this->getRequest()->getParams();
 		Mage::getSingleton('core/session')->setInstallmentPlanNumber($params["InstallmentPlanNumber"]);
 		Mage::log('======= successExitAction :  =======InstallmentPlanNumber coming from splitit in url: ' . $params["InstallmentPlanNumber"]);
@@ -148,8 +139,23 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		$quote = Mage::getModel('checkout/session')->getQuote();
 		$quoteGrandTotal = number_format((float) $quote->getGrandTotal(), 2, '.', '');
 
-		if (count($data) && $quote->getId() == $data["quote_id"] && $quoteGrandTotal == $planDetails["grandTotal"] && (($planDetails["planStatus"] == "PendingMerchantShipmentNotice" || $planDetails["planStatus"] == "InProgress")||($planDetails["numberOfInstallments"]==1 && $planDetails["planStatus"] == "Cleared"))) {
-			/*create order*/
+		$apiURL = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->getApiUrl();
+		$verifyResult = Mage::getSingleton("pis_payment/api")->verifyPayment($apiURL, $params["InstallmentPlanNumber"]);
+		Mage::log('======= verify result :  ======= ');
+		Mage::log($verifyResult);
+
+		if (
+			isset($verifyResult['errorMsg']) ||
+			!isset($verifyResult['IsPaid']) ||
+			!isset($verifyResult['OriginalAmountPaid']) && $verifyResult['OriginalAmountPaid'] != $quoteGrandTotal
+		) {
+			Mage::getSingleton('checkout/session')->addError(Mage::helper('checkout')->__('Something went wrong during the payment. Please try again.'));
+			Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "checkout/cart")->sendResponse();
+			return;
+		}
+
+		if (count($data) && $quote->getId() == $data["quote_id"] && $quoteGrandTotal == $planDetails["grandTotal"] && (($planDetails["planStatus"] == "PendingMerchantShipmentNotice" || $planDetails["planStatus"] == "InProgress") || ($planDetails["numberOfInstallments"] == 1 && $planDetails["planStatus"] == "Cleared"))) {
+			/* create order */
 			$convertQuote = Mage::getModel('sales/quote')->load($quote->getId());
 			$convertQuote->collectTotals();
 			$service = Mage::getModel('sales/service_quote', $convertQuote);
@@ -179,8 +185,10 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 			$payment->registerAuthorizationNotification($grandTotal);
 
 			$orderObj->addStatusToHistory(
-				$orderObj->getStatus(), 'Payment InstallmentPlan was created with number ID: '
-				. Mage::getSingleton('core/session')->getInstallmentPlanNumber(), false
+				$orderObj->getStatus(),
+				'Payment InstallmentPlan was created with number ID: '
+					. Mage::getSingleton('core/session')->getInstallmentPlanNumber(),
+				false
 			);
 			Mage::log('========== splitit update ref order number ==============');
 			$updateStatus = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->updateRefOrderNumber($api, $orderObj);
@@ -196,7 +204,9 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 				$payment->setIsTransactionClosed(1);
 				$payment->registerCaptureNotification($grandTotal);
 				$orderObj->addStatusToHistory(
-					false, 'Payment NotifyOrderShipped was sent with number ID: ' . Mage::getSingleton('core/session')->getInstallmentPlanNumber(), false
+					false,
+					'Payment NotifyOrderShipped was sent with number ID: ' . Mage::getSingleton('core/session')->getInstallmentPlanNumber(),
+					false
 				);
 			}
 			/*$orderObj->queueNewOrderEmail();*/
@@ -209,24 +219,23 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 			$db_write = Mage::getSingleton('core/resource')->getConnection('core_write');
 			$updateQue = Mage::getModel('pis_payment/pispayment')->load($params["InstallmentPlanNumber"], 'installment_plan_number');
 			$updateQue->setOrderCreated(1);
-			$updateQue->setOrderId($orderId);
-			$updateQue->setOrderIncrementId($orderIncrementId);
+			$updateQue->setOrderId($orderObj->getId());
+			$updateQue->setOrderIncrementId($orderObj->getIncrementId());
 			$updateQue->save();
 			/*$db_write->query($updateQue);*/
 			Mage::log('====== Order Id =====:' . $orderId . '==== Order Increment Id ======:' . $orderIncrementId);
 			Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "checkout/onepage/success")->sendResponse();
-
 		} else {
 			Mage::log('====== Order cancel due to Grand total and Payment detail total coming from Api is not same. =====');
 			$cancelResponse = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->cancelInstallmentPlan($api, $params["InstallmentPlanNumber"]);
 			if ($cancelResponse["status"]) {
-				Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "payitsimple/payment/cancel")->sendResponse();
+				Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "payitsimple/payment/cancelExit")->sendResponse();
 			}
 		}
-
 	}
 
-	public function successAction() {
+	public function successAction()
+	{
 		$orderIncrementId = Mage::getSingleton('core/session')->getOrderIncrementId();
 		$orderId = Mage::getSingleton('core/session')->getOrderId();
 		/*check if order created else redirect to cart page*/
@@ -238,12 +247,14 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		}
 	}
 
-	public function cancelAction() {
+	public function cancelAction()
+	{
 		$this->loadLayout();
 		$this->renderLayout();
 	}
 
-	public function successAsyncAction() {
+	public function successAsyncAction()
+	{
 		$params = $this->getRequest()->getParams();
 		/*remove plan from session which were created when user click on radio button*/
 		/*Mage::getSingleton('core/session')->setSplititInstallmentPlanNumber("");*/
@@ -280,9 +291,23 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		Mage::log('=====quoteData=====');
 		Mage::log($quote->getData());
 		$quoteGrandTotal = number_format((float) $quote->getGrandTotal(), 2, '.', '');
-		
-		if (count($data) && $quote->getId() == $data["quote_id"] && $quoteGrandTotal == $planDetails["grandTotal"] && (($planDetails["planStatus"] == "PendingMerchantShipmentNotice" || $planDetails["planStatus"] == "InProgress")||($planDetails["numberOfInstallments"]==1 && $planDetails["planStatus"] == "Cleared"))) {
-			/*create order*/
+		//echo ;die;
+
+		$apiURL = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->getApiUrl();
+		$verifyResult = Mage::getSingleton("pis_payment/api")->verifyPayment($apiURL, $params["InstallmentPlanNumber"]);
+		Mage::log('======= verify result :  ======= ');
+		Mage::log($verifyResult);
+
+		if (
+			isset($verifyResult['errorMsg']) ||
+			!isset($verifyResult['IsPaid']) ||
+			!isset($verifyResult['OriginalAmountPaid']) && $verifyResult['OriginalAmountPaid'] != $quoteGrandTotal
+		) {
+			return false;
+		}
+
+		if (count($data) && $quote->getId() == $data["quote_id"] && $quoteGrandTotal == $planDetails["grandTotal"] && (($planDetails["planStatus"] == "PendingMerchantShipmentNotice" || $planDetails["planStatus"] == "InProgress") || ($planDetails["numberOfInstallments"] == 1 && $planDetails["planStatus"] == "Cleared"))) {
+			/* create order */
 			$convertQuote = Mage::getModel('sales/quote')->load($quote->getId());
 			$convertQuote->collectTotals();
 			$service = Mage::getModel('sales/service_quote', $convertQuote);
@@ -314,8 +339,10 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 			$payment->registerAuthorizationNotification($grandTotal);
 			Mage::log('======update order status history======');
 			$orderObj->addStatusToHistory(
-				$orderObj->getStatus(), 'Payment InstallmentPlan was created with number ID: '
-				. Mage::getSingleton('core/session')->getInstallmentPlanNumber(), false
+				$orderObj->getStatus(),
+				'Payment InstallmentPlan was created with number ID: '
+					. Mage::getSingleton('core/session')->getInstallmentPlanNumber(),
+				false
 			);
 			Mage::log('========== splitit update ref order number ==============');
 			$updateStatus = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->updateRefOrderNumber($api, $orderObj);
@@ -331,7 +358,9 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 				$payment->setIsTransactionClosed(1);
 				$payment->registerCaptureNotification($grandTotal);
 				$orderObj->addStatusToHistory(
-					false, 'Payment NotifyOrderShipped was sent with number ID: ' . Mage::getSingleton('core/session')->getInstallmentPlanNumber(), false
+					false,
+					'Payment NotifyOrderShipped was sent with number ID: ' . Mage::getSingleton('core/session')->getInstallmentPlanNumber(),
+					false
 				);
 			}
 			Mage::log('======send order email======');
@@ -350,7 +379,6 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 			Mage::log('====== Order Id =====:' . $orderId . '==== Order Increment Id ======:' . $orderIncrementId);
 			/*Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "checkout/onepage/success")->sendResponse();*/
 			return true;
-
 		} else {
 			Mage::log('====== Order cancel due to Grand total and Payment detail total coming from Api is not same. =====');
 			$cancelResponse = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->cancelInstallmentPlan($api, $params["InstallmentPlanNumber"]);
@@ -362,7 +390,8 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		return false;
 	}
 
-	public function cancelAsyncAction() {
+	public function cancelAsyncAction()
+	{
 		$params = $this->getRequest()->getParams();
 		/*Mage::getSingleton('core/session')->setInstallmentPlanNumber($params["InstallmentPlanNumber"]);*/
 		Mage::log('======= cancelAsyncAction :  =======InstallmentPlanNumber coming from splitit in url: ' . $params["InstallmentPlanNumber"]);
@@ -416,7 +445,8 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		}
 	}
 
-	public function cancelExitAction() {
+	public function cancelExitAction()
+	{
 
 		/* $params = $this->getRequest()->getParams();
 			          $storeId = Mage::app()->getStore()->getStoreId();
@@ -449,7 +479,8 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "checkout/cart")->sendResponse();
 	}
 
-	public function errorExitAction() {
+	public function errorExitAction()
+	{
 
 		/* $params = $this->getRequest()->getParams();
 			          $storeId = Mage::app()->getStore()->getStoreId();
@@ -483,7 +514,8 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 		Mage::app()->getFrontController()->getResponse()->setRedirect(Mage::getBaseUrl() . "checkout/cart")->sendResponse();
 	}
 
-	public function redirectAction() {
+	public function redirectAction()
+	{
 
 		Mage::helper('pis_payment')->getCreditCardFormTranslation('ecomm_redirect_to_payment_form');
 
@@ -498,21 +530,21 @@ class PayItSimple_Payment_PaymentController extends Mage_Core_Controller_Front_A
 			$data = $sqlLoad->getData();
 			/*check if order already created via Async etc.*/
 			if (count($data) && $data["order_id"] == 0 && $data["order_increment_id"] == null) {
-                $orderId = Mage::getSingleton('checkout/session')->getLastOrderId();
-                $lastRecordByOrder = Mage::getModel('pis_payment/pispayment')->load($orderId, 'order_id');
-                $orderIncrementId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
-                if (!$lastRecordByOrder->getId() || !$lastRecordByOrder->getOrderCreated() ) {
-                    $updateQue = Mage::getModel('pis_payment/pispayment')->load($splititInstallmentPlanNumber, 'installment_plan_number');
-                    $updateQue->setOrderId($orderId);
-                    $updateQue->setOrderIncrementId($orderIncrementId);
-                    $updateQue->save();
-                }
-				/*$updateQue->setData(array('order_id' => $orderId, 'order_increment_id' => $orderIncrementId));
-				$updateQue->save();*/
+				$orderId = Mage::getSingleton('checkout/session')->getLastOrderId();
+				$lastRecordByOrder = Mage::getModel('pis_payment/pispayment')->load($orderId, 'order_id');
+				$orderIncrementId = Mage::getSingleton('checkout/session')->getLastRealOrderId();
+				if (
+					!($orderId && !$lastRecordByOrder->getId()) &&      // if there's no such order for splitit payment
+					!$lastRecordByOrder->getId() ||
+					($lastRecordByOrder->getId() && !$lastRecordByOrder->getOrderCreated())
+				) {
+					$updateQue = Mage::getModel('pis_payment/pispayment')->load($splititInstallmentPlanNumber, 'installment_plan_number');
+					$updateQue->setOrderId($orderId);
+					$updateQue->setOrderIncrementId($orderIncrementId);
+					$updateQue->save();
+				}
 				Mage::app()->getFrontController()->getResponse()->setRedirect($splititCheckoutUrl)->sendResponse();
-				/*return true;*/
 			}
 		}
 	}
-
 }

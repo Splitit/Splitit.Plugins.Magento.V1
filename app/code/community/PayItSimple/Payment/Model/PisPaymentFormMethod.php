@@ -415,8 +415,8 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 		$prefix = Mage::getConfig()->getTablePrefix();
 
 		$result = $read->query("SELECT * FROM `" . $prefix . "core_config_data` WHERE path='" . $path . "'");
-		$row = $result->fetch();
-		if ($row && count($row)) {
+		$row = $result->fetchAll();
+		if (count($row)) {
 			$transaction = Mage::getSingleton('core/resource')->getConnection('core_write');
 			try {
 				$transaction->beginTransaction();
@@ -648,7 +648,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			),
 			"PlanData" => array(
 				"Amount" => array(
-					"Value" => round(Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal(), 2),
+					"Value" => (float)number_format(Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal(), 2, '.', ''),
 					"CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
 				),
                 /*"NumberOfInstallments" => $selectedInstallment,*/
@@ -660,7 +660,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			),
 			"BillingAddress" => array(
 				"AddressLine" => $getStreet[0],
-				"AddressLine2" => $getStreet[1],
+				"AddressLine2" => isset($getStreet[1])?$getStreet[1]:'',
 				"City" => $billAddress->getCity(),
 				"State" => $billAddress->getRegion(),
 				"Country" => $billAddress->getCountry(),
@@ -699,8 +699,8 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			$itemsArr[$i]["Name"] = $item->getName();
 			$itemsArr[$i]["SKU"] = $item->getSku();
             $itemPrice = $item->getWeeeTaxAppliedAmount() ?
-                $item->getCalculationPrice() + $item->getWeeeTaxAppliedAmount() + $item->getWeeeTaxDisposition() :
-                $item->getPrice();
+			$item->getCalculationPrice() + $item->getWeeeTaxAppliedAmount() + $item->getWeeeTaxDisposition() :
+			$item->getPrice();
             $itemsArr[$i]["Price"] = array("Value" => round($itemPrice, 2), "CurrencyCode" => $currencyCode);
 			$itemsArr[$i]["Quantity"] = $item->getQty();
 			$_resource = Mage::getSingleton('catalog/product')->getResource();
@@ -713,15 +713,14 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 		$params['CartData'] = array(
 			"Items" => $itemsArr,
 			"AmountDetails" => array(
-				"Subtotal" => round(Mage::getSingleton('checkout/session')->getQuote()->getSubtotal(), 2),
-				"Tax" => round(Mage::helper('checkout')->getQuote()->getShippingAddress()->getData('tax_amount'), 2),
-				"Shipping" => round(Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()->getShippingAmount(), 2),
+				"Subtotal" => (float)number_format(Mage::getSingleton('checkout/session')->getQuote()->getSubtotal(), 2, '.', ''),
+				"Tax" => (float)number_format(Mage::helper('checkout')->getQuote()->getShippingAddress()->getData('tax_amount'), 2, '.', ''),
+				"Shipping" => (float)number_format(Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress()->getShippingAmount(), 2, '.', ''),
 			),
 		);
 
 		$paymentWizardData = array(
 			"PaymentWizardData" => array(
-				"RequestedNumberOfInstallments" => implode(',', array_keys($numOfInstallments)),
 				"SuccessAsyncURL" => Mage::getBaseUrl() . "payitsimple/payment/successAsync",
 				"SuccessExitURL" => Mage::getBaseUrl() . "payitsimple/payment/successExit",
 				"CancelExitURL" => Mage::getBaseUrl() . "payitsimple/payment/cancelExit",
@@ -729,6 +728,9 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 
 			),
 		);
+		if($numOfInstallments){
+			$paymentWizardData['PaymentWizardData']['RequestedNumberOfInstallments'] = implode(',', array_keys($numOfInstallments));
+		}
 		$params = array_merge($params, $paymentWizardData);
 
 		return $params;
@@ -752,7 +754,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			$firstInstallmentAmount = ((Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal() * $percentageOfOrder) / 100);
 		}
 
-		return round($firstInstallmentAmount, 2);
+		return (float)number_format($firstInstallmentAmount, 2, '.', '');
 	}
 
 	public function getFirstInstallmentAmount($selectedInstallment) {
@@ -780,7 +782,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			$firstInstallmentAmount = ((Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal() * $percentageOfOrder) / 100);
 		}
 
-		return round($firstInstallmentAmount, 2);
+		return (float)number_format($firstInstallmentAmount, 2, '.', '');
 	}
 
 	public function createPopupHtml($approvalUrlResponse) {

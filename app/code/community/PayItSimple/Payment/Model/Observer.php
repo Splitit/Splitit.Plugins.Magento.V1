@@ -45,9 +45,9 @@ class PayItSimple_Payment_Model_Observer {
 		$selectInstallmentSetup = Mage::getStoreConfig('payment/pis_paymentform/select_installment_setup');
 		$options = Mage::getModel('pis_payment/source_installments')->toOptionArray();
 
-        $installmentsText = "";
-        $perMonthText = "";
-		// check if splitit extension is disable from admin
+		$installmentsText = Mage::helper('pis_payment')->getCreditCardFormTranslationPaymentForm('pd_installments');
+		$perMonthText = Mage::helper('pis_payment')->getCreditCardFormTranslationPaymentForm('pd_per_month');
+		/* check if splitit extension is disable from admin */
 		$isDisabled = Mage::getStoreConfig('payment/pis_paymentform/active');
 		if (!$isDisabled) {
 			return false;
