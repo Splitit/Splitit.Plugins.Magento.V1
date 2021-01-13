@@ -13,10 +13,9 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 	protected $_canRefund = true;
 	protected $_canRefundInvoicePartial = true;
 	protected $_canVoid = false;
-	//protected $_canUseInternal              = false;
+
 	protected $_canUseCheckout = true;
 
-	//protected $_infoBlockType = 'pis_payment/info_pis';
 	protected $_canCancel = false;
 
 	/**
@@ -56,7 +55,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 
 	public function getCheckoutRedirectUrl() {
 
-		//validate the information
+		/*validate the information*/
 		$checkout = Mage::getSingleton('checkout/session')->getQuote();
 		$billAddress = $checkout->getBillingAddress();
 		$BillingAddressArr = $billAddress->getData();
@@ -86,6 +85,9 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 
 			);
 
+			if (!$api->isLogin()) {
+				$api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId = null);
+			}
 			if ($api->isLogin()) {
 				Mage::log('=========splitit logging start=========');
 				$ipnForLogs = Mage::getSingleton('core/session')->getSplititSessionid();
@@ -103,9 +105,6 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 				}
 				if (isset($initResponse["checkoutUrl"]) && $initResponse["checkoutUrl"] != "") {
 					$response["checkoutUrl"] = $initResponse["checkoutUrl"];
-//                print_r($initResponse);
-					//                print_r($response);
-					//                die("--eeeeee");
 					$quote = Mage::getSingleton('checkout/session')->getQuote();
 					Mage::getSingleton('checkout/session')->setSplititQuoteId($quote->getId());
 					Mage::getSingleton('checkout/session')->setSplititCheckoutUrl($response["checkoutUrl"]);
@@ -130,64 +129,6 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 
 		return Mage::getUrl('checkout/cart', array('_secure' => true));
 	}
-	/*public function getOrderPlaceRedirectUrl() {
-
-				$storeId = Mage::app()->getStore()->getStoreId();
-				$api = Mage::getSingleton("pis_payment/pisPaymentFormMethod")->_initApi($storeId = null);
-
-				$installmentsInDropdown = array();
-				$response = array(
-					"status" => false,
-					"error" => "",
-					"success" => "",
-					"data" => "",
-					"installmentNum" => "1",
-
-				);
-
-				if ($api->isLogin()) {
-					Mage::log('=========splitit logging start=========');
-					$ipnForLogs = Mage::getSingleton('core/session')->getSplititSessionid();
-					Mage::log('Splitit session Id : ' . $ipnForLogs);
-					$response["status"] = true;
-
-					$initResponse = Mage::getModel("pis_payment/pisPaymentFormMethod")->installmentplaninitForHostedSolution();
-
-					$response["data"] = $initResponse["data"];
-					if ($initResponse["status"]) {
-						$response["status"] = true;
-					}
-					if (isset($initResponse["emptyFields"]) && $initResponse["emptyFields"]) {
-						$response["data"] = $result["data"];
-					}
-					if (isset($initResponse["checkoutUrl"]) && $initResponse["checkoutUrl"] != "") {
-						$response["checkoutUrl"] = $initResponse["checkoutUrl"];
-		//                print_r($initResponse);
-						//                print_r($response);
-						//                die("--eeeeee");
-						$quote = Mage::getSingleton('checkout/session')->getQuote();
-						Mage::getSingleton('checkout/session')->setSplititQuoteId($quote->getId());
-						Mage::getSingleton('checkout/session')->setSplititCheckoutUrl($response["checkoutUrl"]);
-						Mage::getSingleton('checkout/session')->setSplititInstallmentPlanNumber($initResponse["installmentPlanNumber"]);
-
-						return Mage::getBaseUrl() . "payitsimple/payment/redirect";
-					} else {
-						Mage::throwException(
-							Mage::helper('payment')->__($response['data'])
-						);
-					}
-
-				} else {
-					foreach ($api->getError() as $key => $value) {
-						$response["error"] .= $value . " ";
-					}
-					Mage::throwException(
-						Mage::helper('payment')->__($response['error'])
-					);
-				}
-
-				return Mage::getUrl('checkout/cart', array('_secure' => true));
-	*/
 
 	public function assignData($data) {
 		if (!($data instanceof Varien_Object)) {
@@ -210,12 +151,6 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 		$terms = $info->getAdditionalInformation('terms');
 		$errorMsg = '';
 
-		/*if (empty($no)) {
-			            $errorMsg = $this->_getHelper()->__('Installments are required fields');
-		*/
-		/*if (empty($terms)) {
-			            $errorMsg = $this->_getHelper()->__('You should accept terms and conditions');
-		*/
 		if ($errorMsg) {
 			Mage::throwException($errorMsg);
 		}
@@ -238,7 +173,6 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 				Mage::helper('payment')->__('Authorize action is not available.')
 			);
 		}
-		//$api = $this->_initApi($this->getStore());
 
 		$api = $this->getApi();
 
@@ -270,8 +204,6 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			unset($result[$param]);
 
 		}
-		//$st = $api->getInstallmentPlanStatusList();
-		//$result['InstallmentPlanStatus'] = $st[$result['InstallmentPlan']['InstallmentPlanStatus']['Id']];
 
 		$payment->setTransactionAdditionalInfo(
 			Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS,
@@ -284,7 +216,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			. Mage::getSingleton('core/session')->getInstallmentPlanNumber(),
 			false
 		);
-		// call InstallmentPlan-UpdatePlan-Params for update "RefOrderNumber" after order creation
+		/*call InstallmentPlan-UpdatePlan-Params for update "RefOrderNumber" after order creation*/
 		Mage::getSingleton('core/session')->setOrderIncrementId($order->getIncrementId());
 		Mage::getSingleton('core/session')->setOrderId($order->getId());
 
@@ -294,14 +226,14 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 				Mage::helper('payment')->__($updateStatus["data"])
 			);
 		}
-		//$order->save();
+		/*$order->save();*/
 
 		return $this;
 	}
 
 	public function splititCapture($payment, $sessionId, $transactionId) {
 		$api = $this->getApi();
-		//$authNumber = $payment->getAuthorizationTransaction()->getTxnId();
+		/*$authNumber = $payment->getAuthorizationTransaction()->getTxnId();*/
 		$params = array(
 			"RequestHeader" => array("SessionId" => $sessionId),
 			"InstallmentPlanNumber" => $transactionId,
@@ -433,7 +365,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 		if ($api->isLogin()) {
 			return $api;
 		}
-		// get magento version
+		/*get magento version*/
 		$version = Mage::getVersion();
 		$edition = Mage::getEdition();
 		$touchPointVersion = "M" . substr($edition, 0, 1) . substr($version, 0, 3) . "S2.2";
@@ -452,7 +384,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 		$api["error"] = "";
 		if (!$result || !$api->isLogin()) {
 			$e = $api->getError();
-			// check for request from admin create invoice
+			/*check for request from admin create invoice*/
 			if (Mage::app()->getRequest()->getControllerName() == "sales_order_invoice") {
 				Mage::throwException($e['code'] . ' ' . $e['message']);
 			}
@@ -480,7 +412,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 	public function deleteUrls($path) {
 		$read = Mage::getSingleton('core/resource')->getConnection('core_read');
 		$write = Mage::getSingleton('core/resource')->getConnection('core_write');
-		//$result = $read->query("SELECT * FROM `core_config_data` WHERE path='payment/pis_cc/api_url_sandbox'");
+
 		$prefix = Mage::getConfig()->getTablePrefix();
 
 		$result = $read->query("SELECT * FROM `" . $prefix . "core_config_data` WHERE path='" . $path . "'");
@@ -595,10 +527,9 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			                "CultureName" => $cultureName
 			            ],
 		*/
-		//$api = Mage::getSingleton("pis_payment/pisMethod");
 		try {
 			$response = array("status" => false, "data" => "");
-			// check if cunsumer dont filled data
+			/*check if cunsumer dont filled data*/
 			$bags = $billAddress->getStreet();
 			if ($bags[0] == "" || $billAddress->getCity() == "" || $billAddress->getPostcode() == "" || $customerInfo["firstname"] == "" || $customerInfo["lastname"] == "" || $customerInfo["email"] == "" || $billAddress->getTelephone() == "") {
 				$response["emptyFields"] = true;
@@ -607,12 +538,12 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			}
 
 			$result = Mage::getSingleton("pis_payment/api")->installmentplaninit($this->getApiUrl(), $params);
-			// check for approval URL from response
+			/*check for approval URL from response*/
 			$decodedResult = Mage::helper('core')->jsonDecode($result);
 
 			if (isset($decodedResult) && isset($decodedResult["ApprovalUrl"]) && $decodedResult["ApprovalUrl"] != "") {
 				$intallmentPlan = $decodedResult["InstallmentPlan"]["InstallmentPlanNumber"];
-				// set Installment plan number into session
+				/*set Installment plan number into session*/
 				Mage::getSingleton('core/session')->setInstallmentPlanNumber($intallmentPlan);
 				$approvalUrlResponse = Mage::getSingleton("pis_payment/api")->getApprovalUrlResponse($decodedResult["ApprovalUrl"]);
 				$approvalUrlRes = Mage::helper('core')->jsonDecode($approvalUrlResponse);
@@ -635,7 +566,6 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 					$response["data"] = $popupHtml;
 				}
 
-				//print_r($approvalUrlResponse);die("---approvalUrlResponse");
 			} else if (isset($decodedResult["ResponseHeader"]) && count($decodedResult["ResponseHeader"]["Errors"])) {
 				$errorMsg = "";
 				$i = 1;
@@ -656,7 +586,6 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			$response["data"] = $e->getMessage();
 		}
 		return $response;
-		//return $result;
 	}
 
 	public function installmentplaninitForHostedSolution() {
@@ -682,7 +611,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 
 		try {
 			$response = array("status" => false, "data" => "", "checkoutUrl" => "");
-			// check if cunsumer dont filled data
+			/*check if cunsumer dont filled data*/
 			$bags = $billAddress->getStreet();
 			if ($bags[0] == "" || $billAddress->getCity() == "" || $billAddress->getPostcode() == "" || $customerInfo["firstname"] == "" || $customerInfo["lastname"] == "" || $customerInfo["email"] == "" || $billAddress->getTelephone() == "") {
 				$response["emptyFields"] = true;
@@ -691,7 +620,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			}
 
 			$result = Mage::getSingleton("pis_payment/api")->installmentplaninit($this->getApiUrl(), $params);
-			// check for checkout URL from response
+			/*check for checkout URL from response*/
 			$decodedResult = Mage::helper('core')->jsonDecode($result);
 
 			if (isset($decodedResult) && isset($decodedResult["CheckoutUrl"]) && $decodedResult["CheckoutUrl"] != "") {
@@ -700,11 +629,11 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 				$response["checkoutUrl"] = $decodedResult["CheckoutUrl"];
 				$installmentPlan = $decodedResult["InstallmentPlan"]["InstallmentPlanNumber"];
 				$response["installmentPlanNumber"] = $decodedResult["InstallmentPlan"]["InstallmentPlanNumber"];
-				// store installment plan number in session, so that will not call init again & again if customer clicks on radio button
-				//Mage::getSingleton('core/session')->setSplititInstallmentPlanNumber($installmentPlan);
+				/*store installment plan number in session, so that will not call init again & again if customer clicks on radio button
+				Mage::getSingleton('core/session')->setSplititInstallmentPlanNumber($installmentPlan);*/
 				Mage::log('======= installmentplaninit : response from splitit =======InstallmentPlanNumber : ' . $installmentPlan);
 				Mage::log($decodedResult);
-				// store information in splitit_hosted_solution for successExit and Async
+				/*store information in splitit_hosted_solution for successExit and Async*/
 				$customerId = 0;
 				if (Mage::getSingleton('customer/session')->isLoggedIn()) {
 					$customerData = Mage::getSingleton('customer/session')->getCustomer();
@@ -745,7 +674,6 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			$response["data"] = $e->getMessage();
 		}
 		return $response;
-		//return $result;
 	}
 
 	public function installmentplaninitParams($firstInstallmentAmount, $billAddress, $customerInfo, $cultureName, $numOfInstallments = null, $selectedInstallment) {
@@ -766,9 +694,9 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 					"Value" => (float)number_format(Mage::getSingleton('checkout/session')->getQuote()->getGrandTotal(), 2, '.', ''),
 					"CurrencyCode" => Mage::app()->getStore()->getCurrentCurrencyCode(),
 				),
-				//"NumberOfInstallments" => $selectedInstallment,
+				/*"NumberOfInstallments" => $selectedInstallment,*/
 				"PurchaseMethod" => "ECommerce",
-				//"RefOrderNumber" => $quote_id,
+				/*"RefOrderNumber" => $quote_id,*/
 				"AutoCapture" => $autoCapture,
 				/*"Attempt3DSecure" => (Mage::getStoreConfig('payment/pis_paymentform/attempt_3d_secure'))?true:false,*/
 				"ExtendedParams" => array(
@@ -780,7 +708,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 				"AddressLine2" => isset($getStreet[1])?$getStreet[1]:'',
 				"City" => $billAddress->getCity(),
 				"State" => $billAddress->getRegion(),
-				//"Country" => Mage::app()->getLocale()->getCountryTranslation($billAddress->getCountry()),
+				/*"Country" => Mage::app()->getLocale()->getCountryTranslation($billAddress->getCountry()),*/
 				"Country" => $billAddress->getCountry(),
 				"Zip" => $billAddress->getPostcode(),
 			),
@@ -826,17 +754,18 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 		$i = 0;
 		$currencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
 		foreach ($cart->getAllVisibleItems() as $item) {
-			$product = Mage::getModel("catalog/product")->load($item->getProductId());
 			$itemsArr[$i]["Name"] = $item->getName();
 			$itemsArr[$i]["SKU"] = $item->getSku();
-			$itemsArr[$i]["Price"] = array("Value" => (float)number_format($item->getPrice(), 2, '.', ''), "CurrencyCode" => $currencyCode);
+            $itemPrice = $item->getWeeeTaxAppliedAmount() ?
+			$item->getCalculationPrice() + $item->getWeeeTaxAppliedAmount() + $item->getWeeeTaxDisposition() :
+			$item->getPrice();
+            $itemsArr[$i]["Price"] = array("Value" => round($itemPrice, 2), "CurrencyCode" => $currencyCode);
 			$itemsArr[$i]["Quantity"] = $item->getQty();
 			$_resource = Mage::getSingleton('catalog/product')->getResource();
 			$optionValue = $_resource->getAttributeRawValue($item->getProductId(), ['short_description'], Mage::app()->getStore());
 
 			$itemsArr[$i]["Description"] = strip_tags($optionValue);
-			//$itemsArr[$i]["Description"] = strip_tags($product->getShortDescription());
-			//echo $productPrice = $item->getProduct()->getPrice();
+
 			$i++;
 
 		}
@@ -863,7 +792,6 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 		}
 		$params = array_merge($params, $paymentWizardData);
 
-		//print_r($params);die("--fd");
 		return $params;
 	}
 
@@ -943,25 +871,25 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			$html .= '<div class="_popup_overlay"></div>';
 			$html .= '<!-- Start small inner popup -->';
 
-			// Start Term and Condition Popup
+			/*Start Term and Condition Popup*/
 			$html .= '<div id="termAndConditionpopup" style=" ">
                     <div class="popup-block">';
 
 			$html .= '<div class="popup-content" style="">';
-			// start close button on terms-condition popup
+			/*start close button on terms-condition popup*/
 			$html .= '<div class="popup-footer" style="">';
 			$html .= '<div id="payment-schedule-close-btn" class="popup-btn"  style="">';
 			$html .= '<div class="popup-btn-area-terms" style=""><span id="termAndConditionpopupCloseBtn" class="popup-btn-icon-terms" style=""><img style="width:25px;" src="' . Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB, true) . 'js/payitsimple/payitsimplepament/approval-popup-close.png"></span></div>';
 			$html .= '</div>';
 			$html .= '</div>';
-			// end close button on terms-condition popup
+			/*end close button on terms-condition popup*/
 			$html .= $this->getTermnConditionText() . '
 
                     </div>';
 
 			$html .= '</div>';
 			$html .= '</div>';
-			// Close Term and Condition Popup
+			/*Close Term and Condition Popup*/
 			$html .= '<div id="payment-schedule" style=" ">';
 			$html .= '<div class="popup-block">';
 			$html .= '<div class="popup-content" style="">';
@@ -975,7 +903,8 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			$html .= '</tr>';
 			$html .= '</thead>';
 			$html .= '<tbody>';
-			$schedulePayment = ""; //echo $value["DateOfCharge"];//substr($value["DateOfCharge"], 0, strpos($value["DateOfCharge"], "To"));
+			$schedulePayment = ""; 
+			/*echo $value["DateOfCharge"];//substr($value["DateOfCharge"], 0, strpos($value["DateOfCharge"], "To"));*/
 			if (isset($approvalUrlResponseArr["ScheduledPaymentSection"]["ScheduleItems"])) {
 
 				foreach ($approvalUrlResponseArr["ScheduledPaymentSection"]["ScheduleItems"] as $key => $value) {
@@ -1069,7 +998,7 @@ class PayItSimple_Payment_Model_PisPaymentFormMethod extends Mage_Payment_Model_
 			$html .= '<div class="pnlEula" style="">' . $approvalUrlResponseArr["ImportantNotesSection"]["ImportantNotesBody"]["Text"] . '</div>';
 			$html .= '<div id="i_acknowledge_area"><input type="checkbox" id="i_acknowledge" class="i_acknowledge" name="i_acknowledge" value="" />';
 			$html .= '<label for="i_acknowledge" class="i_acknowledge_lbl">';
-			// id="i_acknowledge_content_show" this is the id for Terms & Condition link It shows all the content in popup
+			/*id="i_acknowledge_content_show" this is the id for Terms & Condition link It shows all the content in popup*/
 			$html .= $approvalUrlResponseArr["ImportantNotesSection"]["AcknowledgeText"]["Text"] . ' <a target="_blank" href="' . $approvalUrlResponseArr["ImportantNotesSection"]["AcknowledgeLink"]["Link"] . '"    > ' . $approvalUrlResponseArr["ImportantNotesSection"]["AcknowledgeLink"]["Text"] . ' </a> </label><div style="display:none" class="i_ack_err"> Please select I accept.</div></div>';
 
 			$html .= '</div>';

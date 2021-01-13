@@ -31,7 +31,7 @@ jQuery(document).ready(function(){
     }
     jQuery(".splitit").closest("td.value").addClass("grid");
     jQuery(".splitit_payment_form").closest("td.value").addClass("grid");
-    //row_payment_pis_cc_depanding_on_cart_total_values
+
     jQuery("#row_payment_pis_cc_depanding_on_cart_total_values").find("td.scope-label").hide();
 
     jQuery(document).on("mousedown", ".save", function(event) {
@@ -39,7 +39,7 @@ jQuery(document).ready(function(){
       init().then(function () {
 
         if(flag1 == 0 && flag2 == 0){
-          // submit save config botton
+          /*submit save config botton*/
           setTimeout(function(){ 
             eval(configForm.submit());
           }, 1500);
@@ -90,9 +90,9 @@ function extractLast( term ) {
 function autoPopulateProds(prodList){
   var prodIds = jQuery(prodList).val();
   jQuery.ajax({
-    url: baseUrl + "payitsimple/payment/prodlist",
+    url: '<?php echo $this->getAjaxProdListUrl(); ?>',
     data: {isAjax: 1, prodIds: prodIds},
-    type: 'POST',
+    type: 'GET',
     dataType: 'json',
     success: function(result){
       console.log(result);
@@ -123,28 +123,28 @@ function autoCompleteWizard(prodList){
   .autocomplete({
     minLength: 3,
     source: function( request, response ) {
-      jQuery.getJSON( baseUrl + "payitsimple/payment/prodlist", {
+      jQuery.getJSON( '<?php echo $this->getAjaxProdListUrl(); ?>', {
         isAjax: 1, term: extractLast( request.term )
       }, response );
     },
     search: function() {
-      // custom minLength
+      /*custom minLength*/
       var term = extractLast( this.value );
       if ( term.length < 3 ) {
         return false;
       }
     },
     focus: function() {
-      // prevent value inserted on focus
+      /*prevent value inserted on focus*/
       return false;
     },
     select: function( event, ui ) {
       var terms = split( jQuery('#'+textId+"_prodlist").val() );
       terms = terms.filter(function(v){return v!==''});
-      // remove the current input
+      /*// remove the current input
       // terms.pop();
       // add the selected item
-      // terms.push( ui.item.value );
+      // terms.push( ui.item.value );*/
       if(jQuery.inArray(ui.item.value,terms)==-1){
         terms.push( ui.item.value );
         var itemBoxWidth = jQuery(this).outerWidth() / itemPerColumn;
@@ -152,9 +152,9 @@ function autoCompleteWizard(prodList){
         .appendTo('.selected-item-conatiner');
       }
         jQuery('.ui-helper-hidden-accessible').text('');
-      // add placeholder to get the comma-and-space at the end
+      /*// add placeholder to get the comma-and-space at the end
       // terms.push( "" );
-      // this.value = terms.join( ", " );
+      // this.value = terms.join( ", " );*/
       jQuery('#'+textId+"_prodlist").val(terms.join(","));
       this.value = '';      
       return false;
@@ -189,9 +189,9 @@ function autoCompleteWizard(prodList){
 function autoPopulateProds1(prodList1){
   var prodIds1 = jQuery(prodList1).val();
   jQuery.ajax({
-    url: baseUrl + "payitsimple/payment/prodlist",
+    url: '<?php echo $this->getAjaxProdListUrl(); ?>',
     data: {isAjax: 1, prodIds: prodIds1},
-    type: 'POST',
+    type: 'GET',
     dataType: 'json',
     success: function(result1){
       console.log(result1);
@@ -222,28 +222,28 @@ function autoCompleteWizard1(prodList1){
   .autocomplete({
     minLength: 3,
     source: function( request1, response1 ) {
-      jQuery.getJSON( baseUrl + "payitsimple/payment/prodlist", {
+      jQuery.getJSON( '<?php echo $this->getAjaxProdListUrl(); ?>', {
         isAjax: 1, term: extractLast( request1.term )
       }, response1 );
     },
     search: function() {
-      // custom minLength
+      /*custom minLength*/
       var term1 = extractLast( this.value );
       if ( term1.length < 3 ) {
         return false;
       }
     },
     focus: function() {
-      // prevent value inserted on focus
+      /*prevent value inserted on focus*/
       return false;
     },
     select: function( event, ui ) {
       var terms1 = split( jQuery('#'+textId1+"_prodlist").val() );
       terms1 = terms1.filter(function(v){return v!==''});
-      // remove the current input
+      /*// remove the current input
       // terms.pop();
       // add the selected item
-      // terms.push( ui.item.value );
+      // terms.push( ui.item.value );*/
       if(jQuery.inArray(ui.item.value,terms1)==-1){
         terms1.push( ui.item.value );
         var itemBoxWidth1 = jQuery(this).outerWidth() / itemPerColumn1;
@@ -251,9 +251,9 @@ function autoCompleteWizard1(prodList1){
         .appendTo('.selected-item-conatiner1');
       }
         jQuery('.ui-helper-hidden-accessible').text('');
-      // add placeholder to get the comma-and-space at the end
+      /*// add placeholder to get the comma-and-space at the end
       // terms.push( "" );
-      // this.value = terms.join( ", " );
+      // this.value = terms.join( ", " );*/
       jQuery('#'+textId1+"_prodlist").val(terms1.join(","));
       this.value = '';      
       return false;
@@ -262,13 +262,13 @@ function autoCompleteWizard1(prodList1){
 }
     /* END prod list ajax paymentform */
 
-    //logic for both Splitit Embedded and Payment form in sync method.
+    /*logic for both Splitit Embedded and Payment form in sync method.*/
     function init() {
         return logicForEmbeddedSetting()
             .then(logicForPaymentFormSetting);
     }
 
-    // show overlay for depending on the cart and fixed installment for Embedded 
+    /*show overlay for depending on the cart and fixed installment for Embedded */
     jQuery("#payment_pis_cc_available_installments").closest("td").append("<div class='tiers_table_overlay2'></div>");
 
     var checkDefaulOption =  jQuery("#payment_pis_cc_select_installment_setup").val();
@@ -291,7 +291,7 @@ function autoCompleteWizard1(prodList1){
         }
     })
 
-    // show overlay for depending on the cart and fixed installment for Payment form 
+    /*show overlay for depending on the cart and fixed installment for Payment form */
     jQuery("#payment_pis_paymentform_available_installments").closest("td").append("<div class='tiers_table_overlay2'></div>");
 
     var checkDefaulOption =  jQuery("#payment_pis_paymentform_select_installment_setup").val();
@@ -315,7 +315,7 @@ function autoCompleteWizard1(prodList1){
     })
 });
 
-// all logic for Splitit embedded Setting for depending on cart total
+/*all logic for Splitit embedded Setting for depending on cart total*/
 function logicForEmbeddedSetting(){
   return new Promise(function (resolve, reject) {
 
@@ -324,12 +324,14 @@ function logicForEmbeddedSetting(){
     var fromBigger = 0;
     var hasGap = 0;
     flag1 = 0;
+    /*
     // validation for depanding on cart
     // $(this).unbind('click');
+    */
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
-    //alert('Please fill the required fields in Splitit section "Depending on cart total"');
+    /*alert('Please fill the required fields in Splitit section "Depending on cart total"');*/
     
 
     jQuery("#payment_pis_cc_percentage_of_order").css("border","1px solid #ccc");
@@ -346,41 +348,41 @@ function logicForEmbeddedSetting(){
       jQuery(this).find(".doctv_from").css("border","1px solid #ccc");
       jQuery(this).find(".doctv_to").css("border","1px solid #ccc");
       jQuery(this).find("select.doctv_installments").css("border","1px solid #ccc");
-      // validation for installments
+      /*validation for installments*/
       var installmentsCount = jQuery(this).find("select.doctv_installments  :selected").length;
       if(installmentsCount == 0){
         jQuery(this).find("select.doctv_installments").css("border-color","red");
         flag1++;
-         //return false;
+        /* return false;*/
       }
-      // validation for from and to amount
+      /*validation for from and to amount*/
       if((doctv_from == "" || isNaN(doctv_from)) && (doctv_to == "" || isNaN(doctv_to))){
-        // all empty and string
+        /*all empty and string*/
         jQuery(this).find(".doctv_from").css("border","1px solid red");
         jQuery(this).find(".doctv_to").css("border","1px solid red");
         flag1++;
-         //return false;
+        /* return false;*/
         
         
       }else if(doctv_from != "" || isNaN(doctv_from)){
         if( doctv_to == "" || isNaN(doctv_to)){
-          // check from less than 1000 and to is empty
+          /*check from less than 1000 and to is empty*/
           if(doctv_from < 1000){
             jQuery(this).find(".doctv_to").css("border","1px solid red");
             flag1++;
-             //return false;
+             /*return false;*/
           }
         }
         if(doctv_from == "" || isNaN(doctv_from)){
             // when from empty
             jQuery(this).find(".doctv_from").css("border"," 1px solid red");
             flag1++;
-            //return false;
+            /*return false;*/
         } 
         
       }
 
-      //  validation that there are no overlaps with the periods
+      /* validation that there are no overlaps with the periods*/
       if (!fromToArr.hasOwnProperty(doctv_currency)) {
         fromToArr[doctv_currency] = {};  
       }
@@ -398,7 +400,7 @@ function logicForEmbeddedSetting(){
             flag1++;
             overlaps++;
           }
-          // check if there is gap between previous to and next from
+          /*check if there is gap between previous to and next from*/
           if(((fromToArr[doctv_currency][j]["to"]+1) != fromToArr[doctv_currency][j+1]["from"]) && doctv_currency == fromToArr[doctv_currency][j]["currency"]){
             jQuery(this).find(".doctv_from").css("border","1px solid red");
             jQuery(this).find(".doctv_to").css("border","1px solid red");
@@ -410,14 +412,15 @@ function logicForEmbeddedSetting(){
 
       i++;
 
-      // check if from is bigger than to
+      /*check if from is bigger than to*/
       if(doctv_from > doctv_to){
         jQuery(this).find(".doctv_from").css("border","1px solid red");
         jQuery(this).find(".doctv_to").css("border","1px solid red");  
         fromBigger++;
       }
 
-      });//console.log(fromToArr);return;
+      });
+      /*console.log(fromToArr);return;*/
     }
 
     // 
@@ -433,7 +436,7 @@ function logicForEmbeddedSetting(){
       
       createJsonOfDependingOnCartTotal();
       createJsonOfSiteLanguage();
-      //eval(configForm.submit());
+      /*eval(configForm.submit());*/
     }else{
       var error;
       if(fromBigger){
@@ -452,13 +455,13 @@ function logicForEmbeddedSetting(){
         error = "Please fill the required fields in Splitit section (Depending on cart total)";  
       }
       reject("Splitit Embedded Payment Error:"+error);
-       //return false;
+      /*return false;*/
     }
 
      resolve('Hello World!');
  });
 }
-// all logic for Splitit payment form Setting for depending on cart total
+/*all logic for Splitit payment form Setting for depending on cart total*/
 function logicForPaymentFormSetting(){
   return new Promise(function (resolve, reject) {
 
@@ -468,12 +471,14 @@ function logicForPaymentFormSetting(){
     var fromBigger = 0;
     var hasGap = 0;
     flag2 = 0;
+    /*
     // validation for depanding on cart
     // $(this).unbind('click');
+    */
     event.preventDefault();
     event.stopPropagation();
     event.stopImmediatePropagation();
-    //alert('Please fill the required fields in Splitit section "Depending on cart total"');
+    /*alert('Please fill the required fields in Splitit section "Depending on cart total"');*/
     
 
     jQuery("#payment_pis_paymentform_percentage_of_order").css("border","1px solid #ccc");
@@ -490,41 +495,41 @@ function logicForPaymentFormSetting(){
       jQuery(this).find(".doctv_from").css("border","1px solid #ccc");
       jQuery(this).find(".doctv_to").css("border","1px solid #ccc");
       jQuery(this).find("select.doctv_installments").css("border","1px solid #ccc");
-      // validation for installments
+      /*validation for installments*/
       var installmentsCount = jQuery(this).find("select.doctv_installments  :selected").length;
       if(installmentsCount == 0){
         jQuery(this).find("select.doctv_installments").css("border-color","red");
         flag2++;
-         //return false;
+        /* return false;*/
       }
-      // validation for from and to amount
+      /*validation for from and to amount*/
       if((doctv_from == "" || isNaN(doctv_from)) && (doctv_to == "" || isNaN(doctv_to))){
-        // all empty and string
+        /*all empty and string*/
         jQuery(this).find(".doctv_from").css("border","1px solid red");
         jQuery(this).find(".doctv_to").css("border","1px solid red");
         flag2++;
-         //return false;
+         /*return false;*/
         
         
       }else if(doctv_from != "" || isNaN(doctv_from)){
         if( doctv_to == "" || isNaN(doctv_to)){
-          // check from less than 1000 and to is empty
+          /*check from less than 1000 and to is empty*/
           if(doctv_from < 1000){
             jQuery(this).find(".doctv_to").css("border","1px solid red");
             flag2++;
-             //return false;
+             /*return false;*/
           }
         }
         if(doctv_from == "" || isNaN(doctv_from)){
-            // when from empty
+            /*when from empty*/
             jQuery(this).find(".doctv_from").css("border"," 1px solid red");
             flag2++;
-            //return false;
+            /*return false;*/
         } 
         
       }
 
-      //  validation that there are no overlaps with the periods
+      /* validation that there are no overlaps with the periods*/
       if (!fromToArr.hasOwnProperty(doctv_currency)) {
         fromToArr[doctv_currency] = {};  
       }
@@ -542,7 +547,7 @@ function logicForPaymentFormSetting(){
             flag2++;
             overlaps++;
           }
-          // check if there is gap between previous to and next from
+          /*check if there is gap between previous to and next from*/
           if(((fromToArr[doctv_currency][j]["to"]+1) != fromToArr[doctv_currency][j+1]["from"]) && doctv_currency == fromToArr[doctv_currency][j]["currency"]){
             jQuery(this).find(".doctv_from").css("border","1px solid red");
             jQuery(this).find(".doctv_to").css("border","1px solid red");
@@ -554,14 +559,15 @@ function logicForPaymentFormSetting(){
 
       i++;
 
-      // check if from is bigger than to
+      /*check if from is bigger than to*/
       if(doctv_from > doctv_to){
         jQuery(this).find(".doctv_from").css("border","1px solid red");
         jQuery(this).find(".doctv_to").css("border","1px solid red");  
         fromBigger++;
       }
 
-      });//console.log(fromToArr);return;
+      });
+      /*console.log(fromToArr);return;*/
     }
 
     // 
@@ -577,11 +583,10 @@ function logicForPaymentFormSetting(){
       
       createJsonOfDependingOnCartTotalForPaymentForm();
       createJsonOfSiteLanguageForPaymentForm();
-      //eval(configForm.submit());
+      /*eval(configForm.submit());*/
     }else{
       var error;
       if(fromBigger){
-        //alert("From amount should be lesser than To.");
         error = "From amount should be lesser than To.";
       }
       else if(overlaps){
@@ -596,7 +601,7 @@ function logicForPaymentFormSetting(){
         error = "Please fill the required fields in Splitit section (Depending on cart total)";  
       }
       reject("Splitit Payment Form Error : "+error);
-       //return false;
+       /*return false;*/
     }
 
      resolve('Hello World!');
@@ -737,7 +742,7 @@ function createJsonOfDependingOnCartTotalForPaymentForm(){
 
 }
 
-// all the logic to store and process with Translation
+/*all the logic to store and process with Translation*/
 jQuery(document).ready(function(){
   // show selected language data for embedded
   jQuery("#payment_pis_cc_select_language").on("change", function(){
@@ -745,7 +750,7 @@ jQuery(document).ready(function(){
     jQuery("#languages_table_"+selectedLanguage).show().siblings().hide();
   });
 
-  // check if edited the Translation column for embedded
+  /*check if edited the Translation column for embedded*/
   var inputOldVal = "";
   var inputNewVal = "";
   jQuery("input[id^='translation_'").on("click, focus", function(){
@@ -763,13 +768,13 @@ jQuery(document).ready(function(){
     }
   });
 
-  // show selected language data for payment form
+  /*show selected language data for payment form*/
   jQuery("#payment_pis_paymentform_select_language").on("change", function(){
     var selectedLanguage = jQuery(this).val();
     jQuery("#payment_form_languages_table_"+selectedLanguage).show().siblings().hide();
   });
 
-  // check if edited the Translation column for payment form
+  /*check if edited the Translation column for payment form*/
   var inputOldVal = "";
   var inputNewVal = "";
   jQuery("input[id^='pf_translation_'").on("click, focus", function(){

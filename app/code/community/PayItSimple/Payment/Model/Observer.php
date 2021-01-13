@@ -17,14 +17,20 @@ class PayItSimple_Payment_Model_Observer {
 				$_block->setChild('child' . $_child->getProduct()->getId(), $_child);
 			}
 			if ($this->checkProductBasedAvailability("pis_cc") || $this->checkProductBasedAvailability("pis_paymentform")) {
-				$_block->setTemplate('payitsimple/splitprice.phtml');
+				if($_child->getProduct() && $_child->getProduct()->getId()){ 
+					if($this->isSplititTextVisibleOnProduct("pis_cc", $_child->getProduct()->getId()) || $this->isSplititTextVisibleOnProduct("pis_paymentform", $_child->getProduct()->getId())){
+						$_block->setTemplate('payitsimple/splitprice.phtml');
+					}
+				} else {
+					$_block->setTemplate('payitsimple/splitprice.phtml');
+				}
 			}
 		}
 	}
 
 	public function paymentMethodIsActive(Varien_Event_Observer $observer) {
 
-		$event = $observer->getEvent(); //print_r($event->getData());die("---sdf");
+		$event = $observer->getEvent();
 		$method = $event->getMethodInstance();
 		$result = $event->getResult();
 		$currencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
@@ -47,21 +53,21 @@ class PayItSimple_Payment_Model_Observer {
 		$depandOnCart = 0;
 		$installmentsText = Mage::helper('pis_payment')->getCreditCardFormTranslationPaymentForm('pd_installments');
 		$perMonthText = Mage::helper('pis_payment')->getCreditCardFormTranslationPaymentForm('pd_per_month');
-		// check if splitit extension is disable from admin
+		/* check if splitit extension is disable from admin */
 		$isDisabled = Mage::getStoreConfig('payment/' . $paymentMethod . '/active');
 		if (!$isDisabled) {
 			return false;
 		}
 
-		// $selectInstallmentSetup == "" for checking when merchant first time upgrade extension that time $selectInstallmentSetup will be empty
+		/*for checking when merchant first time upgrade extension that time $selectInstallmentSetup will be empty*/
 		if ($selectInstallmentSetup == "" || $selectInstallmentSetup == "fixed") {
-			// Select Fixed installment setup
+			/*Select Fixed installment setup*/
 
 			$fixedInstallments = Mage::getStoreConfig('payment/' . $paymentMethod . '/available_installments');
 			$installmentsCount = $this->countForInstallment($fixedInstallments, $options, $installmentsText, $totalAmount, $perMonthText);
 
 		} else {
-			// Select Depanding on cart installment setup
+			/*Select Depanding on cart installment setup*/
 			$depandOnCart = 1;
 			$dataAsPerCurrency = $this->getdepandingOnCartInstallments($paymentMethod);
 			$currentCurrencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
@@ -110,7 +116,7 @@ class PayItSimple_Payment_Model_Observer {
 		$check = TRUE;
 		if (Mage::getStoreConfig('payment/' . $paymentMethod . '/splitit_per_product')) {
 			$cart = Mage::getSingleton('checkout/session')->getQuote();
-// get array of all items what can be display directly
+			/*get array of all items what can be display directly*/
 			$itemsVisible = $cart->getAllVisibleItems();
 			$allowedProducts = Mage::getStoreConfig('payment/' . $paymentMethod . '/splitit_product_skus');
 			$allowedProducts = explode(',', $allowedProducts);
@@ -133,8 +139,22 @@ class PayItSimple_Payment_Model_Observer {
 				}
 			}
 		}
-//        var_dump($check);
+
 		return $check;
+	}
+
+	public function isSplititTextVisibleOnProduct($paymentMethod,$productId) {
+		$show = TRUE;
+		if (Mage::getStoreConfig('payment/' . $paymentMethod . '/splitit_per_product') != 0) {
+			$show = FALSE;
+			$allowedProducts = Mage::getStoreConfig('payment/' . $paymentMethod . '/splitit_product_skus');
+			$allowedProducts = explode(',', $allowedProducts);
+			if (in_array($productId, $allowedProducts)) {
+				$show = TRUE;
+			}
+		}
+		
+		return $show;
 	}
 
 	public function orderCancelAfter(Varien_Event_Observer $observer) {

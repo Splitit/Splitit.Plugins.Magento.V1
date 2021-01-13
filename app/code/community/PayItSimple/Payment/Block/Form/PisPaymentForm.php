@@ -22,15 +22,15 @@ class PayItSimple_Payment_Block_Form_PisPaymentForm extends Mage_Payment_Block_F
 		$perMonthText = Mage::helper('pis_payment')->getCreditCardFormTranslationPaymentForm('pd_per_month');
 
 		$depandOnCart = 0;
-		// $selectInstallmentSetup == "" for checking when merchant first time upgrade extension that time $selectInstallmentSetup will be empty
+		/*$selectInstallmentSetup == "" for checking when merchant first time upgrade extension that time $selectInstallmentSetup will be empty*/
 		if ($selectInstallmentSetup == "" || $selectInstallmentSetup == "fixed") {
-			// Select Fixed installment setup
+			/*Select Fixed installment setup*/
 
 			$fixedInstallments = Mage::getStoreConfig('payment/pis_paymentform/available_installments');
 			$installmentsCount = $this->countForInstallment($fixedInstallments, $options, $installmentsText, $totalAmount, $perMonthText);
 
 		} else {
-			// Select Depanding on cart installment setup
+			/*Select Depanding on cart installment setup*/
 			$depandOnCart = 1;
 			$dataAsPerCurrency = $this->getdepandingOnCartInstallments();
 			$currentCurrencyCode = Mage::app()->getStore()->getCurrentCurrencyCode();
@@ -49,8 +49,8 @@ class PayItSimple_Payment_Block_Form_PisPaymentForm extends Mage_Payment_Block_F
 		if (count($installments) == 0) {
 			$installments[] = "Installments are not available.";
 		}
-		// set how much installments to be show in checkout page dropdown
-		Mage::getSingleton('core/session')->setInstallmentsInDropdown($installmentsCount['installmentsInDropdown']);
+		/*set how much installments to be show in checkout page dropdown*/
+		Mage::getSingleton('core/session')->setInstallmentsInDropdownForPaymentForm($installmentsCount['installmentsInDropdown']);
 
 		return $installments;
 	}

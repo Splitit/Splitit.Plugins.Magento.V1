@@ -12,7 +12,6 @@ class PayItSimple_Payment_Block_Adminhtml_Sales_Order_Creditmemo_Totals extends 
     protected function _initTotals()
     {
         parent::_initTotals();
-        // var_dump($this->getSource()->getFeeAmount());die('---ashwani totals block');
         if ((float) $this->getSource()->getFeeAmount()) {
             $source = $this->getSource();
             $orderItems = $this->_order->getAllVisibleItems();

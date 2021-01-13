@@ -25,34 +25,6 @@ class PayItSimple_Payment_Model_Source_Languages
      } 
 
      return $alllang;
- 
- 
-
-
- /*foreach($storeCollection as $store)
- {
-
-    $storelang= Mage::getStoreConfig('general/locale/code', $store->getId());
-    if(!isset($Stores[$storelang])){
-            $Stores[$storelang]=array();
-            $Stores[$storelang]['store']=array();
-         }
-         $Stores[$storelang]['lang'][]=$storelang;
-         $Stores[$storelang]['store'][]=$store->getData();
-    } //die("--sdfsdf");
-    
-     foreach($Stores as $key => $eachstore)
-     {  
-        $stcode=$eachstore['store'][0]['code'];
-        $stname=$eachstore['store'][0]['name'];
-        $langcode=$eachstore['lang'][0];
-        $_alllang[]= array('value' =>$langcode, 'label' => Mage::helper('pis_payment')->__($stname));
-     // echo '<pre>';
-     // print_r($eachstore);
-     // echo '<pre>';
-     }
-
-return $_alllang; */
 
     }
 }

@@ -6,18 +6,17 @@ public $_storeId = "";
  public function __construct()
     {
          parent::_construct();
-        //$this->setTemplate('payitsimple/system/config/button.phtml');
-         // get store id in admin
-         if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) // store level
+         /*get store id in admin*/
+         if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) /* store level*/
           {
               $store_id = Mage::getModel('core/store')->load($code)->getId();
           }
-          elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) // website level
+          elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) /* website level*/
           {
               $website_id = Mage::getModel('core/website')->load($code)->getId();
               $store_id = Mage::app()->getWebsite($website_id)->getDefaultStore()->getId();
           }
-          else // default level
+          else /* default level */
           {
               $store_id = 0;
           }
@@ -25,19 +24,6 @@ public $_storeId = "";
 
     }
 
-    protected function _prepareLayout()
-    {
-       /* $button = $this->getLayout()->createBlock('adminhtml/widget_button')
-            ->setData(array(
-                'label' => Mage::helper('catalog')->__('Add Tier'),
-                'onclick' => 'return tierPriceControl.addItem()',
-                'class' => 'add'
-            ));
-        $button->setName('add_tier_price_item_button');
-
-        $this->setChild('add_button', $button);
-        return parent::_prepareLayout();*/
-    }
    /**
     * Returns html part of the setting
     *
@@ -59,7 +45,7 @@ public $_storeId = "";
        return $html; 
    }
 
-   // return html when there is not prior configuration is set for Depending on cart total
+   /*return html when there is not prior configuration is set for Depending on cart total*/
    protected function getTableHtmlWhenEmpty()
    {
       $html = '<table class="data border splitit" id="tiers_table" cellspacing="0" border="1">
@@ -120,7 +106,7 @@ public $_storeId = "";
       return $html;
    }
 
-   // return html when there is prior configuration is set for Depending on cart total
+   /* return html when there is prior configuration is set for Depending on cart total */
    protected function getTableHtmlWhenNotEmpty($doctv)
    {
       $doctv = json_decode($doctv);
@@ -169,7 +155,6 @@ public $_storeId = "";
                   '.$this->_getSelectedCurrency($value->doctv->currency).'
                 </select>  
                </td>';
-        //$rowHtml .= '<td>'.$this->_getBaseCurrency().'</td>';         
         $rowHtml .= '<td>
                 <button title="Delete Tier" type="button" class="scalable delete icon-btn delete-product-option" onclick="deleteRow(this);"><span><span><span>Delete</span></span></span></button>
                </td>
@@ -190,13 +175,13 @@ public $_storeId = "";
       return $html;
    }
 
-   // get active currencies in the store and show dropdown in table
+   /*get active currencies in the store and show dropdown in table*/
    protected function _getCurrencies() 
    {
       $currencies = array();
-      // get allowed currencies from all websites/store ( core_config_data )
+      /*get allowed currencies from all websites/store ( core_config_data )*/
       $codes = $this->_getAllAllowedCurrencies();
-      //$codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);//print_r($codes);die;
+      /* $codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);//print_r($codes);die; */
       $currenyOptions = "";
       if (is_array($codes) && count($codes) > 0) {
           $rates = Mage::getModel('directory/currency')->getCurrencyRates(Mage::app()->getStore()->getBaseCurrency(),$codes);
@@ -213,13 +198,13 @@ public $_storeId = "";
   
    }
   
-  // get active currencies and make them selected in dropdown in table
+  /*get active currencies and make them selected in dropdown in table*/
     protected function _getSelectedCurrency($currency)
    {
       $currencies = array();
-      // get allowed currencies from all websites/store ( core_config_data )
+      /*get allowed currencies from all websites/store ( core_config_data )*/
       $codes = $this->_getAllAllowedCurrencies();
-      //$codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);//print_r($codes);die;
+      /*$codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);//print_r($codes);die;*/
       $currenyOptions = "";
       if (is_array($codes) && count($codes) > 0) {
           $rates = Mage::getModel('directory/currency')->getCurrencyRates(Mage::app()->getStore()->getBaseCurrency(), $codes);
@@ -246,7 +231,7 @@ public $_storeId = "";
                       ->getCollection()
                       ->addFieldToFilter('path','currency/options/allow')
                       ->getData();
-      // get unique currency
+      /*get unique currency*/
       foreach ($currencyCode as $key => $value) {
         foreach(explode(",", $value["value"]) as $k =>$v){
           $codes[] = $v;    
@@ -266,7 +251,7 @@ public $_storeId = "";
    }
 
    protected function _getAvailableCurrencySymbolsArray(){
-      //$codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true);
+      /* $codes = Mage::app()->getStore()->getAvailableCurrencyCodes(true); */
       $codes = $this->_getAllAllowedCurrencies(); 
       $currencySymbolsArray = array();
       foreach ($codes as $key => $value) {
@@ -285,15 +270,29 @@ public $_storeId = "";
       return $firstCurrencySymbol;
    }
 
-   // code for translation
+   /*code for translation*/
 
-   
-
-
-
-   
-
-
- 
+   /**
+     * Return ajax url for button
+     *
+     * @return string
+     */
+    public function getAjaxProdListUrl()
+    {
+        if (strlen($code = Mage::getSingleton('adminhtml/config_data')->getStore())) /* store level*/
+        {
+            $store_id = Mage::getModel('core/store')->load($code)->getId();
+        }
+        elseif (strlen($code = Mage::getSingleton('adminhtml/config_data')->getWebsite())) /* website level*/
+        {
+            $website_id = Mage::getModel('core/website')->load($code)->getId();
+            $store_id = Mage::app()->getWebsite($website_id)->getDefaultStore()->getId();
+        }
+        else /* default level*/
+        {
+            $store_id = 0;
+        }
+        return Mage::helper('adminhtml')->getUrl('adminhtml/adminhtml_payitsimple/prodlist', array('store_id' => $store_id));
+    } 
    
 }

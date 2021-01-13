@@ -20,18 +20,15 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract {
 	 */
 	public function login($gwUrl, $params) {
 
-		//$result = $this->makeRequest($gwUrl, ucfirst(__FUNCTION__), $params);
-
 		$result = $this->makePhpCurlRequest($gwUrl, ucfirst(__FUNCTION__), $params);
-		/*echo '<pre>';
-		print_r($result);die;*/
+
 		$result = Mage::helper('core')->jsonDecode($result);
 		if ($result) {
 			$this->_sessionId = (isset($result['SessionId']) && $result['SessionId'] != '') ? $result['SessionId'] : null;
-			//echo $this->_sessionId; die;
+
 			if (is_null($this->_sessionId)) {
 				if (isset($result["serverError"])) {
-					//$this->getError();
+					/*$this->getError();*/
 					$this->setError('SER101',$result['serverError']);
 				} else {
 					$gatewayErrorCode = $result["ResponseHeader"]["Errors"][0]["ErrorCode"];
@@ -44,7 +41,7 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract {
 			}
 			$this->_gwUrl = $gwUrl;
 			$this->_apiTerminalKey = $params['ApiKey'];
-			// set Splitit session id into session
+			/*set Splitit session id into session*/
 
 			Mage::getSingleton('core/session')->setSplititSessionid($this->_sessionId);
 		}
@@ -196,7 +193,7 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract {
 			if (!isset($result['Result'])) {
 				throw new ErrorException('Unknown result from gateway.', self::ERROR_UNKNOWN_GW_RESULT_CODE);
 			} elseif ($result['Result'] != 0) {
-				//throw new ErrorException($this->getGatewayError((int)$result['Result']) . $result['ResponseStatus'], (int)$result['Result']);
+				/*throw new ErrorException($this->getGatewayError((int)$result['Result']) . $result['ResponseStatus'], (int)$result['Result']);*/
 				throw new ErrorException($result['ResponseStatus']['Message'] . "\n(" . $result['ErrorAdditionalInfo'] . ")", (int) $result['Result']);
 			}
 		} catch (Zend_Http_Client_Exception $e) {
@@ -267,7 +264,6 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract {
 		}
 		$arr = array("RequestHeader" => array('ApiKey' => $this->_apiTerminalKey, 'SessionId' => trim($this->_sessionId)));
 
-		//return $this->makeRequest($this->_gwUrl, "InstallmentPlan/GetValidNumberOfInstallments" , $arr);
 		return $this->makePhpCurlRequest($this->_gwUrl, "InstallmentPlan/GetValidNumberOfInstallments", $arr);
 
 	}
@@ -281,38 +277,10 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract {
 
 	}
 
-	/*public function getApprovalUrlResponse($approvalUrl) {
-		$url = $approvalUrl . '&format=json';
-		$ch = curl_init($url);
-		//$jsonData = json_encode($params);
-		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		// curl_setopt($ch, CURLOPT_POST, 1);
-		//curl_setopt($ch, CURLOPT_POSTFIELDS,$jsonData);
-		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-			'Content-Type: application/json',
-		)
-		);
-		$result = curl_exec($ch);
-
-		$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		$code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		// check for curl error eg: splitit server down.
-		if (curl_errno($ch)) {
-			//echo 'Curl error: ' . curl_error($ch);
-			$result["serverError"] = $this->getServerDownMsg();
-			return $result = Mage::helper('core')->jsonEncode($result);
-		}
-		curl_close($ch);
-		return $result;
-	}*/
-
 	public function getApprovalUrlResponse($approvalUrl) {
 		$url = $approvalUrl . '&format=json';
 		$curl = new Varien_Http_Adapter_Curl();
-		//$curl->setOptions($params);
+
 		$config = array('timeout' => 60,'verifypeer' => FALSE,'verifyhost' => FALSE);
 		$curl->setConfig($config);
 		$curl->write(Zend_Http_Client::GET, $url, Zend_Http_Client::HTTP_0);
@@ -338,9 +306,7 @@ class PayItSimple_Payment_Model_Api extends Mage_Core_Model_Abstract {
 		$curl->write(Zend_Http_Client::POST, $url, Zend_Http_Client::HTTP_0, array('Content-Type:application/json', 'Content-Length:'.strlen($jsonData)), $jsonData);
 		$response = $curl->read();
 		$result = Zend_Http_Response::extractBody($response);
-		//var_dump($curl->getError());
-		//echo $curl->getErrno();
-		//echo '<pre>'; print_r($result); die;
+		
 		if ($curl->getErrno()) {
 			$result["serverError"] = $this->getServerDownMsg();
 			$curl->close();
